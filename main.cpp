@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/18 12:57:12 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/09/19 12:40:14 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/09/19 15:30:42 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,6 +56,24 @@ int	acceptSocket(int serverFd, sockaddr_in *address, int *addrLen) {
 	return (newSocket);
 }
 
+int	createEpoll(void) {
+	int		epollFd = epoll_create1(0);
+	if (epollFd < 0)
+	{
+		perror("Epoll creation failure");
+		exit(EXIT_FAILURE);
+	}
+	return (epollFd);
+}
+
+void	addEpoll(int epoll_fd, int fd, epoll_event *event) {
+	if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, fd, event)) {
+		perror("Failed to add fd to epoll list");
+		close(epoll_fd);
+		exit(EXIT_FAILURE);
+	}
+}
+
 int main(int ac, char **av)
 {	
 	if (ac > 0)
@@ -67,6 +85,10 @@ int main(int ac, char **av)
 		int		opt = 1;
 		char	buffer[1024] = { 0 };
 		int		addrLen = sizeof(address);
+		int		epollFd = createEpoll();
+		struct	epoll_event ev, events[MAX_EVENTS];
+		
+		ev.events = EPOLLIN;
 
 		// Creating socket file descriptor
 		serverFd = createSocket();
@@ -85,10 +107,21 @@ int main(int ac, char **av)
 		
 		// Accept the connection and save the socket in newSocket
 		newSocket = acceptSocket(serverFd, &address, &addrLen);
+		ev.data.fd = newSocket;
+		addEpoll(epollFd, newSocket, &ev);
+		
+		while (1) {
+			int nfds = epoll_wait(epollFd, events, 3000, 3000);
+			for (int i = 0; i < nfds; i++) {
+				int fd = events[i].data.fd;
+				valread = read(fd, buffer, 1024);
+				buffer[valread] = '\0';
+				std::cout << buffer;
+			}
+		}
 
 		// Write the message received
-		valread = read(newSocket, buffer, 1024);
-		std::cout << buffer << std::endl;
+		//
 
 		// Send confirmation message
 		send(newSocket, av[1], std::strlen(av[1]), 0);
