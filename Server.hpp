@@ -1,29 +1,31 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   webserv.hpp                                        :+:      :+:    :+:   */
+/*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/09/19 10:52:17 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/09/20 15:21:38 by hrecolet         ###   ########.fr       */
+/*   Created: 2022/09/20 14:52:01 by hrecolet          #+#    #+#             */
+/*   Updated: 2022/09/20 15:26:24 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <iostream>
-#include <unistd.h>
-#include <cstdio>
-#include <cstdlib>
-#include <sys/epoll.h>
-#include <cstring>
-#include <fcntl.h>
-#include "Server.hpp"
+#include "webserv.hpp"
 
+class Server {
+	private:
+		int			sockfd;
+		sockaddr_in	address;
+		int			opt;
+		int			addrLen;
 
-#define EXIT_FAILURE 1
-#define EXIT_SUCCESS 0
-#define PORT 8080
-#define MAX_EVENTS 5
+	public:
+		Server(void);
+		~Server(void);
+		
+		int		getSockfd(void) const;
+		sockaddr_in		getAddress(void) const;
+		void	listenConnection(void);
+		int	acceptSocket(void);
+};

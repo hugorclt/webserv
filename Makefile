@@ -6,13 +6,13 @@
 #    By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/09/19 10:51:56 by hrecolet          #+#    #+#              #
-#    Updated: 2022/09/19 10:53:35 by hrecolet         ###   ########.fr        #
+#    Updated: 2022/09/20 15:21:49 by hrecolet         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-SRCS		=	main.cpp
+SRCS		=	main.cpp Server.cpp
 
-INCL		=	webserv.hpp
+INCL		=	webserv.hpp Server.hpp
 
 CC			=	c++
 

@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/18 12:57:12 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/09/19 15:30:42 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/09/20 15:48:19 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,39 +74,35 @@ void	addEpoll(int epoll_fd, int fd, epoll_event *event) {
 	}
 }
 
+int	setNonBlocking(int socket, int epoll_fd, int newSocket) {
+	int flag = fcntl(socket, F_SETFL, O_NONBLOCK);
+	if (flag == -1)
+	{
+		close(socket);
+		close(epoll_fd);
+		close(newSocket);
+		exit(EXIT_FAILURE);
+	}
+	return (0);
+}
+
 int main(int ac, char **av)
 {	
 	if (ac > 0)
 	{
-		int	serverFd;
 		int	newSocket;
 		int	valread;
-		sockaddr_in	address;
-		int		opt = 1;
 		char	buffer[1024] = { 0 };
-		int		addrLen = sizeof(address);
 		int		epollFd = createEpoll();
 		struct	epoll_event ev, events[MAX_EVENTS];
-		
 		ev.events = EPOLLIN;
-
-		// Creating socket file descriptor
-		serverFd = createSocket();
+		Server	server;
 		
-		// Set option for the newly socket
-		setSocketOption(serverFd, &opt);
-		address.sin_family = AF_INET;
-		address.sin_addr.s_addr = INADDR_ANY;
-		address.sin_port = htons(PORT);
-
-		// Bin the socket to the port choosen
-		bindSocket(serverFd, &address);
-
-		// Listen for new connection on the serverFd
-		listenConnection(serverFd);
+		// Server listening for connection
+		server.listenConnection();
 		
 		// Accept the connection and save the socket in newSocket
-		newSocket = acceptSocket(serverFd, &address, &addrLen);
+		newSocket = server.acceptSocket();
 		ev.data.fd = newSocket;
 		addEpoll(epollFd, newSocket, &ev);
 		
@@ -120,15 +116,11 @@ int main(int ac, char **av)
 			}
 		}
 
-		// Write the message received
-		//
-
 		// Send confirmation message
 		send(newSocket, av[1], std::strlen(av[1]), 0);
 		std::cout << "message send" << std::endl;
 
 		close(newSocket);
-		close(serverFd);
 	}
 }
 
