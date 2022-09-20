@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/19 10:52:17 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/09/20 16:06:25 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/09/20 17:16:41 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@
 #include <cstring>
 #include <fcntl.h>
 #include "Server.hpp"
+#include <sys/types.h>
 #include "IOpoll.hpp"
 
 

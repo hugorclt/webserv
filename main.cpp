@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/18 12:57:12 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/09/20 16:40:52 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/09/20 17:49:58 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,6 +91,8 @@ int main(int ac, char **av)
 	(void)av;
 	if (ac > 0)
 	{
+		char	buffer[1024] = { 0 };
+		int	index = 0;
 		int	newSocket;
 		
 		//Create poll and server
@@ -99,14 +101,32 @@ int main(int ac, char **av)
 		
 		// Server listening for connection
 		server.listenConnection();
+		epoll.addFd(server.getSockfd());
 		
-		while (1) {
+		while (42) {
+			epoll_wait(epoll.getEpollfd(), epoll.getEvents(), MAX_EVENTS, -1);
+			int	client_fd = epoll.getEvents()[index].data.fd;
+			for (index = 0; index < MAX_EVENTS; index++)
+			{
+				//std::cout << client_fd << "==" << server.getSockfd() << std::endl;
+				if (client_fd == server.getSockfd())
+				{
+					//std::cout << "je vais la" << std::endl;
+					newSocket = server.acceptSocket();
+					epoll.addFd(newSocket);
+					std::cout << "new connection listened" << std::endl;
+					break;
+				}
+				else
+				{
+					//std::cout << "je suis ici" << std::endl;
+					recv(client_fd, buffer, 1024, 0);
+					std::cout << buffer;
+					memset(buffer, 0, sizeof(buffer));
+					break;
+				}
+			}
 			// Accept the connection and save the socket in newSocket
-			newSocket = server.acceptSocket();
-			std::cout << "new connection listened" << std::endl;
-			
-			epoll.addFd(newSocket);
-			epoll.waitForchange();
 		}
 		close(newSocket);
 	}

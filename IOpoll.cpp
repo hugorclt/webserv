@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/20 15:57:26 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/09/20 16:36:06 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/09/20 17:50:07 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 
 IOpoll::IOpoll(void) {
 	this->ev.events = EPOLLIN | EPOLLET;
+	this->events = (epoll_event *)malloc(sizeof(epoll_event) * MAX_EVENTS);
 	this->epollfd = epoll_create1(0);
 	if (this->epollfd < 0)
 	{
@@ -38,6 +39,10 @@ epoll_event	IOpoll::getEvent(void) const{
 	return (this->ev);
 }
 
+epoll_event	*IOpoll::getEvents(void) const{
+	return (this->events);
+}
+
 /* -------------------------------------------------------------------------- */
 /*                                   methods                                  */
 /* -------------------------------------------------------------------------- */
@@ -48,16 +53,5 @@ void	IOpoll::addFd(int fd) {
 		perror("Failed to add fd to epoll list");
 		close(this->epollfd);
 		exit(EXIT_FAILURE);
-	}
-}
-
-void	IOpoll::waitForchange(void) {
-	char	buffer[1024] = { 0 };
-
-	int nfds = epoll_wait(this->epollfd, this->events, 3000, 3000);
-	for (int i = 0; i < nfds; i++) {
-		int fd = this->events[i].data.fd;
-		read(fd, buffer, 1024);
-		std::cout << buffer;
 	}
 }

@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/20 14:54:36 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/09/20 15:55:07 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/09/20 17:42:36 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,12 +91,12 @@ int	Server::acceptSocket(void) {
 		close(this->sockfd);
 		exit(EXIT_FAILURE);
 	}
-	// int flag = fcntl(this->sockfd, F_SETFL, O_NONBLOCK);
-	// std::cout << "socket set on non-blocking" << std::endl;
-	// if (flag == -1)
-	// {
-	// 	close(this->sockfd);
-	// 	exit(EXIT_FAILURE);
-	// }
+	int flag = fcntl(this->sockfd, F_SETFL, O_NONBLOCK);
+	std::cout << "socket set on non-blocking" << std::endl;
+	if (flag == -1)
+	{
+		close(this->sockfd);
+		exit(EXIT_FAILURE);
+	}
 	return (newSocket);
 }
