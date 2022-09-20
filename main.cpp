@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/18 12:57:12 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/09/20 15:48:19 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/09/20 16:40:52 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,38 +88,26 @@ int	setNonBlocking(int socket, int epoll_fd, int newSocket) {
 
 int main(int ac, char **av)
 {	
+	(void)av;
 	if (ac > 0)
 	{
 		int	newSocket;
-		int	valread;
-		char	buffer[1024] = { 0 };
-		int		epollFd = createEpoll();
-		struct	epoll_event ev, events[MAX_EVENTS];
-		ev.events = EPOLLIN;
+		
+		//Create poll and server
+		IOpoll	epoll;
 		Server	server;
 		
 		// Server listening for connection
 		server.listenConnection();
 		
-		// Accept the connection and save the socket in newSocket
-		newSocket = server.acceptSocket();
-		ev.data.fd = newSocket;
-		addEpoll(epollFd, newSocket, &ev);
-		
 		while (1) {
-			int nfds = epoll_wait(epollFd, events, 3000, 3000);
-			for (int i = 0; i < nfds; i++) {
-				int fd = events[i].data.fd;
-				valread = read(fd, buffer, 1024);
-				buffer[valread] = '\0';
-				std::cout << buffer;
-			}
+			// Accept the connection and save the socket in newSocket
+			newSocket = server.acceptSocket();
+			std::cout << "new connection listened" << std::endl;
+			
+			epoll.addFd(newSocket);
+			epoll.waitForchange();
 		}
-
-		// Send confirmation message
-		send(newSocket, av[1], std::strlen(av[1]), 0);
-		std::cout << "message send" << std::endl;
-
 		close(newSocket);
 	}
 }
