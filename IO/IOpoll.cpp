@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/20 15:57:26 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/09/20 17:50:07 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/09/20 18:14:19 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +49,7 @@ epoll_event	*IOpoll::getEvents(void) const{
 
 void	IOpoll::addFd(int fd) {
 	ev.data.fd = fd;
+	std::cout << "Accepting new client" <<std::endl;
 	if (epoll_ctl(this->epollfd, EPOLL_CTL_ADD, fd, &this->ev)) {
 		perror("Failed to add fd to epoll list");
 		close(this->epollfd);

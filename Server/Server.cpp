@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/20 14:54:36 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/09/20 17:42:36 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/09/21 15:04:33 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,4 +99,18 @@ int	Server::acceptSocket(void) {
 		exit(EXIT_FAILURE);
 	}
 	return (newSocket);
+}
+
+int	sendRequest(int	socket, void *vdata, int dataLen) {
+	unsigned char *data = (unsigned char *)vdata;
+	int	bytesSended;
+
+	while (dataLen > 0) {
+		bytesSended = send(socket, data, dataLen, 0);
+		if (bytesSended == FALSE)
+			return (-1);
+		data += bytesSended;
+		dataLen -= bytesSended;
+	}
+	return (TRUE);
 }

@@ -1,31 +1,43 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   webserv.hpp                                        :+:      :+:    :+:   */
+/*   ft_len.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/09/19 10:52:17 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/09/20 17:16:41 by hrecolet         ###   ########.fr       */
+/*   Created: 2022/09/21 15:19:04 by hrecolet          #+#    #+#             */
+/*   Updated: 2022/09/21 15:19:25 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#pragma once
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <iostream>
-#include <unistd.h>
-#include <cstdio>
-#include <cstdlib>
-#include <sys/epoll.h>
-#include <cstring>
-#include <fcntl.h>
-#include "Server.hpp"
-#include <sys/types.h>
-#include "IOpoll.hpp"
+#include "webserv.hpp"
 
+int	getTabLen(char **tab) {
+	int	size = 0;
+	
+	for (int i = 0; tab[i]; i++)
+		size++;
+	return (size);
+}
 
-#define EXIT_FAILURE 1
-#define EXIT_SUCCESS 0
-#define PORT 8080
-#define MAX_EVENTS 5
+int	getKeyLen(char *str) {
+	int	size = 0;
+	
+	if (!str)
+		return (0);
+	while (str[size] || str[size] == ':') {
+		size++;
+	}
+	return (size);
+}
+
+int	ft_strlen(const char *str) {
+	int	i;
+
+	i = 0;
+	while (str[i]) {
+		i++;
+	}
+	return (i);
+}
+
