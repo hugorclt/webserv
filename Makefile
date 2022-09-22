@@ -6,7 +6,7 @@
 #    By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/09/19 10:51:56 by hrecolet          #+#    #+#              #
-#    Updated: 2022/09/21 15:22:59 by hrecolet         ###   ########.fr        #
+#    Updated: 2022/09/22 18:30:19 by hrecolet         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -21,7 +21,7 @@ SRCS		=	main.cpp\
 				utils/ft_len.cpp\
 				utils/ft_strndup.cpp\
 				Parsing/parse.cpp\
-				Parsing/split_value.cpp
+				Parsing/split_value.cpp\
 
 INCL		=	includes/webserv.hpp\
 				Server/Server.hpp\
@@ -31,7 +31,7 @@ INCL		=	includes/webserv.hpp\
 
 CC			=	c++
 
-CPPFLAGS		=	-Wall -Werror -Wextra -std=c++98
+CPPFLAGS		=	-Wall -Werror -Wextra -std=c++98 -g3
 
 RM			=	rm -f
 

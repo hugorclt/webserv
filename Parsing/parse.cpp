@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/21 15:20:23 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/09/21 15:26:29 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/09/22 18:48:27 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,11 @@ int	parseHeaders(char **tab, std::map<std::string, std::vector<std::string>> &ma
 	for (int i = 1; i < getTabLen(tab) - 1; i++) {
 		key = ft_strndup(tab[i], getKeyLen(tab[i]));
 		value = ft_split_value(tab[i]);
+		std::vector<std::string> vec;
+		for (int j = 0; value[j]; j++)
+			vec.push_back(std::string(value[j]));
+		map.insert(std::make_pair(key, vec));
+		ft_free(value);
 		free(key);
 	}
 	return (TRUE);
@@ -51,7 +56,7 @@ std::map<std::string, std::vector<std::string>>	createHttpRequest(const char	*bu
 	// Header
 	parseHeaders(tab, res);
 	
-	//std::cout << res["methods"][0] << std::endl;
+//	std::cout << res["Accept"][0] << std::endl;
 	ft_free(tab);
 	return (res);
 }

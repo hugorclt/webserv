@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/19 10:52:17 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/09/21 15:24:51 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/09/22 18:14:19 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,3 +48,7 @@ int												parseStartLine(char **tab, std::map<std::string, std::vector<std:
 std::map<std::string, std::vector<std::string>>	createHttpRequest(const char	*buffer);
 char											**ft_split_value(char *line);
 int												parseHeaders(char **tab, std::map<std::string, std::vector<std::string>> &map);
+char											**ft_split_value(char *line);
+char											*ft_substr(char const *s, unsigned int start, size_t len);
+void											print_tab(char **tab);
+char											*ft_substr(char *s, unsigned int start, size_t len);

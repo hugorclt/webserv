@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/21 15:19:04 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/09/21 15:19:25 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/09/22 18:47:09 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ int	getKeyLen(char *str) {
 	
 	if (!str)
 		return (0);
-	while (str[size] || str[size] == ':') {
+	while (str[size] && str[size] != ':') {
 		size++;
 	}
 	return (size);
