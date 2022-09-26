@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/19 10:52:17 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/09/22 18:14:19 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/09/26 18:11:12 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,8 @@
 #include <vector>
 #include <map>
 #include <cstring>
+#include <sstream>
+#include "HTTPRequest.hpp"
 
 #define EXIT_FAILURE 1
 #define EXIT_SUCCESS 0
@@ -37,18 +39,9 @@
 /* -------------------------------------------------------------------------- */
 /*                                  protoype                                  */
 /* -------------------------------------------------------------------------- */
-char											**ft_split(char const *str, const char *sep);
-void											ft_free(char **tab);
-char											*ft_substr(char const *s, unsigned int start, size_t len);
-int												ft_strlen(const char *str);
-int												getKeyLen(char *str);
-int												getTabLen(char **tab);
-char											*ft_strndup(char *str, int n);
+std::vector<std::string>						split(std::string s, std::string delimiter);
 int												parseStartLine(char **tab, std::map<std::string, std::vector<std::string>> &map);
-std::map<std::string, std::vector<std::string>>	createHttpRequest(const char	*buffer);
-char											**ft_split_value(char *line);
+std::map<std::string, std::vector<std::string>>	createHttpRequest(std::string req);
 int												parseHeaders(char **tab, std::map<std::string, std::vector<std::string>> &map);
-char											**ft_split_value(char *line);
-char											*ft_substr(char const *s, unsigned int start, size_t len);
-void											print_tab(char **tab);
-char											*ft_substr(char *s, unsigned int start, size_t len);
+void											print_tab(std::vector<std::string> tab);
+std::vector<std::string> 						split(std::string s, char delimiter, int start);

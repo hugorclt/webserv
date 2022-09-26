@@ -6,7 +6,7 @@
 #    By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/09/19 10:51:56 by hrecolet          #+#    #+#              #
-#    Updated: 2022/09/22 18:30:19 by hrecolet         ###   ########.fr        #
+#    Updated: 2022/09/26 14:50:54 by hrecolet         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -15,13 +15,8 @@ SRCS		=	main.cpp\
 				IO/IOpoll.cpp\
 				HTTP/HTTPRequest.cpp\
 				HTTP/HTTPResponse.cpp\
-				utils/ft_split.cpp\
-				utils/ft_free.cpp\
-				utils/ft_substr.cpp\
-				utils/ft_len.cpp\
-				utils/ft_strndup.cpp\
 				Parsing/parse.cpp\
-				Parsing/split_value.cpp\
+				utils/ft_split.cpp
 
 INCL		=	includes/webserv.hpp\
 				Server/Server.hpp\

@@ -5,86 +5,46 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/09/21 14:29:03 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/09/21 15:08:40 by hrecolet         ###   ########.fr       */
+/*   Created: 2022/09/26 13:15:41 by hrecolet          #+#    #+#             */
+/*   Updated: 2022/09/26 18:06:27 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "webserv.hpp"
 
-static bool	char_is_in_str(char c, const char *str)
-{
-	int	i;
-
-	i = 0;
-	while (str[i])
-	{
-		if (str[i] == c)
-			return (TRUE);
-		++i;
-	}
-	return (FALSE);
+std::vector<std::string> split(std::string s, std::string delimiter){
+    std::vector<std::string> list;
+    size_t pos = 0;
+    std::string token;
+    while ((pos = s.find(delimiter)) != std::string::npos) {
+        token = s.substr(0, pos);
+		if (!token.empty())
+        	list.push_back(token);
+        s.erase(0, pos + delimiter.length());
+    }
+	if (!s.empty())
+    	list.push_back(s);
+    return (list);
 }
 
-static size_t	word_size(char const *s, const char *sep)
-{
-	size_t	len;
-
-	len = 0;
-	while (*s && !char_is_in_str(*s, sep))
-	{
-		s++;
-		len++;
-	}
-	return (len);
+bool isStringEnquoted(const std::string str) { 
+	int nQuote = 0;
+	for (int i = 0; i < str.length(); i++) {
+		if ('\"' == str.at(i)) { 
+			nQuote ++; 
+		} 
+	} return nQuote == 2;
 }
 
-static size_t	count_words(char const *s, const char *sep)
-{
-	size_t	res;
+std::vector<std::string> split(std::string s, char delimiter, int start){
+    std::vector<std::string> result;
+	s.erase(0, start);
+    std::stringstream ss(s);
+    std::string item;
 
-	res = 0;
-	while (*s)
-	{
-		while (char_is_in_str(*s, sep))
-			s++;
-		if (*s)
-		{
-			res++;
-			while (*s && !char_is_in_str(*s, sep))
-				s++;
-		}
-	}
-	return (res);
+    while (getline(ss, item, delimiter)) {
+        result.push_back(item);
+    }
+    return (result);
 }
 
-static char	**hydrate_words(char **tab, char const *s, const char *sep)
-{
-	size_t	word;
-
-	word = 0;
-	while (*s)
-	{
-		while (char_is_in_str(*s, sep))
-			s++;
-		if (*s)
-		{
-			tab[word++] = ft_substr(s, 0, word_size(s, sep));
-			while (*s && !char_is_in_str(*s, sep))
-				s++;
-		}
-	}
-	return (tab);
-}
-
-char	**ft_split(char const *str, const char *sep)
-{
-	char	**res;
-	size_t	wcount;
-
-	wcount = count_words(str, sep);
-	res = (char **)calloc(wcount + 1, sizeof(char *));
-	if (res == NULL)
-		return (NULL);
-	return (hydrate_words(res, str, sep));
-}

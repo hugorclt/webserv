@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/21 10:25:37 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/09/21 12:02:47 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/09/26 18:11:28 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,23 +15,13 @@
 
 class HTTPRequest {
 	private:
-		// Start line:
-		std::string			_methods;
-		std::string			_target;
-		std::string			_httpVersion;
-		
-		//Headers
-		//Request Headers
-		std::string			_host;
-		std::string			_connection;
-		std::vector<std::string>	_userAgent;
-		//General Headers
-
-		//Representation Headers
+		std::map<std::string, std::vector<std::string>>	data;
 
 	public:
-		HTTPRequest(std::string methods, std::string target, std::string httpVersion);
+		HTTPRequest();
 		~HTTPRequest();
+
+		void	setData(std::map<std::string, std::vector<std::string>> data);
 };
 
 
@@ -52,3 +42,4 @@ Sec-Fetch-Dest: document
 Accept-Encoding: gzip, deflate, br
 Accept-Language: en-US,en;q=0.9
 */
+

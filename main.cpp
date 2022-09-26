@@ -6,20 +6,20 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/18 12:57:12 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/09/21 15:24:36 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/09/26 18:12:29 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "webserv.hpp"
 
-void print_tab(char **tab)
+void print_tab(std::vector<std::string> tab)
 {
 	int	i;
 
 	i = 0;
-	while (tab[i])
+	while (i < tab.size())
 	{
-		printf("%s\n", tab[i]);
+		std::cout << tab[i] << std::endl;
 		i++;
 	}
 }
@@ -32,6 +32,7 @@ int main(int ac, char **av)
 		char	buffer[1024] = { 0 };
 		int	index = 0;
 		int	newSocket;
+		HTTPRequest	req;
 		
 		//Create poll and server
 		IOpoll	epoll;
@@ -56,7 +57,8 @@ int main(int ac, char **av)
 				{
 					recv(client_fd, buffer, 1024, 0);
 					std::string str(buffer);
-					std::map<std::string, std::vector<std::string>> mapRequest = createHttpRequest(str.c_str());
+					std::map<std::string, std::vector<std::string>> mapRequest = createHttpRequest(str);
+					req.setData(mapRequest);
 					memset(buffer, 0, sizeof(buffer));
 					break;
 				}
