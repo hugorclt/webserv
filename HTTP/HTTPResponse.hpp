@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/21 11:47:56 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/09/21 12:19:03 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/09/29 15:29:48 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,4 +45,5 @@ Server: Apache/2.2.14 (Win32)
 Content-Length: 230
 Connection: Closed
 Content-Type: text/html; charset=iso-8859-1
+
 */
