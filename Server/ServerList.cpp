@@ -1,32 +1,24 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Server.hpp                                         :+:      :+:    :+:   */
+/*   ServerList.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/09/20 14:52:01 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/09/30 11:41:37 by hrecolet         ###   ########.fr       */
+/*   Created: 2022/09/30 11:56:41 by hrecolet          #+#    #+#             */
+/*   Updated: 2022/09/30 12:03:36 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#pragma once
-#include "webserv.hpp"
+#include "ServerList.hpp"
 
-class Server {
-	private:
-		int			sockfd;
-		sockaddr_in	address;
-		int			opt;
-		int			addrLen;
+ServerList::ServerList(int nbServer, std::vector<int> portList) {
+	for (int i = 0; i < nbServer; i++) {
+		Server	server(portList[i]);
+		this->server.push_back(server);
+	}
+}
 
-	public:
-		Server(int	port);
-		~Server(void);
-		
-		int				getSockfd(void) const;
-		sockaddr_in		getAddress(void) const;
-		void			listenConnection(void);
-		int				acceptSocket(void);
-		void			sendRequest(int	socket, void *data);
-};
+Server	&ServerList::operator[](const int index) {
+	return (this->server[index]);
+}

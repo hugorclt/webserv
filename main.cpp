@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/18 12:57:12 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/09/30 11:04:56 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/09/30 11:51:13 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ int main(int ac, char **av)
 		
 		//Create poll and server
 		IOpoll	epoll;
-		Server	server;
+		Server	server(8080);
 		
 		// Server listening for connection
 		server.listenConnection();
