@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/18 12:57:12 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/09/29 15:17:56 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/09/30 11:04:56 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,28 +43,33 @@ int main(int ac, char **av)
 		epoll.addFd(server.getSockfd());
 		
 		while (42) {
-			epoll_wait(epoll.getEpollfd(), epoll.getEvents(), MAX_EVENTS, -1);
-			int	client_fd = epoll.getEvents()[index].data.fd;
-			for (index = 0; index < MAX_EVENTS; index++)
+			if (epoll_wait(epoll.getEpollfd(), epoll.getEvents(), MAX_EVENTS, -1) != -1)
 			{
-				if (client_fd == server.getSockfd())
+				int	client_fd = epoll.getEvents()[index].data.fd;
+				for (index = 0; index < MAX_EVENTS; index++)
 				{
-					newSocket = server.acceptSocket();
-					epoll.addFd(newSocket);
-					break;
-				}
-				else
-				{
-					recv(client_fd, buffer, 1024, 0);
-					std::string str(buffer);
-					std::map<std::string, std::vector<std::string>> mapRequest = createHttpRequest(str);
-					req.setData(mapRequest);
-					memset(buffer, 0, sizeof(buffer));
-					break;
+					if (client_fd == server.getSockfd())
+					{
+						newSocket = server.acceptSocket();
+						epoll.addFd(newSocket);
+						break;
+					}
+					else
+					{
+						int	nb_bytes = recv(client_fd, buffer, 1024, 0);
+						if (nb_bytes)
+						{
+							std::string str(buffer);
+							std::map<std::string, std::vector<std::string>> mapRequest = createHttpRequest(str);
+							req.setData(mapRequest);
+							memset(buffer, 0, sizeof(buffer));
+						}
+						close(newSocket);
+						break;
+					}
 				}
 			}
 		}
-		close(newSocket);
 	}
 }
 
