@@ -12,13 +12,22 @@
 
 #pragma once
 #include "webserv.hpp"
+#include <vector>
+#include "Server.hpp"
+
+class Server;
 
 class ServerList {
 	private:
-		std::vector<Server>	server;
+		std::vector<Server*>	server;
+		int						nbServer;
 
 	public:
 		ServerList(int	nbServer, std::vector<int>	portList);
 
+		int		&getNbServers(void);
 		Server	&operator[](const int index);
+
+		void	listenConnection(void);
+		int		isServerFd(int fd);
 };

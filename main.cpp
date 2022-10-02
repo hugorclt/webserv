@@ -12,6 +12,8 @@
 
 #include "webserv.hpp"
 
+extern int errno;
+
 void print_tab(std::vector<std::string> tab)
 {
 	int	i;
@@ -29,18 +31,26 @@ int main(int ac, char **av)
 	(void)av;
 	if (ac > 0)
 	{
+		std::vector<int>	portList;
 		char	buffer[1024] = { 0 };
 		int	index = 0;
 		int	newSocket;
 		HTTPRequest	req;
 		
+		//Server server(8080);
+
+		//server.listenConnection();
+		//Fill portList
+		portList.push_back(8080);
+		portList.push_back(8081);
+
 		//Create poll and server
 		IOpoll	epoll;
-		Server	server(8080);
+		ServerList serverList(2, portList);
 		
 		// Server listening for connection
-		server.listenConnection();
-		epoll.addFd(server.getSockfd());
+		serverList.listenConnection();
+		epoll.addServerList(serverList);
 		
 		while (42) {
 			if (epoll_wait(epoll.getEpollfd(), epoll.getEvents(), MAX_EVENTS, -1) != -1)
@@ -48,9 +58,10 @@ int main(int ac, char **av)
 				int	client_fd = epoll.getEvents()[index].data.fd;
 				for (index = 0; index < MAX_EVENTS; index++)
 				{
-					if (client_fd == server.getSockfd())
+					int serverIndex = serverList.isServerFd(client_fd);
+					if (serverIndex >= 0)
 					{
-						newSocket = server.acceptSocket();
+						newSocket = serverList[serverIndex].acceptSocket();
 						epoll.addFd(newSocket);
 						break;
 					}
@@ -60,6 +71,7 @@ int main(int ac, char **av)
 						if (nb_bytes)
 						{
 							std::string str(buffer);
+							std::cout << buffer << std::endl;
 							std::map<std::string, std::vector<std::string>> mapRequest = createHttpRequest(str);
 							req.setData(mapRequest);
 							memset(buffer, 0, sizeof(buffer));
@@ -72,12 +84,3 @@ int main(int ac, char **av)
 		}
 	}
 }
-
-/*		Http request exemple
-std::string requestExample("GET /hello.htm HTTP/1.1\r\n
-								User-Agent: Mozilla/4.0 (compatible; MSIE5.01; Windows NT)\r\n
-								Host: www.tutorialspoint.com\r\n
-								Accept-Language: en-us\r\n
-								Accept-Encoding: gzip, deflate\r\n
-								Connection: Keep-Alive\r\n");
-*/

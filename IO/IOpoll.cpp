@@ -50,10 +50,22 @@ epoll_event	*IOpoll::getEvents(void) const{
 
 void	IOpoll::addFd(int fd) {
 	ev.data.fd = fd;
-	std::cout << "Accepting new client" <<std::endl;
+	std::cout << "Accepting new client" << std::endl;
 	if (epoll_ctl(this->epollfd, EPOLL_CTL_ADD, fd, &this->ev)) {
 		perror("Failed to add fd to epoll list");
 		close(this->epollfd);
 		exit(EXIT_FAILURE);
+	}
+}
+
+void	IOpoll::addServerList(ServerList servers) {
+	for (int i = 0; i < servers.getNbServers(); i++) {
+		ev.data.fd = servers[i].getSockfd();
+		std::cout << "Accepting new client serverList:" << std::endl;
+		if (epoll_ctl(this->epollfd, EPOLL_CTL_ADD, servers[i].getSockfd(), &this->ev)) {
+			perror("Failed to add fd to epoll list");
+			close(this->epollfd);
+			exit(EXIT_FAILURE);
+		}
 	}
 }

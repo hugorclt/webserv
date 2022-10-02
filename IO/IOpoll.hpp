@@ -12,6 +12,9 @@
 
 #pragma once
 #include "webserv.hpp"
+#include "ServerList.hpp"
+
+class ServerList;
 
 class IOpoll {
 	private:
@@ -28,4 +31,6 @@ class IOpoll {
 		epoll_event *getEvents(void) const;
 
 		void	addFd(int fd);
+		void	addServerList(ServerList servers);
+
 };
