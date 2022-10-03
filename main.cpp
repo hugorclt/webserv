@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/18 12:57:12 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/03 14:34:40 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/03 15:07:28 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,15 @@ void print_tab(std::vector<std::string> tab)
 	}
 }
 
-void	createServers()
+ServerList	createServers(Config configServer) {
+	std::map<int, std::map<std::string, std::string>>	dataConfig;
+	int	nbServer;
+
+	nbServer = configServer.getNbServers();
+	dataConfig = configServer.getData();
+	ServerList	server(nbServer, dataConfig);
+	return (server);
+}
 
 int main(int ac, char **av)
 {	
@@ -40,16 +48,10 @@ int main(int ac, char **av)
 		HTTPRequest			req;
 		
 		Config	configServer(av[1]);
-		//Server server(8080);
-
-		//server.listenConnection();
-		//Fill portList
-		portList.push_back(8080);
-		portList.push_back(8081);
 
 		//Create poll and server
 		IOpoll	epoll;
-		ServerList serverList(2, portList);
+		ServerList serverList = createServers(configServer);
 		
 		// Server listening for connection
 		serverList.listenConnection();
