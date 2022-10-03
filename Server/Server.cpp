@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/20 14:54:36 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/09/30 11:53:17 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/03 13:57:59 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,7 @@ Server::Server(int port) {
 	this->address.sin_family = AF_INET;
 	this->address.sin_addr.s_addr = INADDR_ANY;
 	this->address.sin_port = htons(port);
+	std::cout << "Server created will listen on : " << port << std::endl;
 	this->addrLen = sizeof(address);
 	
 	if (bind(this->sockfd, (struct sockaddr*)&this->address, sizeof(this->address)) < 0) {
@@ -59,7 +60,6 @@ sockaddr_in Server::getAddress(void) const {
 /* -------------------------------------------------------------------------- */
 
 void	Server::listenConnection(void) {
-	std::cout << "Server listening for connection on port: " << PORT << std::endl;
 	if (listen(this->sockfd, 5) < 0) {
 		perror("Listen failure");
 		close(this->sockfd);

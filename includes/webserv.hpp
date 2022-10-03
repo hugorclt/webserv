@@ -6,28 +6,34 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/19 10:52:17 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/09/26 18:11:12 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/03 13:54:02 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
+
+
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <iostream>
+#include <fstream>
 #include <unistd.h>
 #include <cstdio>
 #include <cstdlib>
 #include <sys/epoll.h>
 #include <cstring>
 #include <fcntl.h>
-#include "Server.hpp"
 #include <sys/types.h>
-#include "IOpoll.hpp"
 #include <vector>
 #include <map>
 #include <cstring>
 #include <sstream>
+
+
+#include "Server.hpp"
+#include "IOpoll.hpp"
 #include "HTTPRequest.hpp"
+#include "../Parsing/Config.hpp"
 
 #define EXIT_FAILURE 1
 #define EXIT_SUCCESS 0
@@ -45,3 +51,5 @@ std::map<std::string, std::vector<std::string>>	createHttpRequest(std::string re
 int												parseHeaders(char **tab, std::map<std::string, std::vector<std::string>> &map);
 void											print_tab(std::vector<std::string> tab);
 std::vector<std::string> 						split(std::string s, char delimiter, int start);
+int												countLenServer(std::istream &file);
+int												ft_parse_server(std::istream &file, std::map<int, std::map<std::string, std::string>> &configFile);

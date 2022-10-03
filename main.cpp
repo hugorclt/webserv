@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/18 12:57:12 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/09/30 11:51:13 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/03 14:34:40 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,17 +26,20 @@ void print_tab(std::vector<std::string> tab)
 	}
 }
 
+void	createServers()
+
 int main(int ac, char **av)
 {	
 	(void)av;
-	if (ac > 0)
+	if (ac > 1 && ac <= 2)
 	{
 		std::vector<int>	portList;
-		char	buffer[1024] = { 0 };
-		int	index = 0;
-		int	newSocket;
-		HTTPRequest	req;
+		char				buffer[1024] = { 0 };
+		int					index = 0;
+		int					newSocket;
+		HTTPRequest			req;
 		
+		Config	configServer(av[1]);
 		//Server server(8080);
 
 		//server.listenConnection();
