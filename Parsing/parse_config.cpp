@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/03 11:50:45 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/03 14:05:25 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/05 04:48:45 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,6 @@ int	ft_parse_server(std::istream &file, std::map<int, std::map<std::string, std:
 					break;
 				}
 				std::vector<std::string> parsedLine = split(line, "\t");
-				print_tab(parsedLine);
 				if (parsedLine.size() != 2)
 				{
 					perror("error: format not respected in config file");

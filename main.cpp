@@ -6,13 +6,11 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/18 12:57:12 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/03 15:07:28 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/05 03:14:37 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "webserv.hpp"
-
-extern int errno;
 
 void print_tab(std::vector<std::string> tab)
 {

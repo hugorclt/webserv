@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/20 14:52:01 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/09/30 11:41:37 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/05 03:29:54 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ class Server {
 		int			addrLen;
 
 	public:
-		Server(int	port);
+		Server(int	port, std::string ip);
 		~Server(void);
 		
 		int				getSockfd(void) const;

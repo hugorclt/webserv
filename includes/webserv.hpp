@@ -6,12 +6,11 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/19 10:52:17 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/03 13:54:02 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/05 03:27:32 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
-
 
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -27,6 +26,7 @@
 #include <vector>
 #include <map>
 #include <cstring>
+#include <arpa/inet.h>
 #include <sstream>
 
 

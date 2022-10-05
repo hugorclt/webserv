@@ -6,13 +6,13 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/20 14:54:36 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/03 13:57:59 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/05 03:27:45 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 
-Server::Server(int port) {
+Server::Server(int port, std::string ip) {
 	this->opt  = 1;
 	this->sockfd = socket(AF_INET, SOCK_STREAM, 0);
 	if (!this->sockfd) {
@@ -27,7 +27,7 @@ Server::Server(int port) {
 	}
 		
 	this->address.sin_family = AF_INET;
-	this->address.sin_addr.s_addr = INADDR_ANY;
+	this->address.sin_addr.s_addr = inet_addr(ip.c_str());
 	this->address.sin_port = htons(port);
 	std::cout << "Server created will listen on : " << port << std::endl;
 	this->addrLen = sizeof(address);

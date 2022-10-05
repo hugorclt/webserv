@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/30 11:56:41 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/03 15:06:31 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/05 03:29:33 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@ ServerList::ServerList(int nbServer, std::map<int, std::map<std::string, std::st
 	this->nbServer = nbServer;
 	for (int i = 0; i < nbServer; i++) {
 		std::vector<std::string> portHost = split(dataConfig[i]["listen"], " ");
-		Server *server = new Server(atoi(portHost[0].c_str()));
+		Server *server = new Server(atoi(portHost[0].c_str()), portHost[1]);
 		this->server.push_back(server);
 	}
 }

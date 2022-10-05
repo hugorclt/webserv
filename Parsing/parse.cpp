@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/21 15:20:23 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/09/26 18:09:19 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/05 04:48:49 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,9 +51,7 @@ std::map<std::string, std::vector<std::string>>	createHttpRequest(std::string re
 	
 	parseStartLine(tab[0], res);
 	parseHeaders(tab, res);
-	
-	//print_tab(tab);
-	
+		
 //	std::cout << res["Accept"][0] << std::endl;
 	return (res);
 }
