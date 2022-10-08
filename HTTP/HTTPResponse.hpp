@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/21 11:47:56 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/08 14:10:15 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/08 17:13:28 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,9 @@ class HTTPResponse {
 	private:
 		//headers
 		std::map<std::string, std::string>	data;
+		std::string							length;
+		std::string							type;
+		std::string							body;
 
 
 	public:

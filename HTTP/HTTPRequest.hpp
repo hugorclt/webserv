@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/21 10:25:37 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/09/26 18:11:28 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/08 16:45:01 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,10 +18,11 @@ class HTTPRequest {
 		std::map<std::string, std::vector<std::string>>	data;
 
 	public:
-		HTTPRequest();
+		HTTPRequest(std::map<std::string, std::vector<std::string>>	reqData);
 		~HTTPRequest();
 
 		void	setData(std::map<std::string, std::vector<std::string>> data);
+		std::map<std::string, std::vector<std::string>>	getData(void) const;
 };
 
 

@@ -6,7 +6,7 @@
 #    By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/09/19 10:51:56 by hrecolet          #+#    #+#              #
-#    Updated: 2022/10/03 13:51:34 by hrecolet         ###   ########.fr        #
+#    Updated: 2022/10/08 16:46:45 by hrecolet         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -20,7 +20,8 @@ SRCS		=	main.cpp\
 				Server/ServerList.cpp\
 				Parsing/Config.cpp\
 				Parsing/parse_config.cpp\
-				utils/copyFile.cpp
+				utils/copyFile.cpp\
+				exec/execRequest.cpp\
 
 
 INCL		=	includes/webserv.hpp\

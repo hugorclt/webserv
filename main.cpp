@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/18 12:57:12 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/05 03:14:37 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/08 16:43:06 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,11 +39,9 @@ int main(int ac, char **av)
 	(void)av;
 	if (ac > 1 && ac <= 2)
 	{
-		std::vector<int>	portList;
 		char				buffer[1024] = { 0 };
 		int					index = 0;
 		int					newSocket;
-		HTTPRequest			req;
 		
 		Config	configServer(av[1]);
 
@@ -75,8 +73,8 @@ int main(int ac, char **av)
 						{
 							std::string str(buffer);
 							std::cout << buffer << std::endl;
-							std::map<std::string, std::vector<std::string>> mapRequest = createHttpRequest(str);
-							req.setData(mapRequest);
+							HTTPRequest		req(createHttpRequest(str));
+							HTTPResponse	res(req);
 							memset(buffer, 0, sizeof(buffer));
 						}
 						close(newSocket);

@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/19 10:52:17 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/05 03:27:32 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/08 16:59:37 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,11 +28,13 @@
 #include <cstring>
 #include <arpa/inet.h>
 #include <sstream>
+#include <ctime>
 
 
 #include "Server.hpp"
 #include "IOpoll.hpp"
 #include "HTTPRequest.hpp"
+#include "HTTPResponse.hpp"
 #include "../Parsing/Config.hpp"
 
 #define EXIT_FAILURE 1
@@ -53,3 +55,5 @@ void											print_tab(std::vector<std::string> tab);
 std::vector<std::string> 						split(std::string s, char delimiter, int start);
 int												countLenServer(std::istream &file);
 int												ft_parse_server(std::istream &file, std::map<int, std::map<std::string, std::string>> &configFile);
+std::string										getDate(void);
+int												execRequest(HTTPRequest	&req, HTTPResponse &res);

@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/30 11:54:19 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/03 15:04:51 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/08 17:37:19 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,8 @@ class ServerList {
 
 	public:
 		ServerList(int	nbServer, std::map<int, std::map<std::string, std::string>>	portList);
-
+		
+		std::string	getRootOfServ(int port);
 		int		&getNbServers(void);
 		Server	&operator[](const int index);
 

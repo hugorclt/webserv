@@ -6,13 +6,15 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/20 14:54:36 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/05 03:27:45 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/08 17:38:12 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 
-Server::Server(int port, std::string ip) {
+Server::Server(int port, std::string ip, std::string root) {
+	this->root = root;
+	this->port = port;
 	this->opt  = 1;
 	this->sockfd = socket(AF_INET, SOCK_STREAM, 0);
 	if (!this->sockfd) {
@@ -86,16 +88,10 @@ int	Server::acceptSocket(void) {
 	return (newSocket);
 }
 
-int	sendRequest(int	socket, void *vdata, int dataLen) {
-	unsigned char *data = (unsigned char *)vdata;
-	int	bytesSended;
+std::string	Server::getRoot(void) {
+	return (this->root);
+}
 
-	while (dataLen > 0) {
-		bytesSended = send(socket, data, dataLen, 0);
-		if (bytesSended == FALSE)
-			return (-1);
-		data += bytesSended;
-		dataLen -= bytesSended;
-	}
-	return (TRUE);
+int	Server::getPort(void) {
+	return (this->port);
 }
