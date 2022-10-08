@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/21 11:47:56 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/09/29 15:29:48 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/08 14:10:15 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,16 +16,14 @@
 class HTTPResponse {
 	private:
 		//headers
-		std::string	_httpVersion;
-		std::string	_code;
-		std::string	_reasonPhrase;
-
-		//body
-		std::vector<std::string> _body;
+		std::map<std::string, std::string>	data;
 
 
 	public:
-		std::string	convertToData(void);
+		HTTPResponse(HTTPRequest &req);
+		
+		void	sendRequest(int clientFd);
+		
 };
 
 /*
