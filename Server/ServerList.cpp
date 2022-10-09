@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/30 11:56:41 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/08 17:37:09 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/09 12:29:12 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ ServerList::ServerList(int nbServer, std::map<int, std::map<std::string, std::st
 	for (int i = 0; i < nbServer; i++) {
 		std::vector<std::string> portHost = split(dataConfig[i]["listen"], " ");
 		Server *server = new Server(atoi(portHost[0].c_str()), portHost[1], dataConfig[i]["root"]);
-		this->server.push_back(server);
+		this->server.insert(std::make_pair(atoi(portHost[0].c_str()), server));
 	}
 }
 
@@ -25,27 +25,37 @@ int	&ServerList::getNbServers(void) {
 	return (this->nbServer);
 }
 
-Server	&ServerList::operator[](const int index) {
-	return (*this->server[index]);
-}
-
 void	ServerList::listenConnection(void) {
-	for (int i = 0; i < this->nbServer; i++) {\
-		this->server[i]->listenConnection();
+	std::map<int, Server*>::iterator	it = this->server.begin();
+	
+	while (it != this->server.end()) {
+		it->second->listenConnection();
+		it++;
 	}
 }
 
-int	ServerList::isServerFd(int fd) {
-	for (int i = 0; i < this->nbServer; i++) {
-		if (this->server[i]->getSockfd() == fd)
-			return (i);
+std::map<int, Server*>::iterator	ServerList::isServerFd(int fd) {
+	std::map<int, Server*>::iterator	it = this->server.begin();
+	
+	while (it != this->server.end()) {
+		if (it->second->getSockfd() == fd)
+			return (it);
+		it++;
 	}
-	return (-1);
+	return (it);
 }
 
-std::string	ServerList::getRootOfServ(int port) {
-	for (int i = 0; i < this->nbServer; i++) {
-		if (this->server[i]->getPort() == port)
-			return (this->server[i]->getRoot());
+std::string ServerList::getRootOfServ(int port) {
+	std::map<int, Server*>::iterator	it = this->server.begin();
+	
+	while (it != this->server.end()) {
+		if (it->second->getPort() == port)
+			return (it->second->getRoot());
+		it++;
 	}
+	return (NULL);
+}
+
+std::map<int, Server*>	&ServerList::getServer() {
+	return (this->server);
 }

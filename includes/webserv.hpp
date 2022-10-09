@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/19 10:52:17 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/08 16:59:37 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/09 13:38:28 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,9 +29,11 @@
 #include <arpa/inet.h>
 #include <sstream>
 #include <ctime>
+#include <algorithm>
 
 
 #include "Server.hpp"
+#include "ServerList.hpp"
 #include "IOpoll.hpp"
 #include "HTTPRequest.hpp"
 #include "HTTPResponse.hpp"
@@ -56,4 +58,6 @@ std::vector<std::string> 						split(std::string s, char delimiter, int start);
 int												countLenServer(std::istream &file);
 int												ft_parse_server(std::istream &file, std::map<int, std::map<std::string, std::string>> &configFile);
 std::string										getDate(void);
-int												execRequest(HTTPRequest	&req, HTTPResponse &res);
+int                                         	execRequest(HTTPRequest	&req, HTTPResponse &res, std::string root);
+std::string                                     to_string(int nb);
+

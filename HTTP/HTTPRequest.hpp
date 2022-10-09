@@ -6,12 +6,14 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/21 10:25:37 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/08 16:45:01 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/09 12:17:40 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 #include "webserv.hpp"
+
+class HTTPResponse;
 
 class HTTPRequest {
 	private:

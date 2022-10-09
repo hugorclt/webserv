@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/18 12:57:12 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/08 16:43:06 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/09 13:26:03 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,10 +59,10 @@ int main(int ac, char **av)
 				int	client_fd = epoll.getEvents()[index].data.fd;
 				for (index = 0; index < MAX_EVENTS; index++)
 				{
-					int serverIndex = serverList.isServerFd(client_fd);
-					if (serverIndex >= 0)
+					std::map<int, Server*>::iterator it = serverList.isServerFd(client_fd);
+					if (it != serverList.getServer().end())
 					{
-						newSocket = serverList[serverIndex].acceptSocket();
+						newSocket = it->second->acceptSocket();
 						epoll.addFd(newSocket);
 						break;
 					}
@@ -74,7 +74,9 @@ int main(int ac, char **av)
 							std::string str(buffer);
 							std::cout << buffer << std::endl;
 							HTTPRequest		req(createHttpRequest(str));
-							HTTPResponse	res(req);
+							HTTPResponse	res(req, serverList);
+
+							res.sendRequest(client_fd);
 							memset(buffer, 0, sizeof(buffer));
 						}
 						close(newSocket);

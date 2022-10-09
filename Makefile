@@ -6,7 +6,7 @@
 #    By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/09/19 10:51:56 by hrecolet          #+#    #+#              #
-#    Updated: 2022/10/08 16:46:45 by hrecolet         ###   ########.fr        #
+#    Updated: 2022/10/09 13:11:35 by hrecolet         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -22,6 +22,7 @@ SRCS		=	main.cpp\
 				Parsing/parse_config.cpp\
 				utils/copyFile.cpp\
 				exec/execRequest.cpp\
+				utils/intToStr.cpp\
 
 
 INCL		=	includes/webserv.hpp\

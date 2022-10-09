@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/20 15:57:26 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/03 13:58:30 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/09 12:12:19 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,12 +59,15 @@ void	IOpoll::addFd(int fd) {
 }
 
 void	IOpoll::addServerList(ServerList servers) {
-	for (int i = 0; i < servers.getNbServers(); i++) {
-		ev.data.fd = servers[i].getSockfd();
-		if (epoll_ctl(this->epollfd, EPOLL_CTL_ADD, servers[i].getSockfd(), &this->ev)) {
+	std::map<int, Server*>::iterator	it = servers.getServer().begin();
+	
+	while (it != servers.getServer().end()) {
+		ev.data.fd = it->second->getSockfd();
+		if (epoll_ctl(this->epollfd, EPOLL_CTL_ADD, it->second->getSockfd(), &this->ev)) {
 			perror("Failed to add fd to epoll list");
 			close(this->epollfd);
 			exit(EXIT_FAILURE);
 		}
+		it++;
 	}
 }

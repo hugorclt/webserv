@@ -6,25 +6,29 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/21 11:47:56 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/08 17:13:28 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/09 13:06:08 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 #include "webserv.hpp"
 
+class HTTPRequest;
+
 class HTTPResponse {
 	private:
 		//headers
 		std::map<std::string, std::string>	data;
-		std::string							length;
+		int									length;
 		std::string							type;
 		std::string							body;
 
 
 	public:
-		HTTPResponse(HTTPRequest &req);
+		HTTPResponse(HTTPRequest &req, ServerList &servers);
 		
+		void    setBody(std::string body);
+		void	setLength(int	length);
 		void	sendRequest(int clientFd);
 		
 };
