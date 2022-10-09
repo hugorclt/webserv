@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/08 13:59:42 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/09 13:52:59 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/09 16:42:20 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,26 +26,23 @@ HTTPResponse::HTTPResponse(HTTPRequest &req, ServerList &servers) {
 }
 
 void     HTTPResponse::sendRequest(int clientFd) {
-    std::string response;
+    std::string         header;
 
-    response = this->data["version"] + " " + this->data["code"] + " " + this->data["status"] + "\r\n"
+    header = this->data["version"] + " " + this->data["code"] + " " + this->data["status"] + "\r\n"
         + "Date: " + this->data["date"] + "\r\n"
         + "Server: " + this->data["server"] + "\r\n"
-        + "Content-Length: " + to_string(this->length) + "\r\n"
+        + "Content-Length: " + to_string(this->body.size()) + "\r\n"
         // + "Content-Type: " + this->data["type"] + "\r\n"
         + "Content-Type: text/html\r\n" 
         + "Connection: Closed" + "\r\n"
-        + "\n"
-        + this->body;
+        + "\n";
 
-    std::cout << response << std::endl;
-    if (send(clientFd, response.c_str(), response.length(), 0) == -1)
-    {
+    this->body.insert(this->body.begin(), header.begin(), header.end());
+    if (send(clientFd, this->body.data(), this->body.size(), 0) == -1)
         perror("send error:");
-    }
 }
 
-void    HTTPResponse::setBody(std::string body) {
+void    HTTPResponse::setBody(std::vector<char> body) {
     this->body = body;
 }
 

@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/21 11:47:56 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/09 13:06:08 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/09 16:23:02 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,13 +21,13 @@ class HTTPResponse {
 		std::map<std::string, std::string>	data;
 		int									length;
 		std::string							type;
-		std::string							body;
+		std::vector<char>						body;
 
 
 	public:
 		HTTPResponse(HTTPRequest &req, ServerList &servers);
 		
-		void    setBody(std::string body);
+		void    setBody(std::vector<char> body);
 		void	setLength(int	length);
 		void	sendRequest(int clientFd);
 		

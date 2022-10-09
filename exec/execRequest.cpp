@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/08 16:46:24 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/09 13:37:10 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/09 17:01:20 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,19 +25,18 @@ std::string	getDate(void) {
 
 void	execGet(HTTPRequest	&req, HTTPResponse &res, std::string root) {
 	std::string	target = root + req.getData()["target"][0];
+	std::ifstream in(target, ::std::ios::binary);
+	std::vector<char> html;
 	
-	std::ifstream t(target);
-	std::stringstream html_code;
-	html_code << t.rdbuf();
-	std::string	html(html_code.str());
-	
-	//virer le PUTAIN DE /n
-	html.erase(std::remove(html.begin(), html.end(), '\n'),
-            html.end());
-	
+	if (!in.good()) {
+		//std::ifstream in(, ::std::ios::binary);
+	}
+	while (in) {
+		char c;
+		in.get(c);
+		html.push_back(c);
+	}
 	res.setBody(html);
-	res.setLength(html.length());
-	// res.setType()
 }
 
 int	execRequest(HTTPRequest	&req, HTTPResponse &res, std::string root) {
