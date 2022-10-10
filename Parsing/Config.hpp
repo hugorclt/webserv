@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/03 11:36:05 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/03 15:02:14 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/10 10:54:30 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,13 +14,14 @@
 #include "webserv.hpp"
 
 class Config {
+	public:
+		typedef std::vector<std::map<std::string, std::vector<std::string>>> data_type;
+	 
 	private:
-		int	nbServer;
-		std::map<int, std::map<std::string, std::string>>	configFile;
+		int							_nbServer;
+		data_type					_data;
+		const static std::string	*option;
 	
 	public:
-		Config(char *fileName);
-
-		std::map<int, std::map<std::string, std::string>>	&getData(void);
-		int	getNbServers(void);
+		Config(char *params);
 };
