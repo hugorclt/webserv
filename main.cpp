@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/18 12:57:12 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/10 18:44:14 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/10 20:36:33 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@ void	printMap(std::map<std::string, std::vector<std::string>> map)
 {
 	for (std::map<std::string, std::vector<std::string>>::iterator	it = map.begin(); it != map.end(); it++)
 	{
-		std::cout << it->first << " :";
+		std::cout << it->first << " : [" << it->second.size() << "]";
 		for (std::vector<std::string>::iterator itVec = it->second.begin(); itVec != it->second.end(); itVec++)
 		{
 			std::cout << " " << *itVec;

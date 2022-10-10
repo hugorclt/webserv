@@ -6,21 +6,117 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/03 11:36:29 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/10 18:49:45 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/10 20:37:01 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Config.hpp"
 
-const std::string	Config::_option[N_OPT] {
-	("listen"),
-	("server_name"),
-	("root"),
-	("index"),
-	("error"),
-	("body_size"),
-	("auto_index")
+/* -------------------------------------------------------------------------- */
+/*                                CheckFunction                               */
+/* -------------------------------------------------------------------------- */
+
+bool	Config::_isValueEmpty(std::vector<std::string> &vec)
+{
+	return (!vec.size());
+}
+
+bool	Config::_checkAutoIndex(std::vector<std::string> &vec)
+{
+	return ((vec.size() == 1) && (vec[0] == "on" || vec[0] == "off"));
+}
+
+ bool	Config::_checkBodySize(std::vector<std::string> &vec)
+{
+	int	nb;
+	
+	if (_isValueEmpty(vec) || vec.size() > 1)
+		return (false);
+	if (!isDigits(vec[0]))
+		return (false);
+
+	nb = atoi(vec[0].c_str());
+	if (nb <= 0)
+		return (false);
+	return (true);
+}
+
+bool	Config::_checkPath(std::vector<std::string> &vec)
+{
+	std::cout << vec.size() << std::endl;
+	return (vec.size() == 1);
+}
+
+bool	Config::_checkListen(std::vector<std::string> &vec)
+{
+	int							port;
+	std::vector<std::string>	ip;
+	
+	if (vec.size() != 2)
+		return (false);
+	if (!isDigits(vec[0]))
+		return (false);
+	port = atoi(vec[0].c_str());
+	if (port < 0 || port > MAX_PORT)
+		return (false);
+	ip = split(vec[1], ".");
+	if (ip.size() != 4)
+		return (false);
+	for (std::vector<std::string>::iterator it = ip.begin(); it < ip.end(); it++)
+	{
+		if (atoi(it->c_str()) < 0 || atoi(it->c_str()) > 255)
+			return (false);
+	}
+	return (true);
+}
+
+bool	Config::_isValidKey(std::string key)
+{
+	for (int i = 0; i < N_OPT; i++)
+	{
+		if (_option[i].first == key)
+			return (true);
+	}
+	return (false);
+}
+
+std::pair<std::string, bool(*)(std::vector<std::string> &)>	Config::_getOpt(std::string key)
+{
+	int i = 0;
+	
+	while (i < N_OPT && _option[i].first != key) {
+		i++;
+	}
+	return (_option[i]);
+}
+
+const std::pair<std::string, bool(*)(std::vector<std::string> &)>	Config::_option[N_OPT] {
+	std::make_pair(std::string("listen"), &Config::_checkListen),
+	std::make_pair(std::string("server_name"), &Config::_checkPath), 
+	std::make_pair(std::string("root"), &Config::_checkPath),
+	std::make_pair(std::string("index"), &Config::_checkPath),
+	std::make_pair(std::string("error"), &Config::_checkPath),
+	std::make_pair(std::string("body_size"), &Config::_checkBodySize),
+	std::make_pair(std::string("auto_index"), &Config::_checkAutoIndex)
 };
+
+
+bool	Config::_checkAllValue(map_type	&serverConfig)
+{
+	for (map_type::iterator it = serverConfig.begin(); it != serverConfig.end(); it++)
+	{
+		if (!(*_getOpt(it->first).second)(it->second))
+		{
+			std::cout << it->first << std::endl;
+			return (false);
+		}
+	}
+	return (true);
+}
+
+/* -------------------------------------------------------------------------- */
+/*                                 Constructor                                */
+/* -------------------------------------------------------------------------- */
 
 Config::Config(char *filename) {
 	std::ifstream				input(filename);
@@ -42,7 +138,14 @@ Config::Config(char *filename) {
 		{
 			if (_getWordSkipLine(itStr, itStrEnd, first, second) == "{")
 			{
-				_data.push_back(parseOneServ(itStr, itStrEnd, first, second));
+				map_type	serverConfig = _parseOneServ(itStr, itStrEnd, first, second);
+				if (!_checkAllValue(serverConfig))
+				{
+					perror("error: parsing value not good");
+					exit(EXIT_FAILURE);
+				}
+				_data.push_back(serverConfig);
+				
 			}
 			else
 			{
@@ -56,24 +159,21 @@ Config::Config(char *filename) {
 			exit(EXIT_FAILURE);
 		}
 	}
+
+	
+	
 	int i = 1;
 	for (data_type::iterator it = _data.begin(); it < _data.end(); it++) {
-		std::cout << "Server : " << i << std::endl;
+		std::cout << "Server :" << i << std::endl;
 		printMap(*it);
 		std::cout << std::endl;
 		i++;
 	}
 }
 
-bool	Config::_isValidKey(std::string key)
-{
-	for (int i = 0; i < N_OPT; i++)
-	{
-		if (_option[i] == key)
-			return (true);
-	}
-	return (false);
-}
+/* -------------------------------------------------------------------------- */
+/*                               ParsingFunction                              */
+/* -------------------------------------------------------------------------- */
 
 void		Config::_skipSpace(std::string::iterator &itStrBegin, std::string::iterator &itStrEnd)
 {
@@ -124,7 +224,7 @@ std::string	Config::_getWordSkipSpace(std::string::iterator &itStrBegin, std::st
 	return (word);
 }
 
-std::map<std::string, std::vector<std::string>>	Config::parseOneServ(std::string::iterator &itStrBegin, std::string::iterator &itStrEnd, std::vector<std::string>::iterator &first, std::vector<std::string>::iterator &last)
+Config::map_type	Config::_parseOneServ(std::string::iterator &itStrBegin, std::string::iterator &itStrEnd, std::vector<std::string>::iterator &first, std::vector<std::string>::iterator &last)
 {
 	std::map<std::string, std::vector<std::string>>	res;
 	std::string word;
@@ -144,7 +244,11 @@ std::map<std::string, std::vector<std::string>>	Config::parseOneServ(std::string
 				break ;
 			value.push_back(wordValue);
 		}
-		res.insert(std::make_pair(key, value));
+		if (!res.insert(std::make_pair(key, value)).second)
+		{
+			perror("parsing error: doublon key, value");
+			exit(EXIT_FAILURE);
+		}
 		if (word == "}")
 			break ;
 		_skipLineEmpty(itStrBegin, itStrEnd, first, last);

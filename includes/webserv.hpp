@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/19 10:52:17 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/10 18:44:53 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/10 19:16:45 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,3 +62,4 @@ std::string										getDate(void);
 int                                         	execRequest(HTTPRequest	&req, HTTPResponse &res, std::string root);
 std::string                                     to_string(int nb);
 void											printMap(std::map<std::string, std::vector<std::string>> map);
+bool											isDigits(std::string &digits);
