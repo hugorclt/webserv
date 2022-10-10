@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/18 12:57:12 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/10 14:01:15 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/10 18:44:14 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,19 @@ ServerList	createServers(Config configServer) {
 	//dataConfig = configServer.getData();
 	ServerList	server(nbServer, dataConfig);
 	return (server);
+}
+
+void	printMap(std::map<std::string, std::vector<std::string>> map)
+{
+	for (std::map<std::string, std::vector<std::string>>::iterator	it = map.begin(); it != map.end(); it++)
+	{
+		std::cout << it->first << " :";
+		for (std::vector<std::string>::iterator itVec = it->second.begin(); itVec != it->second.end(); itVec++)
+		{
+			std::cout << " " << *itVec;
+		}
+		std::cout << std::endl;
+	}
 }
 
 int main(int ac, char **av)

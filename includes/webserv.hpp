@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/19 10:52:17 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/10 15:32:57 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/10 18:44:53 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,8 +61,4 @@ int												ft_parse_server(std::istream &file, std::map<int, std::map<std::s
 std::string										getDate(void);
 int                                         	execRequest(HTTPRequest	&req, HTTPResponse &res, std::string root);
 std::string                                     to_string(int nb);
-std::map<std::string, std::vector<std::string>>	parseOneServ(std::string::iterator it_str, std::vector<std::string>::iterator &it, std::vector<std::string> fullFile);
-void											skipSpace(std::string::iterator &itStrBegin, std::string::iterator &itStrEnd);
-void											skipLineEmpty(std::string::iterator &itStrBegin, std::string::iterator &itStrEnd, std::vector<std::string>::iterator &first, std::vector<std::string>::iterator &end);
-std::string										getWordSkipLine(std::string::iterator &itStrBegin, std::string::iterator &itStrEnd, std::vector<std::string>::iterator &first, std::vector<std::string>::iterator &end);
-std::string										getWordSkipSpace(std::string::iterator &itStrBegin, std::string::iterator &itStrEnd);
+void											printMap(std::map<std::string, std::vector<std::string>> map);
