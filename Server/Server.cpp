@@ -6,14 +6,14 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/20 14:54:36 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/11 11:51:09 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/11 18:43:48 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 
 Server::Server(Config::map_type serverInfo) 
-: _root(serverInfo["root"][0]) , _opt(1) , _port(serverInfo["listen"][0]), _ip(serverInfo["listen"][0])
+: _root(serverInfo["root"][0]) , _opt(1) , _port(serverInfo["listen"][0]), _ip(serverInfo["listen"][1]) , _errorPath(serverInfo["error"][0])
 {
 	_sockfd = socket(AF_INET, SOCK_STREAM, 0);
 	if (!_sockfd) {
@@ -30,7 +30,6 @@ Server::Server(Config::map_type serverInfo)
 	_address.sin_family = AF_INET;
 	_address.sin_addr.s_addr = inet_addr(_ip.c_str());
 	_address.sin_port = htons(atoi(_port.c_str()));
-	std::cout << "Server created will listen on : " << _port << std::endl;
 	_addrLen = sizeof(_address);
 	
 	if (bind(_sockfd, (struct sockaddr*)&_address, sizeof(_address)) < 0) {
@@ -64,11 +63,20 @@ std::string	Server::getPort(void) const {
 	return (_port);
 }
 
+std::string	Server::getRoot(void) const {
+	return (_root);
+}
+
+std::string	Server::getError(void) const {
+	return (_errorPath);
+}
+
 /* -------------------------------------------------------------------------- */
 /*                                   methods                                  */
 /* -------------------------------------------------------------------------- */
 
 void	Server::listenConnection(void) {
+	//std::cout << _sockfd << std::endl;
 	if (listen(_sockfd, 5) < 0) {
 		perror("Listen failure");
 		close(_sockfd);
@@ -93,8 +101,4 @@ int	Server::acceptSocket(void) {
 		exit(EXIT_FAILURE);
 	}
 	return (newSocket);
-}
-
-std::string	Server::getRoot(void) const {
-	return (_root);
 }

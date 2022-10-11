@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   HTTPResponse.hpp                                   :+:      :+:    :+:   */
+/*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/21 11:47:56 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/09 16:23:02 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/11 16:15:33 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,13 +15,46 @@
 
 class HTTPRequest;
 
+class Response {
+	private:
+		Server				*_server;
+		HTTPRequest			&_req;
+		std::vector<char>	_data;
+		std::string			_code;
+		std::string			_header;
+
+		void		_constructBody(void);
+		void		_constructHeader(void);
+		std::string	_getDate(void);
+
+
+	public:
+		Response(HTTPRequest &req);
+
+
+		void	construct(void);
+		void	send();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+/*
 class HTTPResponse {
 	private:
 		//headers
 		std::map<std::string, std::string>	data;
 		int									length;
 		std::string							type;
-		std::vector<char>						body;
+		std::vector<char>					body;
 
 
 	public:
@@ -32,7 +65,7 @@ class HTTPResponse {
 		void	sendRequest(int clientFd);
 		
 };
-
+*/
 /*
 HTTP/1.1 200 OK
 Date: Mon, 27 Jul 2009 12:28:53 GMT

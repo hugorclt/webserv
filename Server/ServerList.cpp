@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/30 11:56:41 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/11 11:52:21 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/11 18:47:58 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,8 +17,8 @@ ServerList::ServerList(Config &conf) {
 	
 	for (Config::data_type::iterator confIt = dataConf.begin(); confIt != dataConf.end(); confIt++)
 	{
-		Server server(*confIt);
-		_servers.push_back(server);
+		//Server *server = new Server(*confIt);
+		//_servers.push_back(server);
 	}
 }
 
@@ -30,7 +30,7 @@ void	ServerList::listenConnection(void) {
 	serverValue::iterator it = _servers.begin();
 	
 	while (it != _servers.end()) {
-		it->listenConnection();
+		(*it)->listenConnection();
 		it++;
 	}
 }
@@ -39,7 +39,7 @@ ServerList::serverValue::iterator ServerList::getServerbyFd(int fd) {
 	serverValue::iterator	it = _servers.begin();
 	
 	while (it != _servers.end()) {
-		if (it->getSockfd() == fd)
+		if ((*it)->getSockfd() == fd)
 			return (it);
 		it++;
 	}
@@ -50,9 +50,13 @@ ServerList::serverValue::iterator ServerList::getServerByIpPort(std::vector<std:
 	serverValue::iterator	it = _servers.begin();
 	
 	while (it != _servers.end()) {
-		if (it->getIp() == ipPort[0] && it->getPort() == ipPort[1])
+		if ((*it)->getIp() == ipPort[1] && (*it)->getPort() == ipPort[0])
 			return (it);
 		it++;
 	}
 	return (it);
+}
+
+ServerList::serverValue	&ServerList::getServers(void) {
+	return (_servers);
 }

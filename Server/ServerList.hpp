@@ -6,20 +6,23 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/30 11:54:19 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/11 11:53:14 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/11 14:00:59 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
-#include "webserv.hpp"
 #include <vector>
 #include "Server.hpp"
+#include "Config.hpp"
+#include <string>
 
 class Server;
 
+class Config;
+
 class ServerList {
 	public:
-		typedef std::vector<Server>	serverValue;
+		typedef std::vector<Server*>	serverValue;
 	private:
 		serverValue	_servers;
 
@@ -32,5 +35,5 @@ class ServerList {
 		void					listenConnection(void);
 		serverValue::iterator	getServerByIpPort(std::vector<std::string> &ipPort);
 		serverValue::iterator 	getServerbyFd(int fd);
-
+		serverValue				&getServers(void);
 };
