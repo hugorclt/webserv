@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/18 12:57:12 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/10 20:36:33 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/11 18:37:09 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,16 +22,6 @@ void print_tab(std::vector<std::string> tab)
 		std::cout << tab[i] << std::endl;
 		i++;
 	}
-}
-
-ServerList	createServers(Config configServer) {
-	std::map<int, std::map<std::string, std::string>>	dataConfig;
-	int	nbServer;
-
-	//nbServer = configServer.getNbServers();
-	//dataConfig = configServer.getData();
-	ServerList	server(nbServer, dataConfig);
-	return (server);
 }
 
 void	printMap(std::map<std::string, std::vector<std::string>> map)
@@ -51,52 +41,70 @@ int main(int ac, char **av)
 {	
 	(void)av;
 	if (ac > 1 && ac <= 2)
-	{
-		// char				buffer[1024] = { 0 };
-		// int					index = 0;
-		// int					newSocket;
-		
-		Config	configServer(av[1]);
+	{		
+		try {	
+		/* --------------------------------- Parsing -------------------------------- */
+			Config	configServer(av[1]);
+			
 
-		//Create poll and server
-		// IOpoll	epoll;
-		// ServerList serverList = createServers(configServer);
-		
-		// // Server listening for connection
-		// serverList.listenConnection();
-		// epoll.addServerList(serverList);
-		
-		// while (42) {
-		// 	if (epoll_wait(epoll.getEpollfd(), epoll.getEvents(), MAX_EVENTS, -1) != -1)
-		// 	{
-		// 		int	client_fd = epoll.getEvents()[index].data.fd;
-		// 		for (index = 0; index < MAX_EVENTS; index++)
+		// /* ----------------------------- Server Creation ---------------------------- */
+		// 	IOpoll	epoll;
+		// 	ServerList serverList(configServer);
+
+
+		// 	serverList.listenConnection();
+		// 	epoll.addServerList(serverList);
+
+		// 	while (42) {
+		// 		try 
 		// 		{
-		// 			std::map<int, Server*>::iterator it = serverList.isServerFd(client_fd);
-		// 			if (it != serverList.getServer().end())
+		// 			if (epoll_wait(epoll.getEpollfd(), epoll.getEvents(), MAX_EVENTS, -1) != -1)
 		// 			{
-		// 				newSocket = it->second->acceptSocket();
-		// 				epoll.addFd(newSocket);
-		// 				break;
-		// 			}
-		// 			else
-		// 			{
-		// 				int	nb_bytes = recv(client_fd, buffer, 1024, 0);
-		// 				if (nb_bytes)
-		// 				{
-		// 					std::string str(buffer);
-		// 					std::cout << buffer << std::endl;
-		// 					HTTPRequest		req(createHttpRequest(str));
-		// 					HTTPResponse	res(req, serverList);
+		// 				int					index = 0;
 
-		// 					res.sendRequest(client_fd);
-		// 					memset(buffer, 0, sizeof(buffer));
+		// 				int	client_fd = epoll.getEvents()[index].data.fd;
+		// 				for (index = 0; index < MAX_EVENTS; index++)
+		// 				{
+		// 					ServerList::serverValue::iterator it = serverList.getServerbyFd(client_fd);
+		// 					int	newSocket;
+		// 					std::cout << (it != serverList.getServers().end());
+		// 					if (it != serverList.getServers().end())
+		// 					{
+		// 						newSocket = (*it)->acceptSocket();
+		// 						epoll.addFd(newSocket);
+		// 						break;
+		// 					}
+		// 					else
+		// 					{
+		// 						char	buffer[1024] = { 0 };
+		// 						int		nb_bytes = recv(client_fd, buffer, 1024, 0);
+		// 						if (nb_bytes)
+		// 						{
+		// 							std::string str(buffer);
+		// 							std::cout << buffer << std::endl;
+		// 							HTTPRequest	req(createHttpRequest(str));
+		// 							Response	res(req, *it);
+		// 							res.construct();
+
+		// 							res.send(client_fd);
+		// 						}
+		// 						close(newSocket);
+		// 						break;
+		// 					}
 		// 				}
-		// 				close(newSocket);
-		// 				break;
 		// 			}
+		// 		} catch (std::exception &e) {
+		// 			std::clog << "error: not fatal: server is listening" << std::endl;
+		// 			std::cerr << e.what() << std::endl;
 		// 		}
 		// 	}
-		// }
+
+
+
+		} catch (std::exception &e) {
+			std::cerr << e.what() << std::endl;
+			return (EXIT_FAILURE);
+		}
+				
 	}
 }

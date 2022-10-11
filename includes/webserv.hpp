@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/19 10:52:17 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/10 19:16:45 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/11 18:45:18 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,14 +31,16 @@
 #include <ctime>
 #include <algorithm>
 #include <cstdbool>
+#include <exception>
+#include <cerrno>
 
 
+#include "Config.hpp"
 #include "Server.hpp"
 #include "ServerList.hpp"
 #include "IOpoll.hpp"
 #include "HTTPRequest.hpp"
-#include "HTTPResponse.hpp"
-#include "../Parsing/Config.hpp"
+//#include "Response.hpp"
 
 #define EXIT_FAILURE 1
 #define EXIT_SUCCESS 0
@@ -59,7 +61,7 @@ std::vector<std::string> 						split(std::string s, char delimiter, int start);
 int												countLenServer(std::istream &file);
 int												ft_parse_server(std::istream &file, std::map<int, std::map<std::string, std::string>> &configFile);
 std::string										getDate(void);
-int                                         	execRequest(HTTPRequest	&req, HTTPResponse &res, std::string root);
+//int                                         	execRequest(HTTPRequest	&req, Response &res, std::string root);
 std::string                                     to_string(int nb);
 void											printMap(std::map<std::string, std::vector<std::string>> map);
 bool											isDigits(std::string &digits);

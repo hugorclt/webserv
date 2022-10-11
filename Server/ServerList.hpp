@@ -6,29 +6,34 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/30 11:54:19 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/09 12:37:18 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/11 14:00:59 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
-#include "webserv.hpp"
 #include <vector>
 #include "Server.hpp"
+#include "Config.hpp"
+#include <string>
 
 class Server;
 
+class Config;
+
 class ServerList {
+	public:
+		typedef std::vector<Server*>	serverValue;
 	private:
-		std::map<int, Server*>	server;
-		int						nbServer;
+		serverValue	_servers;
 
 	public:
-		ServerList(int	nbServer, std::map<int, std::map<std::string, std::string>>	portList);
+		ServerList(Config &conf);
 		
 		std::string getRootOfServ(int port);
-		int		&getNbServers(void);
+		int			getNbServers(void);
 
-		void									listenConnection(void);
-		std::map<int, Server*>::iterator		isServerFd(int fd);
-		std::map<int, Server*>	&getServer();
+		void					listenConnection(void);
+		serverValue::iterator	getServerByIpPort(std::vector<std::string> &ipPort);
+		serverValue::iterator 	getServerbyFd(int fd);
+		serverValue				&getServers(void);
 };

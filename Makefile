@@ -6,15 +6,13 @@
 #    By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/09/19 10:51:56 by hrecolet          #+#    #+#              #
-#    Updated: 2022/10/10 19:35:48 by hrecolet         ###   ########.fr        #
+#    Updated: 2022/10/11 18:49:51 by hrecolet         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 SRCS		=	main.cpp\
 				Server/Server.cpp\
 				IO/IOpoll.cpp\
-				HTTP/HTTPRequest.cpp\
-				HTTP/HTTPResponse.cpp\
 				Parsing/parse.cpp\
 				utils/ft_split.cpp\
 				Server/ServerList.cpp\
@@ -29,12 +27,10 @@ SRCS		=	main.cpp\
 INCL		=	includes/webserv.hpp\
 				Server/Server.hpp\
 				IO/IOpoll.hpp\
-				HTTP/HTTPRequest.hpp\
-				HTTP/HTTPResponse.hpp\
 				Server/ServerList.hpp\
 				Parsing/Config.hpp
 
-CC			=	c++
+CC			=	g++
 
 CPPFLAGS		=	-Wall -Werror -Wextra -std=c++98 -g3
 
@@ -47,7 +43,7 @@ OBJ			=	$(SRCS:.cpp=.o)
 all			:	$(NAME) 
 
 %.o : %.cpp
-	$(CC) $(CFLAGS) -I./includes -I./HTTP -I./IO -I./Server -o $@ -c $< 
+	$(CC) $(CFLAGS) -I./Parsing -I./includes -I./HTTP -I./IO -I./Server -o $@ -c $< 
 
 $(NAME)		:	$(OBJ) $(INCL)
 				$(CC) $(CPPFLAGS) $(OBJ) -o $(NAME) 
