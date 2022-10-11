@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/18 12:57:12 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/10 20:36:33 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/11 10:48:41 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,24 @@ int main(int ac, char **av)
 		// int					index = 0;
 		// int					newSocket;
 		
-		Config	configServer(av[1]);
+		try {
+			try {
+				Config	configServer(av[1]);
+			} catch (Config::ParsingError &e) {
+				std::cerr << e.what() << std::endl;
+				return (EXIT_FAILURE);
+			}
+
+
+			// try {
+				
+			// } catch () {
+				
+			// }	
+		} catch (std::exception &e) {
+			std::cerr << e.what() << std::endl;
+			return (EXIT_FAILURE);
+		}
 
 		//Create poll and server
 		// IOpoll	epoll;

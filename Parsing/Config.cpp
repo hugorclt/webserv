@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/03 11:36:29 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/10 20:37:01 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/11 10:36:59 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -140,24 +140,15 @@ Config::Config(char *filename) {
 			{
 				map_type	serverConfig = _parseOneServ(itStr, itStrEnd, first, second);
 				if (!_checkAllValue(serverConfig))
-				{
-					perror("error: parsing value not good");
-					exit(EXIT_FAILURE);
-				}
+					throw ParsingError("error: parsing: value not viable in config file");
 				_data.push_back(serverConfig);
 				
 			}
 			else
-			{
-				perror("error: parsing '{'");
-				exit(EXIT_FAILURE);
-			}
+				throw ParsingError("error: parsing: '}' not closed");
 		}
 		else if (!word.empty())
-		{
-			perror("error: parsing no \"server\"");
-			exit(EXIT_FAILURE);
-		}
+			throw ParsingError("error: parsing: no \"server\"");
 	}
 
 	
@@ -261,8 +252,6 @@ Config::map_type	Config::_parseOneServ(std::string::iterator &itStrBegin, std::s
 	if (word == "}")
 		return (res);
 	else
-	{
-		perror("parsing error: '}' not closed");
-		exit(EXIT_FAILURE);
-	}	
+		throw ParsingError("error: parsing: '}' not closed");
+
 }

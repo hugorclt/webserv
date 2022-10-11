@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/19 10:52:17 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/10 19:16:45 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/11 10:21:23 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,7 @@
 #include <ctime>
 #include <algorithm>
 #include <cstdbool>
+#include <exception>
 
 
 #include "Server.hpp"

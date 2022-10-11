@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/03 11:36:05 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/10 20:29:19 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/11 10:33:54 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,4 +50,15 @@ class Config {
 		
 	public:
 		Config(char *params);
+		
+		class ParsingError : public std::exception {
+			private:
+				std::string	_error;
+			public:
+				ParsingError(std::string error) : _error(error) {};
+				virtual const char *what() const throw() {
+					return (_error.c_str());
+				}
+		};
 };
+
