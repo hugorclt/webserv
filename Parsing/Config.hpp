@@ -16,17 +16,13 @@
 #define N_OPT		7
 #define MAX_PORT	65535
 
-struct LocationConfig
-{
-	std::string	path;
-	std::map<std::string, std::vector<std::string>>	conf;
-};
-
-
 struct ServerConfig
 {
-	std::map<std::string, std::vector<std::string>>	conf;
-	std::vector<LocationConfig>						location;
+	typedef std::map<std::string, std::vector<std::string>>							confType;
+	typedef std::map<std::string, std::map<std::string, std::vector<std::string>>>	locationType;
+
+	confType		conf;
+	locationType	location;
 };
 
 
@@ -52,7 +48,7 @@ class Config {
 		bool	_isServer(std::pair<std::string, std::vector<std::string>> pair, std::string::iterator &itStrBegin, std::string::iterator &itStrEnd, std::vector<std::string>::iterator &first, std::vector<std::string>::iterator &second);
 		bool	_isLocation(std::pair<std::string, std::vector<std::string>> pair, std::string::iterator &itStrBegin, std::string::iterator &itStrEnd, std::vector<std::string>::iterator &first, std::vector<std::string>::iterator &second);
 		ServerConfig	_createNewServerConfig(std::string::iterator &itStrBegin, std::string::iterator &itStrEnd, std::vector<std::string>::iterator &first, std::vector<std::string>::iterator &second);
-LocationConfig	_createNewLocation(std::string::iterator &itStrBegin, std::string::iterator &itStrEnd, std::vector<std::string>::iterator &first, std::vector<std::string>::iterator &second, std::string &path);
+		ServerConfig::confType	_createNewLocation(std::string::iterator &itStrBegin, std::string::iterator &itStrEnd, std::vector<std::string>::iterator &first, std::vector<std::string>::iterator &second);
 
 		//Check Functions
 		static bool	_isValidKey(std::string key);

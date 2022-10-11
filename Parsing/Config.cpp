@@ -151,17 +151,16 @@ std::pair<std::string, std::vector<std::string>>	Config::_getKeyValuePair(std::s
 	return (std::make_pair(key, values));
 }
 
-LocationConfig	Config::_createNewLocation(std::string::iterator &itStrBegin, std::string::iterator &itStrEnd, std::vector<std::string>::iterator &first, std::vector<std::string>::iterator &second, std::string &path)
+ServerConfig::confType	Config::_createNewLocation(std::string::iterator &itStrBegin, std::string::iterator &itStrEnd, std::vector<std::string>::iterator &first, std::vector<std::string>::iterator &second)
 {
-	LocationConfig	res;
-	
+	ServerConfig::confType	res;
+
 	_skipLineEmpty(itStrBegin, itStrEnd, first, second);
-	res.path = path;
 	std::pair<std::string, std::vector<std::string>>	pair = _getKeyValuePair(itStrBegin, itStrEnd);
 	while (first != second && (*itStrBegin != '}'))
 	{
 		_skipLineEmpty(itStrBegin, itStrEnd, first, second);
-		res.conf.insert(pair);
+		res.insert(pair);
 		pair = _getKeyValuePair(itStrBegin, itStrEnd);
 	}
 	return (res);
@@ -179,7 +178,7 @@ ServerConfig	Config::_createNewServerConfig(std::string::iterator &itStrBegin, s
 		if (_isLocation(pair, itStrBegin, itStrEnd, first, second))
 		{
 			itStrBegin++;
-			res.location.push_back(_createNewLocation(itStrBegin, itStrEnd, first, second, pair.second[0]));
+			res.location.insert(std::make_pair(pair.second[0], _createNewLocation(itStrBegin, itStrEnd, first, second)));
 			continue ;
 		}
 		res.conf.insert(pair);
@@ -231,8 +230,8 @@ Config::Config(char *filename) {
 	std::cout << "on sort du for" << std::endl;
 
 	std::cout << _data[0].conf["listen"][0] << std::endl;
-	std::cout << _data[0].location[0].path << std::endl;
-		std::cout << _data[0].location[0].conf["allow_methods"][0] << std::endl;
+	std::cout << _data[0].location.begin()->first << std::endl;
+	std::cout << _data[0].location.begin()->second["allow_methods"][0] << std::endl;
 
 
 
