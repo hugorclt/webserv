@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/20 15:57:26 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/09 12:12:19 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/11 10:51:49 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 IOpoll::IOpoll(void) {
 	this->ev.events = EPOLLIN | EPOLLET;
-	this->events = (epoll_event *)malloc(sizeof(epoll_event) * MAX_EVENTS);
+	this->events = new epoll_event[5];
 	this->epollfd = epoll_create1(0);
 	this->ev.data = {0};
 	if (this->epollfd < 0)

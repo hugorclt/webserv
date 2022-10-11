@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/03 11:36:29 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/11 10:36:59 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/11 11:53:27 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,6 @@ bool	Config::_checkAutoIndex(std::vector<std::string> &vec)
 
 bool	Config::_checkPath(std::vector<std::string> &vec)
 {
-	std::cout << vec.size() << std::endl;
 	return (vec.size() == 1);
 }
 
@@ -107,9 +106,17 @@ bool	Config::_checkAllValue(map_type	&serverConfig)
 	{
 		if (!(*_getOpt(it->first).second)(it->second))
 		{
-			std::cout << it->first << std::endl;
 			return (false);
 		}
+	}
+	return (true);
+}
+
+bool	Config::_checkIpHost(void) {
+	for (data_type::iterator it = _data.begin(), last = --_data.end(); it != last; it++)
+	{
+		if ((*it)["listen"] == (*last)["listen"])
+			return (false);
 	}
 	return (true);
 }
@@ -142,7 +149,8 @@ Config::Config(char *filename) {
 				if (!_checkAllValue(serverConfig))
 					throw ParsingError("error: parsing: value not viable in config file");
 				_data.push_back(serverConfig);
-				
+				if (!_checkIpHost())
+					throw ParsingError("error: parsing: same address ip and host in config files");
 			}
 			else
 				throw ParsingError("error: parsing: '}' not closed");
@@ -153,13 +161,13 @@ Config::Config(char *filename) {
 
 	
 	
-	int i = 1;
-	for (data_type::iterator it = _data.begin(); it < _data.end(); it++) {
-		std::cout << "Server :" << i << std::endl;
-		printMap(*it);
-		std::cout << std::endl;
-		i++;
-	}
+	// int i = 1;
+	// for (data_type::iterator it = _data.begin(); it < _data.end(); it++) {
+	// 	std::cout << "Server :" << i << std::endl;
+	// 	printMap(*it);
+	// 	std::cout << std::endl;
+	// 	i++;
+	// }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -224,8 +232,10 @@ Config::map_type	Config::_parseOneServ(std::string::iterator &itStrBegin, std::s
 	{
 		std::string	key = _getWordSkipSpace(itStrBegin, itStrEnd);
 		word = key;
-		if ((key == "}" || key.empty()) || !_isValidKey(key))
+		if ((key == "}" || key.empty()))
 			break ;
+		if (!_isValidKey(key))
+			throw ParsingError("error: parsing: not a valid key in config file");
 		std::vector<std::string>	value;
 		while (itStrBegin != itStrEnd)
 		{
@@ -236,10 +246,7 @@ Config::map_type	Config::_parseOneServ(std::string::iterator &itStrBegin, std::s
 			value.push_back(wordValue);
 		}
 		if (!res.insert(std::make_pair(key, value)).second)
-		{
-			perror("parsing error: doublon key, value");
-			exit(EXIT_FAILURE);
-		}
+			throw ParsingError("error: parsing: doublon in config file");
 		if (word == "}")
 			break ;
 		_skipLineEmpty(itStrBegin, itStrEnd, first, last);
@@ -254,4 +261,12 @@ Config::map_type	Config::_parseOneServ(std::string::iterator &itStrBegin, std::s
 	else
 		throw ParsingError("error: parsing: '}' not closed");
 
+}
+
+/* -------------------------------------------------------------------------- */
+/*                                  accessor                                  */
+/* -------------------------------------------------------------------------- */
+
+Config::data_type	Config::getData(void) {
+	return (_data);
 }

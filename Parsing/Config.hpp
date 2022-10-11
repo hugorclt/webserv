@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/03 11:36:05 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/11 10:33:54 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/11 11:22:28 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,11 +45,14 @@ class Config {
 		static bool	_checkPath(std::vector<std::string> &vec);
 		static bool	_checkListen(std::vector<std::string> &vec);
 		bool		_checkAllValue(map_type	&serverConfig);
+		bool		_checkIpHost(void);
 
 
 		
 	public:
 		Config(char *params);
+
+		data_type	getData(void);
 		
 		class ParsingError : public std::exception {
 			private:

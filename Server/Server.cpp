@@ -6,43 +6,42 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/20 14:54:36 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/08 17:38:12 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/11 11:51:09 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 
-Server::Server(int port, std::string ip, std::string root) {
-	this->root = root;
-	this->port = port;
-	this->opt  = 1;
-	this->sockfd = socket(AF_INET, SOCK_STREAM, 0);
-	if (!this->sockfd) {
+Server::Server(Config::map_type serverInfo) 
+: _root(serverInfo["root"][0]) , _opt(1) , _port(serverInfo["listen"][0]), _ip(serverInfo["listen"][0])
+{
+	_sockfd = socket(AF_INET, SOCK_STREAM, 0);
+	if (!_sockfd) {
 		perror("Socket creation failed");
 		exit(EXIT_FAILURE);
 	}
 	
-	if (setsockopt(this->sockfd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &this->opt, sizeof(this->opt)) < 0) {
+	if (setsockopt(_sockfd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &_opt, sizeof(_opt)) < 0) {
 		perror("Socket configuration failed");
-		close(this->sockfd);
+		close(_sockfd);
 		exit(EXIT_FAILURE);
 	}
 		
-	this->address.sin_family = AF_INET;
-	this->address.sin_addr.s_addr = inet_addr(ip.c_str());
-	this->address.sin_port = htons(port);
-	std::cout << "Server created will listen on : " << port << std::endl;
-	this->addrLen = sizeof(address);
+	_address.sin_family = AF_INET;
+	_address.sin_addr.s_addr = inet_addr(_ip.c_str());
+	_address.sin_port = htons(atoi(_port.c_str()));
+	std::cout << "Server created will listen on : " << _port << std::endl;
+	_addrLen = sizeof(_address);
 	
-	if (bind(this->sockfd, (struct sockaddr*)&this->address, sizeof(this->address)) < 0) {
+	if (bind(_sockfd, (struct sockaddr*)&_address, sizeof(_address)) < 0) {
 		perror("Bind Failed");
-		close(this->sockfd);
+		close(_sockfd);
 		exit(EXIT_FAILURE);
 	}
 }
 
 Server::~Server(void) {
-	close(this->sockfd);
+	close(_sockfd);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -50,11 +49,19 @@ Server::~Server(void) {
 /* -------------------------------------------------------------------------- */
 
 int	Server::getSockfd(void) const {
-	return (this->sockfd);
+	return (_sockfd);
 }
 
 sockaddr_in Server::getAddress(void) const {
-	return (this->address);
+	return (_address);
+}
+
+std::string	Server::getIp(void) const {
+	return (_ip);
+}
+
+std::string	Server::getPort(void) const {
+	return (_port);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -62,36 +69,32 @@ sockaddr_in Server::getAddress(void) const {
 /* -------------------------------------------------------------------------- */
 
 void	Server::listenConnection(void) {
-	if (listen(this->sockfd, 5) < 0) {
+	if (listen(_sockfd, 5) < 0) {
 		perror("Listen failure");
-		close(this->sockfd);
+		close(_sockfd);
 		exit(EXIT_FAILURE);
 	}
 }
 
 int	Server::acceptSocket(void) {
-	int newSocket = accept(this->sockfd, (struct sockaddr *)&this->address, (socklen_t *)&this->addrLen);
+	int newSocket = accept(_sockfd, (struct sockaddr *)&_address, (socklen_t *)&_addrLen);
 	std::cout << "new connection accepted, new socket: " << newSocket << std::endl;
 	if (newSocket < 0)
 	{
 		perror("Accept failure");
-		close(this->sockfd);
+		close(_sockfd);
 		exit(EXIT_FAILURE);
 	}
-	int flag = fcntl(this->sockfd, F_SETFL, O_NONBLOCK);
+	int flag = fcntl(_sockfd, F_SETFL, O_NONBLOCK);
 	std::cout << "socket set on non-blocking" << std::endl;
 	if (flag == -1)
 	{
-		close(this->sockfd);
+		close(_sockfd);
 		exit(EXIT_FAILURE);
 	}
 	return (newSocket);
 }
 
-std::string	Server::getRoot(void) {
-	return (this->root);
-}
-
-int	Server::getPort(void) {
-	return (this->port);
+std::string	Server::getRoot(void) const {
+	return (_root);
 }
