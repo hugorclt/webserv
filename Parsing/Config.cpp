@@ -224,6 +224,7 @@ Config::Config(char *filename) {
 	std::cout << _data[0].conf["listen"].size() << std::endl;
 	std::cout << _data[0].location.begin()->first << std::endl;
 	std::cout << _data[0].location.begin()->second["allow_methods"][0] << std::endl;
+	std::cout << _data[0].location["/hugo"]["root"][0] << std::endl;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -239,18 +240,28 @@ void		Config::_skipSpace(RangeIterator<std::string::iterator> strIt)
 		strIt.first = strIt.second;
 }
 
+void	skipPoint(RangeIterator<std::string::iterator> &strIt)
+{
+	while (strIt.first != strIt.second && *strIt.first == ';')
+		strIt.first++;
+}
+
 void	Config::_skipLineEmpty(RangeIterator<std::string::iterator> &strIt, RangeIterator<std::vector<std::string>::iterator> &fileIt)
 {
 	if (fileIt.first == fileIt.second)
 		return ;
+	skipPoint(strIt);
 	_skipSpace(strIt);
+	skipPoint(strIt);
 	while (fileIt.first != fileIt.second && strIt.first == strIt.second) {
 		fileIt.first++;
 		if (fileIt.first == fileIt.second)
 			break ;
 		strIt.first = fileIt.first->begin();
 		strIt.second = fileIt.first->end();
+		skipPoint(strIt);
 		_skipSpace(strIt);
+		skipPoint(strIt);
 	}
 }
 
@@ -258,7 +269,7 @@ std::string	Config::_getWord(RangeIterator<std::string::iterator> strIt)
 {
 	std::string::iterator	it = strIt.first;
 	
-	while (it != strIt.second && *it != ' ' && *it != '\t' && *it != '{' && *it != '}' && *it != '#')
+	while (it != strIt.second && *it != ' ' && *it != '\t' && *it != '{' && *it != '}' && *it != '#' && *it != ';')
 		it++;
 	std::string res(strIt.first, it);
 	strIt.first = it;
