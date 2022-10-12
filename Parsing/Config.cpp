@@ -125,75 +125,75 @@
 /*                                 Constructor                                */
 /* -------------------------------------------------------------------------- */
 
-bool	Config::_isServer(std::pair<std::string, std::vector<std::string>> pair, RangeIterator<std::string::iterator> &strIt, RangeIterator<std::vector<std::string>::iterator> &fileIt)
+bool	Config::_isServer(std::pair<std::string, std::vector<std::string>> pair, lineRange_type &lineRange, fileRange_type &fileRange)
 {
-	_skipLineEmpty(strIt, fileIt);
-	return (pair.first == "server" && !pair.second.size() && *strIt.first == '{');
+	_skipLineEmpty(lineRange, fileRange);
+	return (pair.first == "server" && !pair.second.size() && *lineRange.first == '{');
 }
 
-bool	Config::_isLocation(std::pair<std::string, std::vector<std::string>> pair, RangeIterator<std::string::iterator> &strIt, RangeIterator<std::vector<std::string>::iterator> &fileIt)
+bool	Config::_isLocation(std::pair<std::string, std::vector<std::string>> pair, lineRange_type &lineRange, fileRange_type &fileRange)
 {
-	_skipLineEmpty(strIt, fileIt);
-	return (pair.first == "location" && pair.second.size() == 1 && *strIt.first == '{');
+	_skipLineEmpty(lineRange, fileRange);
+	return (pair.first == "location" && pair.second.size() == 1 && *lineRange.first == '{');
 }
 
-std::pair<std::string, std::vector<std::string>>	Config::_getKeyValuePair(RangeIterator<std::string::iterator> &strIt)
+std::pair<std::string, std::vector<std::string>>	Config::_getKeyValuePair(lineRange_type &lineRange)
 {
-	std::string	key = _getWordSkipSpace(strIt);
+	std::string	key = _getWordSkipSpace(lineRange);
 	
 	std::vector<std::string>	values;
-	std::string word = _getWordSkipSpace(strIt);
+	std::string word = _getWordSkipSpace(lineRange);
 	while (!word.empty())
 	{
 		values.push_back(word);
-		word = _getWordSkipSpace(strIt);
+		word = _getWordSkipSpace(lineRange);
 	}
 	return (std::make_pair(key, values));
 }
 
-ServerConfig::confType	Config::_createNewLocation(RangeIterator<std::string::iterator> &strIt, RangeIterator<std::vector<std::string>::iterator> &fileIt)
+ServerConfig::confType	Config::_createNewLocation(lineRange_type &lineRange, fileRange_type &fileRange)
 {
 	ServerConfig::confType	res;
 
-	_skipLineEmpty(strIt, fileIt);
-	std::pair<std::string, std::vector<std::string>>	pair = _getKeyValuePair(strIt);
-	while (fileIt.first != fileIt.second && (*strIt.first != '}'))
+	_skipLineEmpty(lineRange, fileRange);
+	std::pair<std::string, std::vector<std::string>>	pair = _getKeyValuePair(lineRange);
+	while (fileRange.first != fileRange.second && *lineRange.first != '}')
 	{
-		_skipLineEmpty(strIt, fileIt);
+		_skipLineEmpty(lineRange, fileRange);
 		res.insert(pair);
-		pair = _getKeyValuePair(strIt);
+		pair = _getKeyValuePair(lineRange);
 	}
 	if (!pair.first.empty())
 		res.insert(pair);
-	if (fileIt.first == fileIt.second)
+	if (fileRange.first == fileRange.second)
 		throw ParsingError("Unclosed Location");
-	strIt.first++;
+	lineRange.first++;
 	return (res);
 }
 
-ServerConfig	Config::_createNewServerConfig(RangeIterator<std::string::iterator> &strIt, RangeIterator<std::vector<std::string>::iterator> &fileIt)
+ServerConfig	Config::_createNewServerConfig(lineRange_type &lineRange, fileRange_type &fileRange)
 {
 	ServerConfig	res;
 	
-	_skipLineEmpty(strIt, fileIt);
-	std::pair<std::string, std::vector<std::string>>	pair = _getKeyValuePair(strIt);
-	while (fileIt.first != fileIt.second && (*strIt.first != '}'))
+	_skipLineEmpty(lineRange, fileRange);
+	std::pair<std::string, std::vector<std::string>>	pair = _getKeyValuePair(lineRange);
+	while (fileRange.first != fileRange.second && (*lineRange.first != '}'))
 	{
-		_skipLineEmpty(strIt, fileIt);
-		if (_isLocation(pair, strIt, fileIt))
+		_skipLineEmpty(lineRange, fileRange);
+		if (_isLocation(pair, lineRange, fileRange))
 		{
-			strIt.first++;
-			res.location.insert(std::make_pair(pair.second[0], _createNewLocation(strIt, fileIt)));
+			lineRange.first++;
+			res.location.insert(std::make_pair(pair.second[0], _createNewLocation(lineRange, fileRange)));
 			continue ;
 		}
 		res.conf.insert(pair);
-		pair = _getKeyValuePair(strIt);
+		pair = _getKeyValuePair(lineRange);
 	}
 	if (!pair.first.empty())
 		res.conf.insert(pair);
-	if (fileIt.first == fileIt.second)
+	if (fileRange.first == fileRange.second)
 		throw ParsingError("Unclosed Server");
-	strIt.first++;
+	lineRange.first++;
 	return (res);
 }
 
@@ -206,21 +206,17 @@ Config::Config(char *filename) {
 		fullFile.push_back(line);
 	}
 	
-	std::vector<std::string>::iterator itFile = fullFile.begin();
-	std::vector<std::string>::iterator iteFile = fullFile.end();
-	RangeIterator<std::vector<std::string>::iterator> fileIt(itFile, iteFile);
-	std::string::iterator itStr = itFile->begin();
-	std::string::iterator iteStr = itFile->end();
-	RangeIterator<std::string::iterator> strIt(itStr, iteStr);
+	lineRange_type	lineRange(fullFile.begin()->begin(), fullFile.begin()->end());
+	fileRange_type	fileRange(fullFile.begin(), fullFile.end());
 
-	for (;fileIt.first != fileIt.second;)
+	for (;fileRange.first != fileRange.second;)
 	{
-		_skipLineEmpty(strIt, fileIt);
-		if (_isServer(_getKeyValuePair(strIt), strIt, fileIt))
+		_skipLineEmpty(lineRange, fileRange);
+		if (_isServer(_getKeyValuePair(lineRange), lineRange, fileRange))
 		{
-			strIt.first++;
-			_skipLineEmpty( strIt, fileIt);
-			_data.push_back(_createNewServerConfig( strIt, fileIt));
+			lineRange.first++;
+			_skipLineEmpty(lineRange, fileRange);
+			_data.push_back(_createNewServerConfig(lineRange, fileRange));
 		}
 	}
 
@@ -236,56 +232,56 @@ Config::Config(char *filename) {
 /*                               ParsingFunction                              */
 /* -------------------------------------------------------------------------- */
 
-void		Config::_skipSpace(RangeIterator<std::string::iterator> &strIt)
+void		Config::_skipSpace(lineRange_type &lineRange)
 {
-	while (strIt.first != strIt.second && (*strIt.first == '\t' || *strIt.first == ' ')) {
-		strIt.first++;
+	while (lineRange.first != lineRange.second && (*lineRange.first == '\t' || *lineRange.first == ' ')) {
+		lineRange.first++;
 	}
-	if (strIt.first != strIt.second && *strIt.first == '#')
-		strIt.first = strIt.second;
+	if (lineRange.first != lineRange.second && *lineRange.first == '#')
+		lineRange.first = lineRange.second;
 }
 
-void	skipPoint(RangeIterator<std::string::iterator> &strIt)
+void	skipPoint(std::pair<std::string::iterator, std::string::iterator> &lineRange)
 {
-	while (strIt.first != strIt.second && *strIt.first == ';')
-		strIt.first++;
+	while (lineRange.first != lineRange.second && *lineRange.first == ';')
+		lineRange.first++;
 }
 
-void	Config::_skipLineEmpty(RangeIterator<std::string::iterator> &strIt, RangeIterator<std::vector<std::string>::iterator> &fileIt)
+void	Config::_skipLineEmpty(lineRange_type &lineRange, fileRange_type &fileRange)
 {
-	if (fileIt.first == fileIt.second)
+	if (fileRange.first == fileRange.second)
 		return ;
-	skipPoint(strIt);
-	_skipSpace(strIt);
-	skipPoint(strIt);
-	while (fileIt.first != fileIt.second && strIt.first == strIt.second) {
-		fileIt.first++;
-		if (fileIt.first == fileIt.second)
+	skipPoint(lineRange);
+	_skipSpace(lineRange);
+	skipPoint(lineRange);
+	while (fileRange.first != fileRange.second && lineRange.first == lineRange.second) {
+		fileRange.first++;
+		if (fileRange.first == fileRange.second)
 			break ;
-		strIt.first = fileIt.first->begin();
-		strIt.second = fileIt.first->end();
-		skipPoint(strIt);
-		_skipSpace(strIt);
-		skipPoint(strIt);
+		lineRange.first = fileRange.first->begin();
+		lineRange.second = fileRange.first->end();
+		skipPoint(lineRange);
+		_skipSpace(lineRange);
+		skipPoint(lineRange);
 	}
 }
 
-std::string	Config::_getWord(RangeIterator<std::string::iterator> &strIt)
+std::string	Config::_getWord(lineRange_type &lineRange)
 {
-	std::string::iterator	it = strIt.first;
+	std::string::iterator	it = lineRange.first;
 	
-	while (it != strIt.second && *it != ' ' && *it != '\t' && *it != '{' && *it != '}' && *it != '#' && *it != ';')
+	while (it != lineRange.second && *it != ' ' && *it != '\t' && *it != '{' && *it != '}' && *it != '#' && *it != ';')
 		it++;
-	std::string res(strIt.first, it);
-	strIt.first = it;
+	std::string res(lineRange.first, it);
+	lineRange.first = it;
 	return (res);
 }
 
-std::string	Config::_getWordSkipSpace(RangeIterator<std::string::iterator> &strIt)
+std::string	Config::_getWordSkipSpace(lineRange_type &lineRange)
 {
-	_skipSpace(strIt);
-	std::string word = _getWord(strIt);
-	_skipSpace(strIt);
+	_skipSpace(lineRange);
+	std::string word = _getWord(lineRange);
+	_skipSpace(lineRange);
 	return (word);
 }
 
