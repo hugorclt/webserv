@@ -19,8 +19,8 @@
 template <class Iterator>
 struct RangeIterator
 {
-	Iterator &first;
-	Iterator &second;
+	Iterator first;
+	Iterator second;
 
 	RangeIterator(Iterator &start, Iterator &end) : first(start), second(end) {};
 };
@@ -46,16 +46,16 @@ class Config {
 		const static std::pair<std::string, bool(*)(std::vector<std::string> &)>	_option[N_OPT];
 	
 		//parseFunction
-		std::string													_getWordSkipSpace(RangeIterator<std::string::iterator> strIt);
-		std::string													_getWord(RangeIterator<std::string::iterator> strIt);
+		std::string													_getWordSkipSpace(RangeIterator<std::string::iterator> &strIt);
+		std::string													_getWord(RangeIterator<std::string::iterator> &strIt);
 		void														_skipLineEmpty(RangeIterator<std::string::iterator> &strIt, RangeIterator<std::vector<std::string>::iterator> &fileIt);
-		void														_skipSpace(RangeIterator<std::string::iterator> strIt);
+		void														_skipSpace(RangeIterator<std::string::iterator> &strIt);
 		std::pair<std::string, bool(*)(std::vector<std::string> &)>	_getOpt(std::string key);
-		bool														_isServer(std::pair<std::string, std::vector<std::string>> pair, RangeIterator<std::string::iterator> strIt, RangeIterator<std::vector<std::string>::iterator> fileIt);
-		bool														_isLocation(std::pair<std::string, std::vector<std::string>> pair, RangeIterator<std::string::iterator> strIt, RangeIterator<std::vector<std::string>::iterator> fileIt);
-		ServerConfig												_createNewServerConfig(RangeIterator<std::string::iterator> strIt, RangeIterator<std::vector<std::string>::iterator> fileIt);
-		ServerConfig::confType										_createNewLocation(RangeIterator<std::string::iterator> strIt, RangeIterator<std::vector<std::string>::iterator> fileIt);
-		std::pair<std::string, std::vector<std::string>>			_getKeyValuePair(RangeIterator<std::string::iterator> strIt);
+		bool														_isServer(std::pair<std::string, std::vector<std::string>> pair, RangeIterator<std::string::iterator> &strIt, RangeIterator<std::vector<std::string>::iterator> &fileIt);
+		bool														_isLocation(std::pair<std::string, std::vector<std::string>> pair, RangeIterator<std::string::iterator> &strIt, RangeIterator<std::vector<std::string>::iterator> &fileIt);
+		ServerConfig												_createNewServerConfig(RangeIterator<std::string::iterator> &strIt, RangeIterator<std::vector<std::string>::iterator> &fileIt);
+		ServerConfig::confType										_createNewLocation(RangeIterator<std::string::iterator> &strIt, RangeIterator<std::vector<std::string>::iterator> &fileIt);
+		std::pair<std::string, std::vector<std::string>>			_getKeyValuePair(RangeIterator<std::string::iterator> &strIt);
 
 		//Check Functions
 		static bool	_isValidKey(std::string key);

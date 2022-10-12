@@ -125,19 +125,19 @@
 /*                                 Constructor                                */
 /* -------------------------------------------------------------------------- */
 
-bool	Config::_isServer(std::pair<std::string, std::vector<std::string>> pair, RangeIterator<std::string::iterator> strIt, RangeIterator<std::vector<std::string>::iterator> fileIt)
+bool	Config::_isServer(std::pair<std::string, std::vector<std::string>> pair, RangeIterator<std::string::iterator> &strIt, RangeIterator<std::vector<std::string>::iterator> &fileIt)
 {
 	_skipLineEmpty(strIt, fileIt);
 	return (pair.first == "server" && !pair.second.size() && *strIt.first == '{');
 }
 
-bool	Config::_isLocation(std::pair<std::string, std::vector<std::string>> pair, RangeIterator<std::string::iterator> strIt, RangeIterator<std::vector<std::string>::iterator> fileIt)
+bool	Config::_isLocation(std::pair<std::string, std::vector<std::string>> pair, RangeIterator<std::string::iterator> &strIt, RangeIterator<std::vector<std::string>::iterator> &fileIt)
 {
 	_skipLineEmpty(strIt, fileIt);
 	return (pair.first == "location" && pair.second.size() == 1 && *strIt.first == '{');
 }
 
-std::pair<std::string, std::vector<std::string>>	Config::_getKeyValuePair(RangeIterator<std::string::iterator> strIt)
+std::pair<std::string, std::vector<std::string>>	Config::_getKeyValuePair(RangeIterator<std::string::iterator> &strIt)
 {
 	std::string	key = _getWordSkipSpace(strIt);
 	
@@ -151,7 +151,7 @@ std::pair<std::string, std::vector<std::string>>	Config::_getKeyValuePair(RangeI
 	return (std::make_pair(key, values));
 }
 
-ServerConfig::confType	Config::_createNewLocation(RangeIterator<std::string::iterator> strIt, RangeIterator<std::vector<std::string>::iterator> fileIt)
+ServerConfig::confType	Config::_createNewLocation(RangeIterator<std::string::iterator> &strIt, RangeIterator<std::vector<std::string>::iterator> &fileIt)
 {
 	ServerConfig::confType	res;
 
@@ -171,7 +171,7 @@ ServerConfig::confType	Config::_createNewLocation(RangeIterator<std::string::ite
 	return (res);
 }
 
-ServerConfig	Config::_createNewServerConfig(RangeIterator<std::string::iterator> strIt, RangeIterator<std::vector<std::string>::iterator> fileIt)
+ServerConfig	Config::_createNewServerConfig(RangeIterator<std::string::iterator> &strIt, RangeIterator<std::vector<std::string>::iterator> &fileIt)
 {
 	ServerConfig	res;
 	
@@ -236,7 +236,7 @@ Config::Config(char *filename) {
 /*                               ParsingFunction                              */
 /* -------------------------------------------------------------------------- */
 
-void		Config::_skipSpace(RangeIterator<std::string::iterator> strIt)
+void		Config::_skipSpace(RangeIterator<std::string::iterator> &strIt)
 {
 	while (strIt.first != strIt.second && (*strIt.first == '\t' || *strIt.first == ' ')) {
 		strIt.first++;
@@ -270,7 +270,7 @@ void	Config::_skipLineEmpty(RangeIterator<std::string::iterator> &strIt, RangeIt
 	}
 }
 
-std::string	Config::_getWord(RangeIterator<std::string::iterator> strIt)
+std::string	Config::_getWord(RangeIterator<std::string::iterator> &strIt)
 {
 	std::string::iterator	it = strIt.first;
 	
@@ -281,7 +281,7 @@ std::string	Config::_getWord(RangeIterator<std::string::iterator> strIt)
 	return (res);
 }
 
-std::string	Config::_getWordSkipSpace(RangeIterator<std::string::iterator> strIt)
+std::string	Config::_getWordSkipSpace(RangeIterator<std::string::iterator> &strIt)
 {
 	_skipSpace(strIt);
 	std::string word = _getWord(strIt);
