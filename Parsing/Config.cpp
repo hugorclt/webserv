@@ -163,6 +163,8 @@ ServerConfig::confType	Config::_createNewLocation(RangeIterator<std::string::ite
 		res.insert(pair);
 		pair = _getKeyValuePair(strIt);
 	}
+	if (!pair.first.empty())
+		res.insert(pair);
 	if (fileIt.first == fileIt.second)
 		throw ParsingError("Unclosed Location");
 	strIt.first++;
@@ -187,6 +189,8 @@ ServerConfig	Config::_createNewServerConfig(RangeIterator<std::string::iterator>
 		res.conf.insert(pair);
 		pair = _getKeyValuePair(strIt);
 	}
+	if (!pair.first.empty())
+		res.conf.insert(pair);
 	if (fileIt.first == fileIt.second)
 		throw ParsingError("Unclosed Server");
 	strIt.first++;
@@ -225,6 +229,7 @@ Config::Config(char *filename) {
 	std::cout << _data[0].location.begin()->first << std::endl;
 	std::cout << _data[0].location.begin()->second["allow_methods"][0] << std::endl;
 	std::cout << _data[0].location["/hugo"]["root"][0] << std::endl;
+	std::cout << _data[0].conf["error_page_404"][0] << std::endl;
 }
 
 /* -------------------------------------------------------------------------- */
