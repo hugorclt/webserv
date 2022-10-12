@@ -6,68 +6,110 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/03 11:36:29 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/12 11:47:09 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/12 21:15:44 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Config.hpp"
 
+const std::string Config::_whitespacesSet = "\t ";
+const std::string Config::_lineBreakSet = ";";
+const std::string Config::_commentSet = "#";
+const std::string Config::_scopeSet = "{}";
+
+const std::pair<std::string, bool(*)(std::vector<std::string> &)>	Config::_optionConf[N_CONF_OPT] {
+	std::make_pair(std::string("listen"), &Config::_checkListen),
+	std::make_pair(std::string("server_name"), &Config::_checkPath), 
+	std::make_pair(std::string("body_size"), &Config::_checkBodySize),
+};
+
+const std::pair<std::string, bool(*)(std::vector<std::string> &)>	Config::_optionLocation[N_LOC_OPT] {
+	std::make_pair(std::string("root"), &Config::_checkPath),
+	std::make_pair(std::string("index"), &Config::_checkPath),
+	std::make_pair(std::string("error"), &Config::_checkPath),
+	std::make_pair(std::string("body_size"), &Config::_checkBodySize),
+	std::make_pair(std::string("auto_index"), &Config::_checkAutoIndex),
+	//std::make_pair(std::string("cgi"), &Config::_checkCgi),
+	std::make_pair(std::string("upload"), &Config::_checkPath)
+	//std::make_pair(std::string("allow_methods"), &Config::_checkAllowMethods)
+};
+
 /* -------------------------------------------------------------------------- */
 /*                                CheckFunction                               */
 /* -------------------------------------------------------------------------- */
 
-// bool	Config::_isValueEmpty(std::vector<std::string> &vec)
-// {
-// 	return (!vec.size());
-// }
+bool	Config::_checkKeyConfServer(ServerConfig::confType &confServ)
+{
+	if (confServ.find("listen") == confServ.end())
+		return (false);
+	if (confServ.find("body_size") == confServ.end())
+		return (false);
 
-// bool	Config::_checkAutoIndex(std::vector<std::string> &vec)
-// {
-// 	return ((vec.size() == 1) && (vec[0] == "on" || vec[0] == "off"));
-// }
+	//add loop throught the map and send all vector in the tab of pointer function _optionConf
+	return (true);
+}
 
-//  bool	Config::_checkBodySize(std::vector<std::string> &vec)
-// {
-// 	int	nb;
+bool	Config::_checkKeyLocation(ServerConfig::locationType &confLocation)
+{
+	if (confLocation.size() < 1)
+		return (false);
+	for (ServerConfig::locationType::iterator itLocations = confLocation.begin(); itLocations != confLocation.end(); itLocations++)
+	{
+		if (itLocations->second.find("root") == itLocations->second.end())
+			return (false);
+		//add loop throught the map and send all vector in the tab of pointer function _optionLocation
+
+	}
+	return (true);
+}
+
+bool	Config::_checkAutoIndex(std::vector<std::string> &vec)
+{
+	return ((vec.size() == 1) && (vec[0] == "on" || vec[0] == "off"));
+}
+
+ bool	Config::_checkBodySize(std::vector<std::string> &vec)
+{
+	int	nb;
 	
-// 	if (_isValueEmpty(vec) || vec.size() > 1)
-// 		return (false);
-// 	if (!isDigits(vec[0]))
-// 		return (false);
+	if (vec.size() == 1)
+		return (false);
+	if (!isDigits(vec[0]))
+		return (false);
 
-// 	nb = atoi(vec[0].c_str());
-// 	if (nb <= 0)
-// 		return (false);
-// 	return (true);
-// }
+	nb = atoi(vec[0].c_str());
+	if (nb <= 0)
+		return (false);
+	return (true);
+}
 
-// bool	Config::_checkPath(std::vector<std::string> &vec)
-// {
-// 	return (vec.size() == 1);
-// }
+bool	Config::_checkPath(std::vector<std::string> &vec)
+{
+	return (vec.size() == 1);
+}
 
-// bool	Config::_checkListen(std::vector<std::string> &vec)
-// {
-// 	int							port;
-// 	std::vector<std::string>	ip;
+bool	Config::_checkListen(std::vector<std::string> &vec)
+{
+	int							port;
+	std::vector<std::string>	ip;
 	
-// 	if (vec.size() != 2)
-// 		return (false);
-// 	if (!isDigits(vec[0]))
-// 		return (false);
-// 	port = atoi(vec[0].c_str());
-// 	if (port < 0 || port > MAX_PORT)
-// 		return (false);
-// 	ip = split(vec[1], ".");
-// 	if (ip.size() != 4)
-// 		return (false);
-// 	for (std::vector<std::string>::iterator it = ip.begin(); it < ip.end(); it++)
-// 	{
-// 		if (atoi(it->c_str()) < 0 || atoi(it->c_str()) > 255)
-// 			return (false);
-// 	}
-// 	return (true);
-// }
+	if (vec.size() != 2)
+		return (false);
+	if (!isDigits(vec[0]))
+		return (false);
+	port = atoi(vec[0].c_str());
+	if (port < 0 || port > MAX_PORT)
+		return (false);
+	ip = split(vec[1], ".");
+	if (ip.size() != 4)
+		return (false);
+	for (std::vector<std::string>::iterator it = ip.begin(); it < ip.end(); it++)
+	{
+		if (atoi(it->c_str()) < 0 || atoi(it->c_str()) > 255)
+			return (false);
+	}
+	return (true);
+}
 
 // bool	Config::_isValidKey(std::string key)
 // {
@@ -89,15 +131,6 @@
 // 	return (_option[i]);
 // }
 
-// const std::pair<std::string, bool(*)(std::vector<std::string> &)>	Config::_option[N_OPT] {
-// 	std::make_pair(std::string("listen"), &Config::_checkListen),
-// 	std::make_pair(std::string("server_name"), &Config::_checkPath), 
-// 	std::make_pair(std::string("root"), &Config::_checkPath),
-// 	std::make_pair(std::string("index"), &Config::_checkPath),
-// 	std::make_pair(std::string("error"), &Config::_checkPath),
-// 	std::make_pair(std::string("body_size"), &Config::_checkBodySize),
-// 	std::make_pair(std::string("auto_index"), &Config::_checkAutoIndex)
-// };
 
 
 // bool	Config::_checkAllValue(map_type	&serverConfig)
@@ -123,6 +156,42 @@
 
 /* -------------------------------------------------------------------------- */
 /*                                 Constructor                                */
+/* -------------------------------------------------------------------------- */
+
+
+
+Config::Config(char *filename) {
+	std::ifstream				input(filename);
+	std::vector<std::string>	fullFile;
+
+	for (std::string line; std::getline(input, line); ) {
+		fullFile.push_back(line);
+	}
+	
+	lineRange_type	lineRange(fullFile.begin()->begin(), fullFile.begin()->end());
+	fileRange_type	fileRange(fullFile.begin(), fullFile.end());
+
+	for (;fileRange.first != fileRange.second;)
+	{
+		_goToNextWordInFile(lineRange, fileRange);
+		if (_isServer(_getKeyValuePair(lineRange), lineRange, fileRange))
+		{
+			lineRange.first++;
+			_goToNextWordInFile(lineRange, fileRange);
+			_data.push_back(_createNewServerConfig(lineRange, fileRange));
+		}
+	}
+
+	std::cout << _data[0].conf["listen"][0] << std::endl;
+	std::cout << _data[0].conf["listen"].size() << std::endl;
+	std::cout << _data[0].location.begin()->first << std::endl;
+	std::cout << _data[0].location.begin()->second["allow_methods"][0] << std::endl;
+	std::cout << _data[0].location["/hugo"]["root"][0] << std::endl;
+	std::cout << _data[0].conf["error_page_404"][0] << std::endl;
+}
+
+/* -------------------------------------------------------------------------- */
+/*                               ParsingFunction                              */
 /* -------------------------------------------------------------------------- */
 
 bool	Config::_isServer(keyValues_type pair, lineRange_type &lineRange, fileRange_type &fileRange)
@@ -160,7 +229,8 @@ ServerConfig::confType	Config::_createNewLocation(lineRange_type &lineRange, fil
 	while (fileRange.first != fileRange.second && *lineRange.first != '}')
 	{
 		_goToNextWordInFile(lineRange, fileRange);
-		res.insert(pair);
+		if (!res.insert(pair).second)
+			throw ParsingError("Key already existing");
 		pair = _getKeyValuePair(lineRange);
 	}
 	if (!pair.first.empty())
@@ -183,7 +253,8 @@ ServerConfig	Config::_createNewServerConfig(lineRange_type &lineRange, fileRange
 		if (_isLocation(pair, lineRange, fileRange))
 		{
 			lineRange.first++;
-			res.location.insert(std::make_pair(pair.second[0], _createNewLocation(lineRange, fileRange)));
+			if (!res.location.insert(std::make_pair(pair.second[0], _createNewLocation(lineRange, fileRange))).second)
+				throw ParsingError("Key already existing");
 			continue ;
 		}
 		res.conf.insert(pair);
@@ -196,46 +267,6 @@ ServerConfig	Config::_createNewServerConfig(lineRange_type &lineRange, fileRange
 	lineRange.first++;
 	return (res);
 }
-
-
-Config::Config(char *filename) {
-	std::ifstream				input(filename);
-	std::vector<std::string>	fullFile;
-
-	for (std::string line; std::getline(input, line); ) {
-		fullFile.push_back(line);
-	}
-	
-	lineRange_type	lineRange(fullFile.begin()->begin(), fullFile.begin()->end());
-	fileRange_type	fileRange(fullFile.begin(), fullFile.end());
-
-	for (;fileRange.first != fileRange.second;)
-	{
-		_goToNextWordInFile(lineRange, fileRange);
-		if (_isServer(_getKeyValuePair(lineRange), lineRange, fileRange))
-		{
-			lineRange.first++;
-			_goToNextWordInFile(lineRange, fileRange);
-			_data.push_back(_createNewServerConfig(lineRange, fileRange));
-		}
-	}
-
-	std::cout << _data[0].conf["listen"][0] << std::endl;
-	std::cout << _data[0].conf["listen"].size() << std::endl;
-	std::cout << _data[0].location.begin()->first << std::endl;
-	std::cout << _data[0].location.begin()->second["allow_methods"][0] << std::endl;
-	std::cout << _data[0].location["/hugo"]["root"][0] << std::endl;
-	std::cout << _data[0].conf["error_page_404"][0] << std::endl;
-}
-
-/* -------------------------------------------------------------------------- */
-/*                               ParsingFunction                              */
-/* -------------------------------------------------------------------------- */
-
-const std::string Config::_whitespacesSet = "\t ";
-const std::string Config::_lineBreakSet = ";";
-const std::string Config::_commentSet = "#";
-const std::string Config::_scopeSet = "{}";
 
 void	Config::_skipCharset(lineRange_type &lineRange, const std::string &charset)
 { 

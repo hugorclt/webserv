@@ -6,14 +6,15 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/03 11:36:05 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/12 11:43:20 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/12 21:13:12 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 #include "webserv.hpp"
 
-#define N_OPT		7
+#define N_CONF_OPT		3
+#define N_LOC_OPT		8
 #define MAX_PORT	65535
 
 struct ServerConfig
@@ -35,13 +36,14 @@ class Config {
 		typedef std::pair<std::string, std::vector<std::string>>	keyValues_type;
 
 	public:
-		typedef std::vector<ServerConfig> 	data_type;
+		typedef std::vector<ServerConfig> 						data_type;
 		typedef std::map<std::string, std::vector<std::string>>	map_type;
 		
 	private:
 		int							_nbServer;
 		data_type					_data;
-		const static std::pair<std::string, bool(*)(std::vector<std::string> &)>	_option[N_OPT];
+		const static std::pair<std::string, bool(*)(std::vector<std::string> &)>	_optionConf[N_CONF_OPT];
+		const static std::pair<std::string, bool(*)(std::vector<std::string> &)>			_optionLocation[N_LOC_OPT];
 		const static std::string	_whitespacesSet;
 		const static std::string	_lineBreakSet;
 		const static std::string	_commentSet;
@@ -58,23 +60,27 @@ class Config {
 		bool														_isLocation(keyValues_type pair, lineRange_type &strIt, fileRange_type &fileIt);
 		ServerConfig												_createNewServerConfig(lineRange_type &strIt, fileRange_type &fileIt);
 		ServerConfig::confType										_createNewLocation(lineRange_type &strIt, fileRange_type &fileIt);
-		keyValues_type			_getKeyValuePair(lineRange_type &strIt);
+		keyValues_type												_getKeyValuePair(lineRange_type &strIt);
 
 		//Check Functions
 		static bool	_isValidKey(std::string key);
-		static bool	_isValueEmpty(std::vector<std::string> &vec);
 		static bool	_checkAutoIndex(std::vector<std::string> &vec);
 		static bool	_checkBodySize(std::vector<std::string> &vec);
 		static bool	_checkPath(std::vector<std::string> &vec);
 		static bool	_checkListen(std::vector<std::string> &vec);
 		bool		_checkAllValue(map_type	&serverConfig);
 		bool		_checkIpHost(void);
+		bool		_checkKeyConfServer(ServerConfig::confType &confServ);
+		bool		_checkKeyLocation(ServerConfig::locationType &confLocation);
+
+
 
 
 		
 	public:
 		Config(char *params);
 
+		//accessor
 		data_type	getData(void);
 		
 		class ParsingError : public std::exception {
