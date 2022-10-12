@@ -60,7 +60,7 @@ class Config {
 		bool														_isLocation(keyValues_type pair, lineRange_type &strIt, fileRange_type &fileIt);
 		ServerConfig												_createNewServerConfig(lineRange_type &strIt, fileRange_type &fileIt);
 		ServerConfig::confType										_createNewLocation(lineRange_type &strIt, fileRange_type &fileIt);
-		keyValues_type												_getKeyValuePair(lineRange_type &strIt);
+		keyValues_type												_getKeyValues(lineRange_type &strIt);
 
 		//Check Functions
 		static bool	_isValidKey(std::string key);

@@ -174,7 +174,7 @@ Config::Config(char *filename) {
 	for (;fileRange.first != fileRange.second;)
 	{
 		_goToNextWordInFile(lineRange, fileRange);
-		if (_isServer(_getKeyValuePair(lineRange), lineRange, fileRange))
+		if (_isServer(_getKeyValues(lineRange), lineRange, fileRange))
 		{
 			lineRange.first++;
 			_goToNextWordInFile(lineRange, fileRange);
@@ -194,19 +194,19 @@ Config::Config(char *filename) {
 /*                               ParsingFunction                              */
 /* -------------------------------------------------------------------------- */
 
-bool	Config::_isServer(keyValues_type pair, lineRange_type &lineRange, fileRange_type &fileRange)
+bool	Config::_isServer(keyValues_type keyValues, lineRange_type &lineRange, fileRange_type &fileRange)
 {
 	_goToNextWordInFile(lineRange, fileRange);
-	return (pair.first == "server" && !pair.second.size() && *lineRange.first == '{');
+	return (keyValues.first == "server" && !keyValues.second.size() && *lineRange.first == '{');
 }
 
-bool	Config::_isLocation(keyValues_type pair, lineRange_type &lineRange, fileRange_type &fileRange)
+bool	Config::_isLocation(keyValues_type keyValues, lineRange_type &lineRange, fileRange_type &fileRange)
 {
 	_goToNextWordInFile(lineRange, fileRange);
-	return (pair.first == "location" && pair.second.size() == 1 && *lineRange.first == '{');
+	return (keyValues.first == "location" && keyValues.second.size() == 1 && *lineRange.first == '{');
 }
 
-Config::keyValues_type	Config::_getKeyValuePair(lineRange_type &lineRange)
+Config::keyValues_type	Config::_getKeyValues(lineRange_type &lineRange)
 {
 	std::string	key = _getWordSkipSpace(lineRange);
 	
@@ -225,16 +225,16 @@ ServerConfig::confType	Config::_createNewLocation(lineRange_type &lineRange, fil
 	ServerConfig::confType	res;
 
 	_goToNextWordInFile(lineRange, fileRange);
-	keyValues_type	pair = _getKeyValuePair(lineRange);
+	keyValues_type	keyValues = _getKeyValues(lineRange);
 	while (fileRange.first != fileRange.second && *lineRange.first != '}')
 	{
 		_goToNextWordInFile(lineRange, fileRange);
-		if (!res.insert(pair).second)
+		if (!res.insert(keyValues).second)
 			throw ParsingError("Key already existing");
-		pair = _getKeyValuePair(lineRange);
+		keyValues = _getKeyValues(lineRange);
 	}
-	if (!pair.first.empty())
-		res.insert(pair);
+	if (!keyValues.first.empty())
+		res.insert(keyValues);
 	if (fileRange.first == fileRange.second)
 		throw ParsingError("Unclosed Location");
 	lineRange.first++;
@@ -246,22 +246,22 @@ ServerConfig	Config::_createNewServerConfig(lineRange_type &lineRange, fileRange
 	ServerConfig	res;
 	
 	_goToNextWordInFile(lineRange, fileRange);
-	keyValues_type	pair = _getKeyValuePair(lineRange);
+	keyValues_type	keyValues = _getKeyValues(lineRange);
 	while (fileRange.first != fileRange.second && (*lineRange.first != '}'))
 	{
 		_goToNextWordInFile(lineRange, fileRange);
-		if (_isLocation(pair, lineRange, fileRange))
+		if (_isLocation(keyValues, lineRange, fileRange))
 		{
 			lineRange.first++;
-			if (!res.location.insert(std::make_pair(pair.second[0], _createNewLocation(lineRange, fileRange))).second)
+			if (!res.location.insert(std::make_pair(keyValues.second[0], _createNewLocation(lineRange, fileRange))).second)
 				throw ParsingError("Key already existing");
 			continue ;
 		}
-		res.conf.insert(pair);
-		pair = _getKeyValuePair(lineRange);
+		res.conf.insert(keyValues);
+		keyValues = _getKeyValues(lineRange);
 	}
-	if (!pair.first.empty())
-		res.conf.insert(pair);
+	if (!keyValues.first.empty())
+		res.conf.insert(keyValues);
 	if (fileRange.first == fileRange.second)
 		throw ParsingError("Unclosed Server");
 	lineRange.first++;
