@@ -163,6 +163,9 @@ ServerConfig::confType	Config::_createNewLocation(RangeIterator<std::string::ite
 		res.insert(pair);
 		pair = _getKeyValuePair(strIt);
 	}
+	if (fileIt.first == fileIt.second)
+		throw ParsingError("Unclosed Location");
+	strIt.first++;
 	return (res);
 }
 
@@ -184,6 +187,9 @@ ServerConfig	Config::_createNewServerConfig(RangeIterator<std::string::iterator>
 		res.conf.insert(pair);
 		pair = _getKeyValuePair(strIt);
 	}
+	if (fileIt.first == fileIt.second)
+		throw ParsingError("Unclosed Server");
+	strIt.first++;
 	return (res);
 }
 
@@ -200,13 +206,11 @@ Config::Config(char *filename) {
 	std::vector<std::string>::iterator iteFile = fullFile.end();
 	RangeIterator<std::vector<std::string>::iterator> fileIt(itFile, iteFile);
 	std::string::iterator itStr = itFile->begin();
-	std::string::iterator iteStr = iteFile->end();
+	std::string::iterator iteStr = itFile->end();
 	RangeIterator<std::string::iterator> strIt(itStr, iteStr);
 
-	for (;fileIt.first < fileIt.second;)
+	for (;fileIt.first != fileIt.second;)
 	{
-		strIt.first = fileIt.first->begin();
-		strIt.second = fileIt.first->end();
 		_skipLineEmpty(strIt, fileIt);
 		if (_isServer(_getKeyValuePair(strIt), strIt, fileIt))
 		{
@@ -214,12 +218,10 @@ Config::Config(char *filename) {
 			_skipLineEmpty( strIt, fileIt);
 			_data.push_back(_createNewServerConfig( strIt, fileIt));
 		}
-		break ;
-		std::cout << "end for" << std::endl;
 	}
-	std::cout << "on sort du for" << std::endl;
 
 	std::cout << _data[0].conf["listen"][0] << std::endl;
+	std::cout << _data[0].conf["listen"].size() << std::endl;
 	std::cout << _data[0].location.begin()->first << std::endl;
 	std::cout << _data[0].location.begin()->second["allow_methods"][0] << std::endl;
 }
@@ -233,6 +235,8 @@ void		Config::_skipSpace(RangeIterator<std::string::iterator> strIt)
 	while (strIt.first != strIt.second && (*strIt.first == '\t' || *strIt.first == ' ')) {
 		strIt.first++;
 	}
+	if (strIt.first != strIt.second && *strIt.first == '#')
+		strIt.first = strIt.second;
 }
 
 void	Config::_skipLineEmpty(RangeIterator<std::string::iterator> &strIt, RangeIterator<std::vector<std::string>::iterator> &fileIt)
@@ -254,7 +258,7 @@ std::string	Config::_getWord(RangeIterator<std::string::iterator> strIt)
 {
 	std::string::iterator	it = strIt.first;
 	
-	while (it != strIt.second && *it != ' ' && *it != '\t' && *it != '{' && *it != '}')
+	while (it != strIt.second && *it != ' ' && *it != '\t' && *it != '{' && *it != '}' && *it != '#')
 		it++;
 	std::string res(strIt.first, it);
 	strIt.first = it;
