@@ -6,12 +6,14 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/21 11:47:56 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/11 16:15:33 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/12 15:07:32 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 #include "webserv.hpp"
+
+#define NB_MIME 66
 
 class HTTPRequest;
 
@@ -23,13 +25,14 @@ class Response {
 		std::string			_code;
 		std::string			_header;
 
+		static std::pair<std::string, std::string>	_mimeTypes[NB_MIME];
 		void		_constructBody(void);
 		void		_constructHeader(void);
 		std::string	_getDate(void);
 
 
 	public:
-		Response(HTTPRequest &req);
+		Response(HTTPRequest &req, Server *server);
 
 
 		void	construct(void);

@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/03 11:36:29 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/12 11:45:11 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/12 11:47:09 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -222,37 +222,7 @@ Config::Config(char *filename) {
 	std::cout << _data[0].conf["listen"][0] << std::endl;
 	std::cout << _data[0].location.begin()->first << std::endl;
 	std::cout << _data[0].location.begin()->second["allow_methods"][0] << std::endl;
-
-
-
-	
-	// 	std::string word = _getWordSkipLine(itStr, itStrEnd, first, second);
-	// 	if (word == "server")
-	// 	{
-	// 		if (_getWordSkipLine(itStr, itStrEnd, first, second) == "{")
-	// 		{
-	// 			map_type	serverConfig = _parseOneServ(itStr, itStrEnd, first, second);
-	// 			if (!_checkAllValue(serverConfig))
-	// 				throw ParsingError("error: parsing: value not viable in config file");
-	// 			_data.push_back(serverConfig);
-	// 			if (!_checkIpHost())
-	// 				throw ParsingError("error: parsing: same address ip and host in config files");
-	// 		}
-	// 		else
-	// 			throw ParsingError("error: parsing: '}' not closed");
-	// 	else if (!word.empty())
-	// 		throw ParsingError("error: parsing: no \"server\"");
 }
-
-	
-	
-	// int i = 1;
-	// for (data_type::iterator it = _data.begin(); it < _data.end(); it++) {
-	// 	std::cout << "Server :" << i << std::endl;
-	// 	printMap(*it);
-	// 	std::cout << std::endl;
-	// 	i++;
-	// }
 
 /* -------------------------------------------------------------------------- */
 /*                               ParsingFunction                              */
@@ -298,50 +268,6 @@ std::string	Config::_getWordSkipSpace(RangeIterator<std::string::iterator> strIt
 	_skipSpace(strIt);
 	return (word);
 }
-
-// Config::map_type	Config::_parseOneServ(std::string::iterator &itStrBegin, std::string::iterator &itStrEnd, std::vector<std::string>::iterator &first, std::vector<std::string>::iterator &last)
-// {
-// 	std::map<std::string, std::vector<std::string>>	res;
-// 	std::string word;
-	
-// 	while (first != last && *itStrBegin != '}')
-// 	{
-// 		std::string	key = _getWordSkipSpace(itStrBegin, itStrEnd);
-// 		word = key;
-// 		if ((key == "}" || key.empty()))
-// 			break ;
-// 		if (key == "location")
-// 		{
-			
-// 		}
-// 		if (!_isValidKey(key))
-// 			throw ParsingError("error: parsing: not a valid key in config file");
-// 		std::vector<std::string>	value;
-// 		while (itStrBegin != itStrEnd)
-// 		{
-// 			std::string wordValue = _getWordSkipSpace(itStrBegin, itStrEnd);
-// 			word = wordValue;
-// 			if (word == "}")
-// 				break ;
-// 			value.push_back(wordValue);
-// 		}
-// 		if (!res.insert(std::make_pair(key, value)).second)
-// 			throw ParsingError("error: parsing: doublon in config file");
-// 		if (word == "}")
-// 			break ;
-// 		_skipLineEmpty(itStrBegin, itStrEnd, first, last);
-// 		if (first == last)
-// 			break ;
-// 		itStrBegin = first->begin();
-// 		itStrEnd = first->end();
-
-// 	}
-// 	if (word == "}")
-// 		return (res);
-// 	else
-// 		throw ParsingError("error: parsing: '}' not closed");
-
-// }
 
 /* -------------------------------------------------------------------------- */
 /*                                  accessor                                  */
