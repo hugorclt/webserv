@@ -6,7 +6,7 @@
 #    By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/09/19 10:51:56 by hrecolet          #+#    #+#              #
-#    Updated: 2022/10/11 18:49:51 by hrecolet         ###   ########.fr        #
+#    Updated: 2022/10/12 11:23:00 by hrecolet         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -30,7 +30,7 @@ INCL		=	includes/webserv.hpp\
 				Server/ServerList.hpp\
 				Parsing/Config.hpp
 
-CC			=	g++
+CC			=	c++
 
 CPPFLAGS		=	-Wall -Werror -Wextra -std=c++98 -g3
 

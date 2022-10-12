@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/03 11:36:29 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/11 20:36:02 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/12 11:45:11 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -125,64 +125,64 @@
 /*                                 Constructor                                */
 /* -------------------------------------------------------------------------- */
 
-bool	Config::_isServer(std::pair<std::string, std::vector<std::string>> pair, std::string::iterator &itStrBegin, std::string::iterator &itStrEnd, std::vector<std::string>::iterator &first, std::vector<std::string>::iterator &second)
+bool	Config::_isServer(std::pair<std::string, std::vector<std::string>> pair, RangeIterator<std::string::iterator> strIt, RangeIterator<std::vector<std::string>::iterator> fileIt)
 {
-	_skipLineEmpty(itStrBegin, itStrEnd, first, second);
-	return (pair.first == "server" && !pair.second.size() && *itStrBegin == '{');
+	_skipLineEmpty(strIt, fileIt);
+	return (pair.first == "server" && !pair.second.size() && *strIt.first == '{');
 }
 
-bool	Config::_isLocation(std::pair<std::string, std::vector<std::string>> pair, std::string::iterator &itStrBegin, std::string::iterator &itStrEnd, std::vector<std::string>::iterator &first, std::vector<std::string>::iterator &second)
+bool	Config::_isLocation(std::pair<std::string, std::vector<std::string>> pair, RangeIterator<std::string::iterator> strIt, RangeIterator<std::vector<std::string>::iterator> fileIt)
 {
-	_skipLineEmpty(itStrBegin, itStrEnd, first, second);
-	return (pair.first == "location" && pair.second.size() == 1 && *itStrBegin == '{');
+	_skipLineEmpty(strIt, fileIt);
+	return (pair.first == "location" && pair.second.size() == 1 && *strIt.first == '{');
 }
 
-std::pair<std::string, std::vector<std::string>>	Config::_getKeyValuePair(std::string::iterator &itStrBegin, std::string::iterator &itStrEnd)
+std::pair<std::string, std::vector<std::string>>	Config::_getKeyValuePair(RangeIterator<std::string::iterator> strIt)
 {
-	std::string	key = _getWordSkipSpace(itStrBegin, itStrEnd);
+	std::string	key = _getWordSkipSpace(strIt);
 	
 	std::vector<std::string>	values;
-	std::string word = _getWordSkipSpace(itStrBegin, itStrEnd);
+	std::string word = _getWordSkipSpace(strIt);
 	while (!word.empty())
 	{
 		values.push_back(word);
-		word = _getWordSkipSpace(itStrBegin, itStrEnd);
+		word = _getWordSkipSpace(strIt);
 	}
 	return (std::make_pair(key, values));
 }
 
-ServerConfig::confType	Config::_createNewLocation(std::string::iterator &itStrBegin, std::string::iterator &itStrEnd, std::vector<std::string>::iterator &first, std::vector<std::string>::iterator &second)
+ServerConfig::confType	Config::_createNewLocation(RangeIterator<std::string::iterator> strIt, RangeIterator<std::vector<std::string>::iterator> fileIt)
 {
 	ServerConfig::confType	res;
 
-	_skipLineEmpty(itStrBegin, itStrEnd, first, second);
-	std::pair<std::string, std::vector<std::string>>	pair = _getKeyValuePair(itStrBegin, itStrEnd);
-	while (first != second && (*itStrBegin != '}'))
+	_skipLineEmpty(strIt, fileIt);
+	std::pair<std::string, std::vector<std::string>>	pair = _getKeyValuePair(strIt);
+	while (fileIt.first != fileIt.second && (*strIt.first != '}'))
 	{
-		_skipLineEmpty(itStrBegin, itStrEnd, first, second);
+		_skipLineEmpty(strIt, fileIt);
 		res.insert(pair);
-		pair = _getKeyValuePair(itStrBegin, itStrEnd);
+		pair = _getKeyValuePair(strIt);
 	}
 	return (res);
 }
 
-ServerConfig	Config::_createNewServerConfig(std::string::iterator &itStrBegin, std::string::iterator &itStrEnd, std::vector<std::string>::iterator &first, std::vector<std::string>::iterator &second)
+ServerConfig	Config::_createNewServerConfig(RangeIterator<std::string::iterator> strIt, RangeIterator<std::vector<std::string>::iterator> fileIt)
 {
 	ServerConfig	res;
 	
-	_skipLineEmpty(itStrBegin, itStrEnd, first, second);
-	std::pair<std::string, std::vector<std::string>>	pair = _getKeyValuePair(itStrBegin, itStrEnd);
-	while (first != second && (*itStrBegin != '}'))
+	_skipLineEmpty(strIt, fileIt);
+	std::pair<std::string, std::vector<std::string>>	pair = _getKeyValuePair(strIt);
+	while (fileIt.first != fileIt.second && (*strIt.first != '}'))
 	{
-		_skipLineEmpty(itStrBegin, itStrEnd, first, second);
-		if (_isLocation(pair, itStrBegin, itStrEnd, first, second))
+		_skipLineEmpty(strIt, fileIt);
+		if (_isLocation(pair, strIt, fileIt))
 		{
-			itStrBegin++;
-			res.location.insert(std::make_pair(pair.second[0], _createNewLocation(itStrBegin, itStrEnd, first, second)));
+			strIt.first++;
+			res.location.insert(std::make_pair(pair.second[0], _createNewLocation(strIt, fileIt)));
 			continue ;
 		}
 		res.conf.insert(pair);
-		pair = _getKeyValuePair(itStrBegin, itStrEnd);
+		pair = _getKeyValuePair(strIt);
 	}
 	return (res);
 }
@@ -196,33 +196,23 @@ Config::Config(char *filename) {
 		fullFile.push_back(line);
 	}
 	
-	std::vector<std::string>::iterator first = fullFile.begin();
-	std::string::iterator 				itStr = first->begin();
-	std::string::iterator 				itStrEnd = first->end();
-	std::vector<std::string>::iterator	second = fullFile.end();
+	std::vector<std::string>::iterator itFile = fullFile.begin();
+	std::vector<std::string>::iterator iteFile = fullFile.end();
+	RangeIterator<std::vector<std::string>::iterator> fileIt(itFile, iteFile);
+	std::string::iterator itStr = itFile->begin();
+	std::string::iterator iteStr = iteFile->end();
+	RangeIterator<std::string::iterator> strIt(itStr, iteStr);
 
-	// _skipLineEmpty(itStr, itStrEnd, first, second);
-	// std::pair<std::string, std::vector<std::string>>	p = _getKeyValuePair(itStr, itStrEnd);
-	// _skipLineEmpty(itStr, itStrEnd, first, second);
-	// std::cout << "key : " << p.first << std::endl
-	// 		  << "value size " << p.second.size() << std::endl;
-	// if (p.second.size())
-	// 	std::cout << "value[0]" << p.second[0] << std::endl;
-
-	// std::cout << ((p.first == "server" && !p.second.size() && *itStr == '{') ? "detection d'un server" : "error") << std::endl;
-	
-
-	for (;first < second;)
+	for (;fileIt.first < fileIt.second;)
 	{
-		std::cout << "start for" << *itStr << " " << *first << std::endl;
-		itStr = first->begin();
-		itStrEnd = first->end();
-		_skipLineEmpty(itStr, itStrEnd, first, second);
-		if (_isServer(_getKeyValuePair(itStr, itStrEnd), itStr, itStrEnd, first, second))
+		strIt.first = fileIt.first->begin();
+		strIt.second = fileIt.first->end();
+		_skipLineEmpty(strIt, fileIt);
+		if (_isServer(_getKeyValuePair(strIt), strIt, fileIt))
 		{
-			itStr++;
-			_skipLineEmpty(itStr, itStrEnd, first, second);
-			_data.push_back(_createNewServerConfig(itStr, itStrEnd, first, second));
+			strIt.first++;
+			_skipLineEmpty( strIt, fileIt);
+			_data.push_back(_createNewServerConfig( strIt, fileIt));
 		}
 		break ;
 		std::cout << "end for" << std::endl;
@@ -268,52 +258,44 @@ Config::Config(char *filename) {
 /*                               ParsingFunction                              */
 /* -------------------------------------------------------------------------- */
 
-void		Config::_skipSpace(std::string::iterator &itStrBegin, std::string::iterator &itStrEnd)
+void		Config::_skipSpace(RangeIterator<std::string::iterator> strIt)
 {
-	while (itStrBegin != itStrEnd && (*itStrBegin == '\t' || *itStrBegin == ' ')) {
-		itStrBegin++;
+	while (strIt.first != strIt.second && (*strIt.first == '\t' || *strIt.first == ' ')) {
+		strIt.first++;
 	}
 }
 
-void	Config::_skipLineEmpty(std::string::iterator &itStrBegin, std::string::iterator &itStrEnd, std::vector<std::string>::iterator &first, std::vector<std::string>::iterator &end)
+void	Config::_skipLineEmpty(RangeIterator<std::string::iterator> &strIt, RangeIterator<std::vector<std::string>::iterator> &fileIt)
 {
-	if (first == end)
+	if (fileIt.first == fileIt.second)
 		return ;
-	_skipSpace(itStrBegin, itStrEnd);
-	while (first != end && itStrBegin == itStrEnd) {
-		first++;
-		if (first == end)
+	_skipSpace(strIt);
+	while (fileIt.first != fileIt.second && strIt.first == strIt.second) {
+		fileIt.first++;
+		if (fileIt.first == fileIt.second)
 			break ;
-		itStrBegin = first->begin();
-		itStrEnd = first->end();
-		_skipSpace(itStrBegin, itStrEnd);
+		strIt.first = fileIt.first->begin();
+		strIt.second = fileIt.first->end();
+		_skipSpace(strIt);
 	}
 }
 
-std::string	Config::_getWord(std::string::iterator &itStrBegin, std::string::iterator &itStrEnd)
+std::string	Config::_getWord(RangeIterator<std::string::iterator> strIt)
 {
-	std::string::iterator	it = itStrBegin;
+	std::string::iterator	it = strIt.first;
 	
-	while (it != itStrEnd && *it != ' ' && *it != '\t' && *it != '{' && *it != '}')
+	while (it != strIt.second && *it != ' ' && *it != '\t' && *it != '{' && *it != '}')
 		it++;
-	std::string res(itStrBegin, it);
-	itStrBegin = it;
+	std::string res(strIt.first, it);
+	strIt.first = it;
 	return (res);
 }
 
-std::string	Config::_getWordSkipLine(std::string::iterator &itStrBegin, std::string::iterator &itStrEnd, std::vector<std::string>::iterator &first, std::vector<std::string>::iterator &end)
+std::string	Config::_getWordSkipSpace(RangeIterator<std::string::iterator> strIt)
 {
-	_skipLineEmpty(itStrBegin, itStrEnd, first, end);
-	std::string word = _getWord(itStrBegin, itStrEnd);
-	_skipLineEmpty(itStrBegin, itStrEnd, first, end);
-	return (word);
-}
-
-std::string	Config::_getWordSkipSpace(std::string::iterator &itStrBegin, std::string::iterator &itStrEnd)
-{
-	_skipSpace(itStrBegin, itStrEnd);
-	std::string word = _getWord(itStrBegin, itStrEnd);
-	_skipSpace(itStrBegin, itStrEnd);
+	_skipSpace(strIt);
+	std::string word = _getWord(strIt);
+	_skipSpace(strIt);
 	return (word);
 }
 
