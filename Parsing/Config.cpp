@@ -125,19 +125,19 @@
 /*                                 Constructor                                */
 /* -------------------------------------------------------------------------- */
 
-bool	Config::_isServer(std::pair<std::string, std::vector<std::string>> pair, lineRange_type &lineRange, fileRange_type &fileRange)
+bool	Config::_isServer(keyValues_type pair, lineRange_type &lineRange, fileRange_type &fileRange)
 {
-	_skipLineEmpty(lineRange, fileRange);
+	_goToNextWordInFile(lineRange, fileRange);
 	return (pair.first == "server" && !pair.second.size() && *lineRange.first == '{');
 }
 
-bool	Config::_isLocation(std::pair<std::string, std::vector<std::string>> pair, lineRange_type &lineRange, fileRange_type &fileRange)
+bool	Config::_isLocation(keyValues_type pair, lineRange_type &lineRange, fileRange_type &fileRange)
 {
-	_skipLineEmpty(lineRange, fileRange);
+	_goToNextWordInFile(lineRange, fileRange);
 	return (pair.first == "location" && pair.second.size() == 1 && *lineRange.first == '{');
 }
 
-std::pair<std::string, std::vector<std::string>>	Config::_getKeyValuePair(lineRange_type &lineRange)
+Config::keyValues_type	Config::_getKeyValuePair(lineRange_type &lineRange)
 {
 	std::string	key = _getWordSkipSpace(lineRange);
 	
@@ -155,11 +155,11 @@ ServerConfig::confType	Config::_createNewLocation(lineRange_type &lineRange, fil
 {
 	ServerConfig::confType	res;
 
-	_skipLineEmpty(lineRange, fileRange);
-	std::pair<std::string, std::vector<std::string>>	pair = _getKeyValuePair(lineRange);
+	_goToNextWordInFile(lineRange, fileRange);
+	keyValues_type	pair = _getKeyValuePair(lineRange);
 	while (fileRange.first != fileRange.second && *lineRange.first != '}')
 	{
-		_skipLineEmpty(lineRange, fileRange);
+		_goToNextWordInFile(lineRange, fileRange);
 		res.insert(pair);
 		pair = _getKeyValuePair(lineRange);
 	}
@@ -175,11 +175,11 @@ ServerConfig	Config::_createNewServerConfig(lineRange_type &lineRange, fileRange
 {
 	ServerConfig	res;
 	
-	_skipLineEmpty(lineRange, fileRange);
-	std::pair<std::string, std::vector<std::string>>	pair = _getKeyValuePair(lineRange);
+	_goToNextWordInFile(lineRange, fileRange);
+	keyValues_type	pair = _getKeyValuePair(lineRange);
 	while (fileRange.first != fileRange.second && (*lineRange.first != '}'))
 	{
-		_skipLineEmpty(lineRange, fileRange);
+		_goToNextWordInFile(lineRange, fileRange);
 		if (_isLocation(pair, lineRange, fileRange))
 		{
 			lineRange.first++;
@@ -211,11 +211,11 @@ Config::Config(char *filename) {
 
 	for (;fileRange.first != fileRange.second;)
 	{
-		_skipLineEmpty(lineRange, fileRange);
+		_goToNextWordInFile(lineRange, fileRange);
 		if (_isServer(_getKeyValuePair(lineRange), lineRange, fileRange))
 		{
 			lineRange.first++;
-			_skipLineEmpty(lineRange, fileRange);
+			_goToNextWordInFile(lineRange, fileRange);
 			_data.push_back(_createNewServerConfig(lineRange, fileRange));
 		}
 	}
@@ -232,37 +232,31 @@ Config::Config(char *filename) {
 /*                               ParsingFunction                              */
 /* -------------------------------------------------------------------------- */
 
-void		Config::_skipSpace(lineRange_type &lineRange)
-{
-	while (lineRange.first != lineRange.second && (*lineRange.first == '\t' || *lineRange.first == ' ')) {
+const std::string Config::_whitespacesSet = "\t ";
+const std::string Config::_lineBreakSet = ";";
+const std::string Config::_commentSet = "#";
+const std::string Config::_scopeSet = "{}";
+
+void	Config::_skipCharset(lineRange_type &lineRange, const std::string &charset)
+{ 
+	while (lineRange.first != lineRange.second && charset.find(*lineRange.first) != std::string::npos)
 		lineRange.first++;
-	}
-	if (lineRange.first != lineRange.second && *lineRange.first == '#')
+	if (lineRange.first != lineRange.second && _commentSet.find(*lineRange.first) != std::string::npos)
 		lineRange.first = lineRange.second;
 }
 
-void	skipPoint(std::pair<std::string::iterator, std::string::iterator> &lineRange)
-{
-	while (lineRange.first != lineRange.second && *lineRange.first == ';')
-		lineRange.first++;
-}
-
-void	Config::_skipLineEmpty(lineRange_type &lineRange, fileRange_type &fileRange)
+void	Config::_goToNextWordInFile(lineRange_type &lineRange, fileRange_type &fileRange)
 {
 	if (fileRange.first == fileRange.second)
 		return ;
-	skipPoint(lineRange);
-	_skipSpace(lineRange);
-	skipPoint(lineRange);
+	_skipCharset(lineRange, _whitespacesSet + _lineBreakSet);
 	while (fileRange.first != fileRange.second && lineRange.first == lineRange.second) {
 		fileRange.first++;
 		if (fileRange.first == fileRange.second)
 			break ;
 		lineRange.first = fileRange.first->begin();
 		lineRange.second = fileRange.first->end();
-		skipPoint(lineRange);
-		_skipSpace(lineRange);
-		skipPoint(lineRange);
+		_skipCharset(lineRange, _whitespacesSet + _lineBreakSet);
 	}
 }
 
@@ -270,7 +264,7 @@ std::string	Config::_getWord(lineRange_type &lineRange)
 {
 	std::string::iterator	it = lineRange.first;
 	
-	while (it != lineRange.second && *it != ' ' && *it != '\t' && *it != '{' && *it != '}' && *it != '#' && *it != ';')
+	while (it != lineRange.second && (_whitespacesSet + _lineBreakSet + _commentSet + _scopeSet).find(*it) == std::string::npos)
 		it++;
 	std::string res(lineRange.first, it);
 	lineRange.first = it;
@@ -279,9 +273,9 @@ std::string	Config::_getWord(lineRange_type &lineRange)
 
 std::string	Config::_getWordSkipSpace(lineRange_type &lineRange)
 {
-	_skipSpace(lineRange);
+	_skipCharset(lineRange, _whitespacesSet);
 	std::string word = _getWord(lineRange);
-	_skipSpace(lineRange);
+	_skipCharset(lineRange, _whitespacesSet);
 	return (word);
 }
 

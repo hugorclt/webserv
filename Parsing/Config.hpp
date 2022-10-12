@@ -28,10 +28,11 @@ struct ServerConfig
 
 class Config {
 	private:
-		typedef std::string::iterator				lineIt_type;
-		typedef std::vector<std::string>::iterator	fileIt_type;
-		typedef std::pair<lineIt_type, lineIt_type>	lineRange_type;
-		typedef std::pair<fileIt_type, fileIt_type>	fileRange_type;
+		typedef std::string::iterator								lineIt_type;
+		typedef std::vector<std::string>::iterator					fileIt_type;
+		typedef std::pair<lineIt_type, lineIt_type>					lineRange_type;
+		typedef std::pair<fileIt_type, fileIt_type>					fileRange_type;
+		typedef std::pair<std::string, std::vector<std::string>>	keyValues_type;
 
 	public:
 		typedef std::vector<ServerConfig> 	data_type;
@@ -41,18 +42,23 @@ class Config {
 		int							_nbServer;
 		data_type					_data;
 		const static std::pair<std::string, bool(*)(std::vector<std::string> &)>	_option[N_OPT];
+		const static std::string	_whitespacesSet;
+		const static std::string	_lineBreakSet;
+		const static std::string	_commentSet;
+		const static std::string	_scopeSet;
 	
 		//parseFunction
 		std::string													_getWordSkipSpace(lineRange_type &strIt);
 		std::string													_getWord(lineRange_type &strIt);
-		void														_skipLineEmpty(lineRange_type &strIt, fileRange_type &fileIt);
+		void														_goToNextWordInFile(lineRange_type &strIt, fileRange_type &fileIt);
+		void														_skipCharset(lineRange_type &lineRange, const std::string &charset);
 		void														_skipSpace(lineRange_type &strIt);
 		std::pair<std::string, bool(*)(std::vector<std::string> &)>	_getOpt(std::string key);
-		bool														_isServer(std::pair<std::string, std::vector<std::string>> pair, lineRange_type &strIt, fileRange_type &fileIt);
-		bool														_isLocation(std::pair<std::string, std::vector<std::string>> pair, lineRange_type &strIt, fileRange_type &fileIt);
+		bool														_isServer(keyValues_type pair, lineRange_type &strIt, fileRange_type &fileIt);
+		bool														_isLocation(keyValues_type pair, lineRange_type &strIt, fileRange_type &fileIt);
 		ServerConfig												_createNewServerConfig(lineRange_type &strIt, fileRange_type &fileIt);
 		ServerConfig::confType										_createNewLocation(lineRange_type &strIt, fileRange_type &fileIt);
-		std::pair<std::string, std::vector<std::string>>			_getKeyValuePair(lineRange_type &strIt);
+		keyValues_type			_getKeyValuePair(lineRange_type &strIt);
 
 		//Check Functions
 		static bool	_isValidKey(std::string key);
