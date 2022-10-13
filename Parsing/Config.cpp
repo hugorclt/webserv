@@ -253,18 +253,25 @@ Config::Config(char *filename) {
 	lineRange_type	lineRange(fullFile.begin()->begin(), fullFile.begin()->end());
 	fileRange_type	fileRange(fullFile.begin(), fullFile.end());
 
-	for (;fileRange.first != fileRange.second;)
+	try
 	{
-		_goToNextWordInFile(lineRange, fileRange);
-		if (_isServer(_getKeyValues(lineRange), lineRange, fileRange))
+		for (;fileRange.first != fileRange.second;)
 		{
-			lineRange.first++;
 			_goToNextWordInFile(lineRange, fileRange);
-			_data.push_back(_createNewServerConfig(lineRange, fileRange));
+			if (_isServer(_getKeyValues(lineRange), lineRange, fileRange))
+			{
+				lineRange.first++;
+				_goToNextWordInFile(lineRange, fileRange);
+				_data.push_back(_createNewServerConfig(lineRange, fileRange));
+			}
+			else
+				throw ParsingError("wrong Token Global Scope");
+			_goToNextWordInFile(lineRange, fileRange);
 		}
-		else
-			throw ParsingError("wrong Token Global Scope");
-		_goToNextWordInFile(lineRange, fileRange);
+	}
+	catch (ParsingError &e)
+	{
+		throw ParsingError(std::string(e.what()) + " :\n" + "line " + to_string(fullFile.size() - (fileRange.second - fileRange.first) + 1) + " : " + *fileRange.first);
 	}
 	_printConfig(_data);
 }
@@ -275,8 +282,10 @@ Config::Config(char *filename) {
 
 bool	Config::_isServer(keyValues_type keyValues, lineRange_type &lineRange, fileRange_type &fileRange)
 {
+	if (keyValues.first != "server" || !keyValues.second.empty())
+		return (false);
 	_goToNextWordInFile(lineRange, fileRange);
-	return (keyValues.first == "server" && !keyValues.second.size() && *lineRange.first == '{');
+	return (*lineRange.first == '{');
 }
 
 bool	Config::_isLocation(keyValues_type keyValues, lineRange_type &lineRange, fileRange_type &fileRange)
@@ -304,11 +313,11 @@ void			Config::_insertKeyValuesInLocation(LocationConfig &location, keyValues_ty
 	if (!_isValidKey(keyValues.first))
 		throw ParsingError("Unregognized Key : " + keyValues.first);
 	if (keyValues.second.empty())
-		throw ParsingError("Key alone in Location !");
+		throw ParsingError("Key without options");
 	if (_isUniqKey(keyValues.first) && !location.uniqKey.insert(keyValues).second)
-		throw ParsingError("Key already exist in Location");
+		throw ParsingError("Key \"" + keyValues.first + "\" already exist");
 	else if (_isNonUniqKey(keyValues.first) && !(location.nonUniqKey[keyValues.first].insert(std::make_pair(keyValues.second[0], std::vector<std::string> (keyValues.second.begin() + 1, keyValues.second.end())))).second)
-		throw ParsingError("Key Key already exist in Location lol");
+		throw ParsingError("Key \"" + keyValues.second[0] + "\" already exist");
 }
 
 LocationConfig	Config::_createNewLocation(lineRange_type &lineRange, fileRange_type &fileRange)
@@ -319,8 +328,8 @@ LocationConfig	Config::_createNewLocation(lineRange_type &lineRange, fileRange_t
 	keyValues_type	keyValues = _getKeyValues(lineRange);
 	while (fileRange.first != fileRange.second && !keyValues.first.empty())
 	{
-		_goToNextWordInFile(lineRange, fileRange);
 		_insertKeyValuesInLocation(res, keyValues);
+		_goToNextWordInFile(lineRange, fileRange);
 		keyValues = _getKeyValues(lineRange);
 	}
 	if (*lineRange.first == '{')
@@ -344,8 +353,13 @@ ServerConfig	Config::_createNewServerConfig(lineRange_type &lineRange, fileRange
 		if (_isLocation(keyValues, lineRange, fileRange))
 		{
 			lineRange.first++;
-			if (!res.location.insert(std::make_pair(keyValues.second[0], _createNewLocation(lineRange, fileRange))).second)
-				throw ParsingError("Key already exist in Server");
+			if (res.location.find(keyValues.second[0]) != res.location.end())
+				throw ParsingError("Location duplication : \"" + keyValues.second[0] + "\"");
+			else
+			{
+				try { res.location.insert(std::make_pair(keyValues.second[0], _createNewLocation(lineRange, fileRange))); }
+				catch (ParsingError &e) { throw ParsingError("location \"" + keyValues.second[0] + "\" : " + e.what()); }
+			}
 		}
 		else
 			res.conf.insert(keyValues);
