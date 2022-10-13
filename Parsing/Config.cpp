@@ -180,6 +180,9 @@ Config::Config(char *filename) {
 			_goToNextWordInFile(lineRange, fileRange);
 			_data.push_back(_createNewServerConfig(lineRange, fileRange));
 		}
+		else
+			throw ParsingError("wrong Token Global Scope");
+		_goToNextWordInFile(lineRange, fileRange);
 	}
 
 	std::cout << _data[0].conf["listen"][0] << std::endl;
@@ -203,7 +206,7 @@ bool	Config::_isServer(keyValues_type keyValues, lineRange_type &lineRange, file
 bool	Config::_isLocation(keyValues_type keyValues, lineRange_type &lineRange, fileRange_type &fileRange)
 {
 	_goToNextWordInFile(lineRange, fileRange);
-	return (keyValues.first == "location" && keyValues.second.size() == 1 && *lineRange.first == '{');
+	return (keyValues.first == "location" && keyValues.second.size() == 1 && !keyValues.second[0].empty() && *lineRange.first == '{');
 }
 
 Config::keyValues_type	Config::_getKeyValues(lineRange_type &lineRange)
@@ -226,18 +229,19 @@ ServerConfig::confType	Config::_createNewLocation(lineRange_type &lineRange, fil
 
 	_goToNextWordInFile(lineRange, fileRange);
 	keyValues_type	keyValues = _getKeyValues(lineRange);
-	while (fileRange.first != fileRange.second && *lineRange.first != '}')
+	while (fileRange.first != fileRange.second && !keyValues.first.empty())
 	{
 		_goToNextWordInFile(lineRange, fileRange);
 		if (!res.insert(keyValues).second)
-			throw ParsingError("Key already existing");
+			throw ParsingError("Key already exist in Location");
 		keyValues = _getKeyValues(lineRange);
 	}
-	if (!keyValues.first.empty())
-		res.insert(keyValues);
+	if (*lineRange.first == '{')
+		throw ParsingError("Wrong { token in Location");
 	if (fileRange.first == fileRange.second)
 		throw ParsingError("Unclosed Location");
 	lineRange.first++;
+	_goToNextWordInFile(lineRange, fileRange);
 	return (res);
 }
 
@@ -247,21 +251,21 @@ ServerConfig	Config::_createNewServerConfig(lineRange_type &lineRange, fileRange
 	
 	_goToNextWordInFile(lineRange, fileRange);
 	keyValues_type	keyValues = _getKeyValues(lineRange);
-	while (fileRange.first != fileRange.second && (*lineRange.first != '}'))
+	while (fileRange.first != fileRange.second && !keyValues.first.empty())
 	{
 		_goToNextWordInFile(lineRange, fileRange);
 		if (_isLocation(keyValues, lineRange, fileRange))
 		{
 			lineRange.first++;
 			if (!res.location.insert(std::make_pair(keyValues.second[0], _createNewLocation(lineRange, fileRange))).second)
-				throw ParsingError("Key already existing");
-			continue ;
+				throw ParsingError("Key already exist in Server");
 		}
-		res.conf.insert(keyValues);
+		else
+			res.conf.insert(keyValues);
 		keyValues = _getKeyValues(lineRange);
 	}
-	if (!keyValues.first.empty())
-		res.conf.insert(keyValues);
+	if (*lineRange.first == '{')
+		throw ParsingError("Wrong { token in Server (not related to a Location)");
 	if (fileRange.first == fileRange.second)
 		throw ParsingError("Unclosed Server");
 	lineRange.first++;
