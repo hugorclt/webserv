@@ -20,24 +20,26 @@ const std::string Config::_scopeSet = "{}";
 const std::pair<std::string, bool(*)(std::vector<std::string> &)>	Config::_optionConf[N_CONF_OPT] {
 	std::make_pair(std::string("listen"), &Config::_checkListen),
 	std::make_pair(std::string("server_name"), &Config::_checkPath), 
-	std::make_pair(std::string("body_size"), &Config::_checkBodySize),
 };
 
-const std::pair<std::string, bool(*)(std::vector<std::string> &)>	Config::_optionLocation[N_LOC_OPT] {
+const std::pair<std::string, bool(*)(std::vector<std::string> &)>	Config::_nonUniqKey[N_NON_UNIQ_KEY] {
+	std::make_pair(std::string("cgi"), &Config::_checkPath),
+	std::make_pair(std::string("error_page"), &Config::_checkPath),
+};
+
+const std::pair<std::string, bool(*)(std::vector<std::string> &)>	Config::_uniqKey[N_UNIQ_KEY] {
+	std::make_pair(std::string("body_size"), &Config::_checkPath),
+	std::make_pair(std::string("allow_methods"), &Config::_checkPath),
 	std::make_pair(std::string("root"), &Config::_checkPath),
 	std::make_pair(std::string("index"), &Config::_checkPath),
-	std::make_pair(std::string("error"), &Config::_checkPath),
-	std::make_pair(std::string("body_size"), &Config::_checkBodySize),
-	std::make_pair(std::string("auto_index"), &Config::_checkAutoIndex),
-	//std::make_pair(std::string("cgi"), &Config::_checkCgi),
-	std::make_pair(std::string("upload"), &Config::_checkPath)
-	//std::make_pair(std::string("allow_methods"), &Config::_checkAllowMethods)
+	std::make_pair(std::string("auto_index"), &Config::_checkPath),
 };
 
 /* -------------------------------------------------------------------------- */
 /*                                CheckFunction                               */
 /* -------------------------------------------------------------------------- */
 
+/*
 bool	Config::_checkKeyConfServer(ServerConfig::confType &confServ)
 {
 	if (confServ.find("listen") == confServ.end())
@@ -62,6 +64,7 @@ bool	Config::_checkKeyLocation(ServerConfig::locationType &confLocation)
 	}
 	return (true);
 }
+*/
 
 bool	Config::_checkAutoIndex(std::vector<std::string> &vec)
 {
@@ -111,15 +114,28 @@ bool	Config::_checkListen(std::vector<std::string> &vec)
 	return (true);
 }
 
-// bool	Config::_isValidKey(std::string key)
-// {
-// 	for (int i = 0; i < N_OPT; i++)
-// 	{
-// 		if (_option[i].first == key)
-// 			return (true);
-// 	}
-// 	return (false);
-// }
+bool	Config::_isUniqKey(const std::string &key)
+{ 
+	for (size_t i = 0; i < N_UNIQ_KEY; i++)
+	{
+		if (_uniqKey[i].first == key)
+			return (true);
+	}
+	return (false);
+}
+
+bool	Config::_isNonUniqKey(const std::string &key)
+{ 
+	for (size_t i = 0; i < N_NON_UNIQ_KEY; i++)
+	{
+		if (_nonUniqKey[i].first == key)
+			return (true);
+	}
+	return (false);
+}
+
+bool	Config::_isValidKey(const std::string &key)
+{ return (_isUniqKey(key) || _isNonUniqKey(key)); }
 
 // std::pair<std::string, bool(*)(std::vector<std::string> &)>	Config::_getOpt(std::string key)
 // {
@@ -158,7 +174,73 @@ bool	Config::_checkListen(std::vector<std::string> &vec)
 /*                                 Constructor                                */
 /* -------------------------------------------------------------------------- */
 
+static void	printVec(const std::vector<std::string> &vec)
+{
+	if (vec.empty())
+		std::cout << "(NONE)";
+	for (std::vector<std::string>::const_iterator it = vec.begin(); it != vec.end(); it++)
+		std::cout << " " << *it;
+}
 
+static void printMap(const std::map<std::string, std::vector<std::string>> &map, const std::string &indent)
+{
+	if (map.empty())
+		std::cout << indent << "(NONE)" << std::endl;
+	for (std::map<std::string, std::vector<std::string>>::const_iterator it = map.begin(); it != map.end(); it++)
+	{
+		std::cout << indent << "[\"" << it->first << "\"] :";
+		printVec(it->second);
+		std::cout << std::endl;
+	}
+}
+
+void	Config::_printConfig(const data_type &data)
+{
+	if (data.empty())
+	{
+		std::cout << "(NONE)" << std::endl;
+		return ;
+	}
+	for (data_type::const_iterator itServ = data.begin(); itServ != data.end(); itServ++)
+	{
+		std::string	indent("");
+		std::cout << indent << "Server " << data.size() - (data.end() - itServ) << " :" << std::endl;
+		std::cout << indent << '{' << std::endl;
+		for (ServerConfig::locationType::const_iterator itLoc = itServ->location.begin(); itLoc != itServ->location.end(); itLoc++)
+		{
+			std::string indent("\t");
+			std::cout << indent << "Location [\"" << itLoc->first << "\"] :" << std::endl;
+			std::cout << indent << '{' << std::endl;
+			indent += "\t";
+			std::cout << indent << "UniqKey :" << std::endl;
+			std::cout << indent << '{' << std::endl;
+			printMap(itLoc->second.uniqKey, indent + "\t");
+			std::cout << indent << '}' << std::endl
+					  << std::endl;
+			std::cout << indent << "NonUniqKey :" << std::endl;
+			std::cout << indent << '{' << std::endl;
+			if (itLoc->second.nonUniqKey.empty())
+				std::cout << indent + "\t" << "(NONE)" << std::endl;
+			for (LocationConfig::nonUniqKey_type::const_iterator it = itLoc->second.nonUniqKey.begin(); it != itLoc->second.nonUniqKey.end(); it++)
+			{
+				std::string indent("\t\t\t");
+				std::cout << indent << it->first << " :" << std::endl;
+				std::cout << indent << '[' << std::endl;
+				printMap(it->second, indent + "\t");
+				std::cout << indent << ']' << std::endl;
+			}
+			std::cout << indent << '}' << std::endl;
+			indent = "\t";
+			std::cout << indent << '}' << std::endl
+				  	  << std::endl
+					  << std::endl;
+		}
+		std::cout << indent << '}' << std::endl
+				  << std::endl
+				  << std::endl
+				  << std::endl;
+	}
+}
 
 Config::Config(char *filename) {
 	std::ifstream				input(filename);
@@ -184,13 +266,7 @@ Config::Config(char *filename) {
 			throw ParsingError("wrong Token Global Scope");
 		_goToNextWordInFile(lineRange, fileRange);
 	}
-
-	std::cout << _data[0].conf["listen"][0] << std::endl;
-	std::cout << _data[0].conf["listen"].size() << std::endl;
-	std::cout << _data[0].location.begin()->first << std::endl;
-	std::cout << _data[0].location.begin()->second["allow_methods"][0] << std::endl;
-	std::cout << _data[0].location["/hugo"]["root"][0] << std::endl;
-	std::cout << _data[0].conf["error_page_404"][0] << std::endl;
+	_printConfig(_data);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -223,17 +299,28 @@ Config::keyValues_type	Config::_getKeyValues(lineRange_type &lineRange)
 	return (std::make_pair(key, values));
 }
 
-ServerConfig::confType	Config::_createNewLocation(lineRange_type &lineRange, fileRange_type &fileRange)
+void			Config::_insertKeyValuesInLocation(LocationConfig &location, keyValues_type &keyValues)
 {
-	ServerConfig::confType	res;
+	if (!_isValidKey(keyValues.first))
+		throw ParsingError("Unregognized Key : " + keyValues.first);
+	if (keyValues.second.empty())
+		throw ParsingError("Key alone in Location !");
+	if (_isUniqKey(keyValues.first) && !location.uniqKey.insert(keyValues).second)
+		throw ParsingError("Key already exist in Location");
+	else if (_isNonUniqKey(keyValues.first) && !(location.nonUniqKey[keyValues.first].insert(std::make_pair(keyValues.second[0], std::vector<std::string> (keyValues.second.begin() + 1, keyValues.second.end())))).second)
+		throw ParsingError("Key Key already exist in Location lol");
+}
+
+LocationConfig	Config::_createNewLocation(lineRange_type &lineRange, fileRange_type &fileRange)
+{
+	LocationConfig	res;
 
 	_goToNextWordInFile(lineRange, fileRange);
 	keyValues_type	keyValues = _getKeyValues(lineRange);
 	while (fileRange.first != fileRange.second && !keyValues.first.empty())
 	{
 		_goToNextWordInFile(lineRange, fileRange);
-		if (!res.insert(keyValues).second)
-			throw ParsingError("Key already exist in Location");
+		_insertKeyValuesInLocation(res, keyValues);
 		keyValues = _getKeyValues(lineRange);
 	}
 	if (*lineRange.first == '{')

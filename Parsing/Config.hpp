@@ -13,14 +13,24 @@
 #pragma once
 #include "webserv.hpp"
 
-#define N_CONF_OPT		3
-#define N_LOC_OPT		8
+#define N_CONF_OPT		2
+#define N_NON_UNIQ_KEY	2
+#define N_UNIQ_KEY		5
 #define MAX_PORT	65535
+
+struct LocationConfig
+{
+	typedef std::map<std::string, std::map<std::string, std::vector<std::string>>>	nonUniqKey_type; // Usage Ex : Conf._data[0].locations.nonUniqKey["error_pages"]["404"] -> ./404.html
+	typedef std::map<std::string, std::vector<std::string>>							uniqKey_type; // Usage Ex : Conf_data[0].location.uniqKey["root"] -> ./var/srv
+	
+	nonUniqKey_type	nonUniqKey;
+	uniqKey_type		uniqKey;
+};
 
 struct ServerConfig
 {
-	typedef std::map<std::string, std::vector<std::string>>							confType;
-	typedef std::map<std::string, std::map<std::string, std::vector<std::string>>>	locationType;
+	typedef std::map<std::string, std::vector<std::string>>	confType;
+	typedef std::map<std::string, LocationConfig>			locationType;
 
 	confType		conf;
 	locationType	location;
@@ -43,7 +53,8 @@ class Config {
 		int							_nbServer;
 		data_type					_data;
 		const static std::pair<std::string, bool(*)(std::vector<std::string> &)>	_optionConf[N_CONF_OPT];
-		const static std::pair<std::string, bool(*)(std::vector<std::string> &)>			_optionLocation[N_LOC_OPT];
+		const static std::pair<std::string, bool(*)(std::vector<std::string> &)>	_nonUniqKey[N_NON_UNIQ_KEY];
+		const static std::pair<std::string, bool(*)(std::vector<std::string> &)>	_uniqKey[N_UNIQ_KEY];
 		const static std::string	_whitespacesSet;
 		const static std::string	_lineBreakSet;
 		const static std::string	_commentSet;
@@ -59,11 +70,16 @@ class Config {
 		bool														_isServer(keyValues_type pair, lineRange_type &strIt, fileRange_type &fileIt);
 		bool														_isLocation(keyValues_type pair, lineRange_type &strIt, fileRange_type &fileIt);
 		ServerConfig												_createNewServerConfig(lineRange_type &strIt, fileRange_type &fileIt);
-		ServerConfig::confType										_createNewLocation(lineRange_type &strIt, fileRange_type &fileIt);
+		LocationConfig												_createNewLocation(lineRange_type &strIt, fileRange_type &fileIt);
+
 		keyValues_type												_getKeyValues(lineRange_type &strIt);
+		void														_insertKeyValuesInLocation(LocationConfig &location, keyValues_type &keyValues);
 
 		//Check Functions
-		static bool	_isValidKey(std::string key);
+		static bool	_isUniqKey(const std::string &key);
+		static bool	_isNonUniqKey(const std::string &key);
+		static bool	_isValidKey(const std::string &key);
+
 		static bool	_checkAutoIndex(std::vector<std::string> &vec);
 		static bool	_checkBodySize(std::vector<std::string> &vec);
 		static bool	_checkPath(std::vector<std::string> &vec);
@@ -73,6 +89,9 @@ class Config {
 		bool		_checkKeyConfServer(ServerConfig::confType &confServ);
 		bool		_checkKeyLocation(ServerConfig::locationType &confLocation);
 
+		//test
+
+		static void	_printConfig(const data_type &data);
 
 
 
