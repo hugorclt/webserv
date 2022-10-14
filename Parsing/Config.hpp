@@ -13,9 +13,6 @@
 #pragma once
 #include "webserv.hpp"
 
-#define N_SERVER_KEY	2
-#define N_NON_UNIQ_KEY	2
-#define N_UNIQ_KEY		5
 #define MAX_PORT	65535
 
 struct LocationConfig
@@ -53,9 +50,9 @@ class Config {
 	private:
 		int							_nbServer;
 		data_type					_data;
-		const static std::pair<std::string, bool(*)(std::vector<std::string> &)>	_serverKey[N_SERVER_KEY];
-		const static std::pair<std::string, bool(*)(std::vector<std::string> &)>	_nonUniqKey[N_NON_UNIQ_KEY];
-		const static std::pair<std::string, bool(*)(std::vector<std::string> &)>	_uniqKey[N_UNIQ_KEY];
+		const static std::map<std::string, bool(*)(std::vector<std::string> &)>	_serverKey;
+		const static std::map<std::string, bool(*)(std::vector<std::string> &)>	_nonUniqKey;
+		const static std::map<std::string, bool(*)(std::vector<std::string> &)>	_uniqKey;
 		const static std::string	_whitespacesSet;
 		const static std::string	_lineBreakSet;
 		const static std::string	_commentSet;

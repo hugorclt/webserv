@@ -17,17 +17,17 @@ const std::string Config::_lineBreakSet = ";";
 const std::string Config::_commentSet = "#";
 const std::string Config::_scopeSet = "{}";
 
-const std::pair<std::string, bool(*)(std::vector<std::string> &)>	Config::_serverKey[N_SERVER_KEY] {
+const std::map<std::string, bool(*)(std::vector<std::string> &)>	Config::_serverKey{
 	{"listen", &Config::_checkListen},
 	{"server_name", &Config::_checkPath}, 
 };
 
-const std::pair<std::string, bool(*)(std::vector<std::string> &)>	Config::_nonUniqKey[N_NON_UNIQ_KEY] {
+const std::map<std::string, bool(*)(std::vector<std::string> &)>	Config::_nonUniqKey{
 	{"cgi", &Config::_checkPath},
 	{"error_page", &Config::_checkPath},
 };
 
-const std::pair<std::string, bool(*)(std::vector<std::string> &)>	Config::_uniqKey[N_UNIQ_KEY] {
+const std::map<std::string, bool(*)(std::vector<std::string> &)>	Config::_uniqKey{
 	{"body_size", &Config::_checkPath},
 	{"allow_methods", &Config::_checkPath},
 	{"root", &Config::_checkPath},
@@ -115,34 +115,13 @@ bool	Config::_checkListen(std::vector<std::string> &vec)
 }
 
 bool	Config::_isServerKey(const std::string &key)
-{
-	for (size_t i = 0; i < N_SERVER_KEY; i++)
-	{
-		if (_serverKey[i].first == key)
-			return (true);
-	}
-	return (false);
-}
+{ return (_serverKey.find(key) != _serverKey.end()); }
 
 bool	Config::_isUniqKey(const std::string &key)
-{ 
-	for (size_t i = 0; i < N_UNIQ_KEY; i++)
-	{
-		if (_uniqKey[i].first == key)
-			return (true);
-	}
-	return (false);
-}
+{ return (_uniqKey.find(key) != _uniqKey.end()); }
 
 bool	Config::_isNonUniqKey(const std::string &key)
-{ 
-	for (size_t i = 0; i < N_NON_UNIQ_KEY; i++)
-	{
-		if (_nonUniqKey[i].first == key)
-			return (true);
-	}
-	return (false);
-}
+{ return (_nonUniqKey.find(key) != _nonUniqKey.end()); }
 
 bool	Config::_isValidKey(const std::string &key)
 { return (_isUniqKey(key) || _isNonUniqKey(key)); }
