@@ -17,7 +17,7 @@ const std::string Config::_lineBreakSet = ";";
 const std::string Config::_commentSet = "#";
 const std::string Config::_scopeSet = "{}";
 
-const std::pair<std::string, bool(*)(std::vector<std::string> &)>	Config::_optionConf[N_CONF_OPT] {
+const std::pair<std::string, bool(*)(std::vector<std::string> &)>	Config::_serverKey[N_SERVER_KEY] {
 	std::make_pair(std::string("listen"), &Config::_checkListen),
 	std::make_pair(std::string("server_name"), &Config::_checkPath), 
 };
@@ -112,6 +112,16 @@ bool	Config::_checkListen(std::vector<std::string> &vec)
 			return (false);
 	}
 	return (true);
+}
+
+bool	Config::_isServerKey(const std::string &key)
+{
+	for (size_t i = 0; i < N_SERVER_KEY; i++)
+	{
+		if (_serverKey[i].first == key)
+			return (true);
+	}
+	return (false);
 }
 
 bool	Config::_isUniqKey(const std::string &key)
@@ -290,8 +300,10 @@ bool	Config::_isServer(keyValues_type keyValues, lineRange_type &lineRange, file
 
 bool	Config::_isLocation(keyValues_type keyValues, lineRange_type &lineRange, fileRange_type &fileRange)
 {
-	_goToNextWordInFile(lineRange, fileRange);
-	return (keyValues.first == "location" && keyValues.second.size() == 1 && !keyValues.second[0].empty() && *lineRange.first == '{');
+	lineRange_type	lineRangeCpy = lineRange;
+	fileRange_type	fileRangeCpy = fileRange;
+	_goToNextWordInFile(lineRangeCpy, fileRangeCpy);
+	return (keyValues.first == "location" && keyValues.second.size() == 1 && *lineRangeCpy.first == '{');
 }
 
 Config::keyValues_type	Config::_getKeyValues(lineRange_type &lineRange)
@@ -317,7 +329,7 @@ void			Config::_insertKeyValuesInLocation(LocationConfig &location, keyValues_ty
 	if (_isUniqKey(keyValues.first) && !location.uniqKey.insert(keyValues).second)
 		throw ParsingError("Key \"" + keyValues.first + "\" already exist");
 	else if (_isNonUniqKey(keyValues.first) && !(location.nonUniqKey[keyValues.first].insert(std::make_pair(keyValues.second[0], std::vector<std::string> (keyValues.second.begin() + 1, keyValues.second.end())))).second)
-		throw ParsingError("Key \"" + keyValues.second[0] + "\" already exist");
+		throw ParsingError("subKey \"" + keyValues.second[0] + "\" already exist");
 }
 
 LocationConfig	Config::_createNewLocation(lineRange_type &lineRange, fileRange_type &fileRange)
@@ -344,25 +356,28 @@ LocationConfig	Config::_createNewLocation(lineRange_type &lineRange, fileRange_t
 ServerConfig	Config::_createNewServerConfig(lineRange_type &lineRange, fileRange_type &fileRange)
 {
 	ServerConfig	res;
+	LocationConfig	serverLocationConf;
 	
 	_goToNextWordInFile(lineRange, fileRange);
 	keyValues_type	keyValues = _getKeyValues(lineRange);
 	while (fileRange.first != fileRange.second && !keyValues.first.empty())
 	{
-		_goToNextWordInFile(lineRange, fileRange);
 		if (_isLocation(keyValues, lineRange, fileRange))
 		{
-			lineRange.first++;
 			if (res.location.find(keyValues.second[0]) != res.location.end())
 				throw ParsingError("Location duplication : \"" + keyValues.second[0] + "\"");
-			else
-			{
-				try { res.location.insert(std::make_pair(keyValues.second[0], _createNewLocation(lineRange, fileRange))); }
-				catch (ParsingError &e) { throw ParsingError("location \"" + keyValues.second[0] + "\" : " + e.what()); }
-			}
+			_goToNextWordInFile(lineRange, fileRange); //skip the location
+			lineRange.first++; //skip the location
+			try { res.location.insert(std::make_pair(keyValues.second[0], _createNewLocation(lineRange, fileRange))); }
+			catch (ParsingError &e) { throw ParsingError("location \"" + keyValues.second[0] + "\" : " + e.what()); }
 		}
 		else
-			res.conf.insert(keyValues);
+		{
+			if (!_isServerKey(keyValues.first))
+				_insertKeyValuesInLocation(serverLocationConf, keyValues);
+			//_insertKeyValuesInServer(res, keyValues);
+		}
+		_goToNextWordInFile(lineRange, fileRange);
 		keyValues = _getKeyValues(lineRange);
 	}
 	if (*lineRange.first == '{')
@@ -370,6 +385,11 @@ ServerConfig	Config::_createNewServerConfig(lineRange_type &lineRange, fileRange
 	if (fileRange.first == fileRange.second)
 		throw ParsingError("Unclosed Server");
 	lineRange.first++;
+	for (LocationConfig::uniqKey_type::iterator it = serverLocationConf.uniqKey.begin(); it != serverLocationConf.uniqKey.end(); it++)
+		res.location["/"].uniqKey.insert(*it);
+	for (LocationConfig::nonUniqKey_type::iterator it = serverLocationConf.nonUniqKey.begin(); it != serverLocationConf.nonUniqKey.end(); it++)
+		for (LocationConfig::uniqKey_type::iterator nit = it->second.begin(); nit != it->second.end(); nit++)
+			res.location["/"].nonUniqKey[it->first].insert(*nit);
 	return (res);
 }
 

@@ -13,7 +13,7 @@
 #pragma once
 #include "webserv.hpp"
 
-#define N_CONF_OPT		2
+#define N_SERVER_KEY	2
 #define N_NON_UNIQ_KEY	2
 #define N_UNIQ_KEY		5
 #define MAX_PORT	65535
@@ -24,7 +24,7 @@ struct LocationConfig
 	typedef std::map<std::string, std::vector<std::string>>							uniqKey_type; // Usage Ex : Conf_data[0].location.uniqKey["root"] -> ./var/srv
 	
 	nonUniqKey_type	nonUniqKey;
-	uniqKey_type		uniqKey;
+	uniqKey_type	uniqKey;
 };
 
 struct ServerConfig
@@ -32,7 +32,8 @@ struct ServerConfig
 	typedef std::map<std::string, std::vector<std::string>>	confType;
 	typedef std::map<std::string, LocationConfig>			locationType;
 
-	confType		conf;
+	std::map<std::string, std::set<std::string>>	listen; //map d'ip puis set de port pour cette ip
+	std::set<std::string>							server_name; //set de server_name
 	locationType	location;
 };
 
@@ -52,7 +53,7 @@ class Config {
 	private:
 		int							_nbServer;
 		data_type					_data;
-		const static std::pair<std::string, bool(*)(std::vector<std::string> &)>	_optionConf[N_CONF_OPT];
+		const static std::pair<std::string, bool(*)(std::vector<std::string> &)>	_serverKey[N_SERVER_KEY];
 		const static std::pair<std::string, bool(*)(std::vector<std::string> &)>	_nonUniqKey[N_NON_UNIQ_KEY];
 		const static std::pair<std::string, bool(*)(std::vector<std::string> &)>	_uniqKey[N_UNIQ_KEY];
 		const static std::string	_whitespacesSet;
@@ -76,6 +77,7 @@ class Config {
 		void														_insertKeyValuesInLocation(LocationConfig &location, keyValues_type &keyValues);
 
 		//Check Functions
+		static bool	_isServerKey(const std::string &key);
 		static bool	_isUniqKey(const std::string &key);
 		static bool	_isNonUniqKey(const std::string &key);
 		static bool	_isValidKey(const std::string &key);

@@ -25,6 +25,7 @@
 #include <sys/types.h>
 #include <vector>
 #include <map>
+#include <set>
 #include <cstring>
 #include <arpa/inet.h>
 #include <sstream>
