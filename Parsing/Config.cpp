@@ -18,21 +18,21 @@ const std::string Config::_commentSet = "#";
 const std::string Config::_scopeSet = "{}";
 
 const std::pair<std::string, bool(*)(std::vector<std::string> &)>	Config::_serverKey[N_SERVER_KEY] {
-	std::make_pair(std::string("listen"), &Config::_checkListen),
-	std::make_pair(std::string("server_name"), &Config::_checkPath), 
+	{"listen", &Config::_checkListen},
+	{"server_name", &Config::_checkPath}, 
 };
 
 const std::pair<std::string, bool(*)(std::vector<std::string> &)>	Config::_nonUniqKey[N_NON_UNIQ_KEY] {
-	std::make_pair(std::string("cgi"), &Config::_checkPath),
-	std::make_pair(std::string("error_page"), &Config::_checkPath),
+	{"cgi", &Config::_checkPath},
+	{"error_page", &Config::_checkPath},
 };
 
 const std::pair<std::string, bool(*)(std::vector<std::string> &)>	Config::_uniqKey[N_UNIQ_KEY] {
-	std::make_pair(std::string("body_size"), &Config::_checkPath),
-	std::make_pair(std::string("allow_methods"), &Config::_checkPath),
-	std::make_pair(std::string("root"), &Config::_checkPath),
-	std::make_pair(std::string("index"), &Config::_checkPath),
-	std::make_pair(std::string("auto_index"), &Config::_checkPath),
+	{"body_size", &Config::_checkPath},
+	{"allow_methods", &Config::_checkPath},
+	{"root", &Config::_checkPath},
+	{"index", &Config::_checkPath},
+	{"auto_index", &Config::_checkPath},
 };
 
 /* -------------------------------------------------------------------------- */
