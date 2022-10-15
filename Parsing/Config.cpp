@@ -260,7 +260,9 @@ Config::Config(char *filename) {
 	}
 	catch (ParsingError &e)
 	{
-		throw ParsingError(std::string(e.what()) + " :\n" + "line " + to_string(fullFile.size() - (fileRange.second - fileRange.first) + 1) + " : " + *fileRange.first);
+		throw ParsingError(std::string(e.what()) + " :\n"
+		+ "line " + to_string(fullFile.size() - (fileRange.second - fileRange.first) + 1) + " : "
+		+ *(fileRange.first - (fileRange.first == fileRange.second)));
 	}
 	_printConfig(_data);
 }
