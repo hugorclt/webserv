@@ -185,6 +185,7 @@ static void printMap(const std::map<std::string, std::vector<std::string>> &map,
 
 void	Config::_printConfig(const data_type &data)
 {
+	std::cout << "PrintConfig :" << std::endl << std::endl;
 	if (data.empty())
 	{
 		std::cout << "(NONE)" << std::endl;
@@ -224,10 +225,7 @@ void	Config::_printConfig(const data_type &data)
 				  	  << std::endl
 					  << std::endl;
 		}
-		std::cout << indent << '}' << std::endl
-				  << std::endl
-				  << std::endl
-				  << std::endl;
+		std::cout << indent << '}' << std::endl << std::endl << std::endl << std::endl;
 	}
 }
 
@@ -239,12 +237,18 @@ Config::Config(char *filename) {
 		fullFile.push_back(line);
 	}
 	
+	if (fullFile.empty())
+	{
+		_printConfig(_data);
+		return ;
+	}
+
 	lineRange_type	lineRange(fullFile.begin()->begin(), fullFile.begin()->end());
 	fileRange_type	fileRange(fullFile.begin(), fullFile.end());
 
 	try
 	{
-		for (;fileRange.first != fileRange.second;)
+		while (fileRange.first != fileRange.second)
 		{
 			_goToNextWordInFile(lineRange, fileRange);
 			if (_isServer(_getKeyValues(lineRange), lineRange, fileRange))
@@ -253,7 +257,7 @@ Config::Config(char *filename) {
 				_goToNextWordInFile(lineRange, fileRange);
 				_data.push_back(_createNewServerConfig(lineRange, fileRange));
 			}
-			else
+			else if (fileRange.first != fileRange.second)
 				throw ParsingError("wrong Token Global Scope");
 			_goToNextWordInFile(lineRange, fileRange);
 		}
