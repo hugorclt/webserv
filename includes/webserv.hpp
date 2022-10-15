@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/19 10:52:17 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/11 18:45:18 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/15 16:42:44 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,7 @@
 #include <cstdbool>
 #include <exception>
 #include <cerrno>
+#include <dirent.h>
 
 
 #include "Config.hpp"
