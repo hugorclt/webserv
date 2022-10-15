@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "Config.hpp"
+#include <climits>
 
 const std::string Config::_whitespacesSet = "\t ";
 const std::string Config::_lineBreakSet = ";";
@@ -18,15 +19,33 @@ const std::string Config::_commentSet = "#";
 const std::string Config::_scopeSet = "{}";
 
 const std::map<std::string, bool(*)(std::vector<std::string> &)>	Config::_serverKey{
-	{"listen", &Config::_checkListen},
-	{"server_name", &Config::_checkPath}, 
+	{"listen", NULL},
+	{"server_name", NULL}, 
 };
 
+/*
 const std::map<std::string, bool(*)(std::vector<std::string> &)>	Config::_nonUniqKey{
 	{"cgi", &Config::_checkPath},
 	{"error_page", &Config::_checkPath},
 };
+*/
 
+enum {UNIQ_KEY, NON_UNIQ_KEY};
+
+const std::map<std::pair<std::string, int>, std::pair<void(*)(std::vector<std::string> &), std::pair<int, std::set<std::string>>>>	Config::_keyParsingMap
+{
+	// if POSSIBLE PARAMS is empty it means thant it's checked in the FUNC
+	// {{    KEY     , KEY_TYPE }, {FUNC, {MAX_PARAMS, {POSSIBLE PARAMS}}}}
+	{{"body_size"    , UNIQ_KEY    }, {&_checkBodySize, {1, {                       }}}},
+	{{"allow_methods", UNIQ_KEY    }, {NULL           , {3, {"GET", "POST", "DELETE"}}}},
+	{{"root"         , UNIQ_KEY    }, {NULL           , {1, {                       }}}},
+	{{"index"        , UNIQ_KEY    }, {NULL           , {1, {                       }}}},
+	{{"auto_index"   , UNIQ_KEY    }, {NULL           , {1, {"on", "off"            }}}},
+	{{"cgi"          , NON_UNIQ_KEY}, {&_checkCgi     , {1, {                       }}}},
+	{{"error_page"   , NON_UNIQ_KEY}, {NULL           , {1, {"404", "403", "442"    }}}}
+};
+
+/*
 const std::map<std::string, bool(*)(std::vector<std::string> &)>	Config::_uniqKey{
 	{"body_size", &Config::_checkPath},
 	{"allow_methods", &Config::_checkPath},
@@ -34,6 +53,7 @@ const std::map<std::string, bool(*)(std::vector<std::string> &)>	Config::_uniqKe
 	{"index", &Config::_checkPath},
 	{"auto_index", &Config::_checkPath},
 };
+*/
 
 /* -------------------------------------------------------------------------- */
 /*                                CheckFunction                               */
@@ -66,26 +86,31 @@ bool	Config::_checkKeyLocation(ServerConfig::locationType &confLocation)
 }
 */
 
+
+/*
 bool	Config::_checkAutoIndex(std::vector<std::string> &vec)
 {
 	return ((vec.size() == 1) && (vec[0] == "on" || vec[0] == "off"));
 }
+*/
 
- bool	Config::_checkBodySize(std::vector<std::string> &vec)
+void	Config::_checkCgi(std::vector<std::string> &vec)
 {
-	int	nb;
-	
-	if (vec.size() == 1)
-		return (false);
-	if (!isDigits(vec[0]))
-		return (false);
-
-	nb = atoi(vec[0].c_str());
-	if (nb <= 0)
-		return (false);
-	return (true);
+	if (vec[0].rfind('.') != 0)
+		throw ParsingError("cgi SubKey should always contains one and no more '.' at start as it should be an ext");
+	if (vec[0].size() < 2)
+		throw ParsingError("cgi SubKey should have at least one char after the point");
 }
 
+void	Config::_checkBodySize(std::vector<std::string> &vec)
+{
+	if (!isDigits(vec[0]))
+		throw ParsingError("body_size is a positive integer and should contains only numbers");
+	if (atoi(vec[0].c_str()) <= 0)
+		throw ParsingError("body_size overflow, max value : " + to_string(INT_MAX));
+}
+
+/*
 bool	Config::_checkPath(std::vector<std::string> &vec)
 {
 	return (vec.size() == 1);
@@ -113,10 +138,12 @@ bool	Config::_checkListen(std::vector<std::string> &vec)
 	}
 	return (true);
 }
+*/
 
 bool	Config::_isServerKey(const std::string &key)
 { return (_serverKey.find(key) != _serverKey.end()); }
 
+/*
 bool	Config::_isUniqKey(const std::string &key)
 { return (_uniqKey.find(key) != _uniqKey.end()); }
 
@@ -125,30 +152,7 @@ bool	Config::_isNonUniqKey(const std::string &key)
 
 bool	Config::_isValidKey(const std::string &key)
 { return (_isUniqKey(key) || _isNonUniqKey(key)); }
-
-// std::pair<std::string, bool(*)(std::vector<std::string> &)>	Config::_getOpt(std::string key)
-// {
-// 	int i = 0;
-	
-// 	while (i < N_OPT && _option[i].first != key) {
-// 		i++;
-// 	}
-// 	return (_option[i]);
-// }
-
-
-
-// bool	Config::_checkAllValue(map_type	&serverConfig)
-// {
-// 	for (map_type::iterator it = serverConfig.begin(); it != serverConfig.end(); it++)
-// 	{
-// 		if (!(*_getOpt(it->first).second)(it->second))
-// 		{
-// 			return (false);
-// 		}
-// 	}
-// 	return (true);
-// }
+*/
 
 // bool	Config::_checkIpHost(void) {
 // 	for (data_type::iterator it = _data.begin(), last = --_data.end(); it != last; it++)
@@ -255,7 +259,8 @@ Config::Config(char *filename) {
 			{
 				lineRange.first++;
 				_goToNextWordInFile(lineRange, fileRange);
-				_data.push_back(_createNewServerConfig(lineRange, fileRange));
+				try { _data.push_back(_createNewServerConfig(lineRange, fileRange)); }
+				catch (ParsingError &e) { throw ParsingError("Server " + to_string(_data.size()) + " : " + e.what()); }
 			}
 			else if (fileRange.first != fileRange.second)
 				throw ParsingError("wrong Token Global Scope");
@@ -305,6 +310,47 @@ Config::keyValues_type	Config::_getKeyValues(lineRange_type &lineRange)
 	return (std::make_pair(key, values));
 }
 
+void			Config::_insertKeyValuesInLocation(LocationConfig &location, keyValues_type &keyValues) // need optimization (synt)
+{
+	if (_keyParsingMap.count(std::make_pair(keyValues.first, UNIQ_KEY)))
+	{
+		const std::pair<void(*)(std::vector<std::string> &), std::pair<int, std::set<std::string>>>	tmp = _keyParsingMap.find(std::make_pair(keyValues.first, UNIQ_KEY))->second;
+		if (keyValues.second.empty())
+			throw ParsingError("Key without params");
+		if (keyValues.second.size() > tmp.second.first) // check if params number exceed max params number
+			throw ParsingError("Key with too many params (max params for this key = " + to_string(tmp.second.first) + ")");
+		if (!tmp.second.second.empty()) // check if params are in the authorized params list if there is one
+		{
+			for (std::vector<std::string>::iterator it = keyValues.second.begin(); it != keyValues.second.end(); it++)
+				if (!tmp.second.second.count(*it))
+					throw ParsingError("Unrecognized param : " + *it);
+		}
+		if (tmp.first) // call check FUNC if there is one
+			tmp.first(keyValues.second);
+		if (!location.uniqKey.insert(keyValues).second)
+			throw ParsingError("Key already present");
+	}
+	else if (_keyParsingMap.count(std::make_pair(keyValues.first, NON_UNIQ_KEY)))
+	{
+		const std::pair<void(*)(std::vector<std::string> &), std::pair<int, std::set<std::string>>>	tmp = _keyParsingMap.find(std::make_pair(keyValues.first, NON_UNIQ_KEY))->second;
+		if (keyValues.second.empty())
+			throw ParsingError("Key without SubKey");
+		std::vector<std::string> params(keyValues.second.begin() + 1, keyValues.second.end());
+		if (params.empty())
+			throw ParsingError("SubKey without params");
+		if (params.size() > tmp.second.first) // check if params number exceed max params number
+			throw ParsingError("SubKey with too many params (max params for this SubKey = " + to_string(tmp.second.first) + ")");
+		if (!tmp.second.second.empty() && !tmp.second.second.count(keyValues.second[0]))
+			throw ParsingError("Unrecognized SubKey : " + keyValues.second[0]);
+		if (tmp.first) // call check FUNC if there is one
+			tmp.first(keyValues.second);
+		if (!location.nonUniqKey[keyValues.first].insert(std::make_pair(keyValues.second[0], params)).second)
+			throw ParsingError("SubKey already present");
+	}
+	else
+		throw ParsingError("Unrecognized Key : " + keyValues.first);
+}
+/*
 void			Config::_insertKeyValuesInLocation(LocationConfig &location, keyValues_type &keyValues)
 {
 	if (!_isValidKey(keyValues.first))
@@ -316,6 +362,7 @@ void			Config::_insertKeyValuesInLocation(LocationConfig &location, keyValues_ty
 	else if (_isNonUniqKey(keyValues.first) && !(location.nonUniqKey[keyValues.first].insert(std::make_pair(keyValues.second[0], std::vector<std::string> (keyValues.second.begin() + 1, keyValues.second.end())))).second)
 		throw ParsingError("subKey \"" + keyValues.second[0] + "\" already exist");
 }
+*/
 
 LocationConfig	Config::_createNewLocation(lineRange_type &lineRange, fileRange_type &fileRange)
 {
