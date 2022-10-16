@@ -12,7 +12,7 @@
 
 #include "Server.hpp"
 
-Server::Server(Config::map_type serverInfo) 
+Server::Server(Parsing::map_type serverInfo) 
 : _root(serverInfo["root"][0]) , _opt(1) , _port(serverInfo["listen"][0]), _ip(serverInfo["listen"][1]) , _errorPath(serverInfo["error"][0])
 {
 	_sockfd = socket(AF_INET, SOCK_STREAM, 0);

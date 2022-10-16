@@ -12,31 +12,6 @@
 
 #include "webserv.hpp"
 
-void print_tab(std::vector<std::string> tab)
-{
-	int	i;
-
-	i = 0;
-	while (i < tab.size())
-	{
-		std::cout << tab[i] << std::endl;
-		i++;
-	}
-}
-
-void	printMap(std::map<std::string, std::vector<std::string>> map)
-{
-	for (std::map<std::string, std::vector<std::string>>::iterator	it = map.begin(); it != map.end(); it++)
-	{
-		std::cout << it->first << " : [" << it->second.size() << "]";
-		for (std::vector<std::string>::iterator itVec = it->second.begin(); itVec != it->second.end(); itVec++)
-		{
-			std::cout << " " << *itVec;
-		}
-		std::cout << std::endl;
-	}
-}
-
 int main(int ac, char **av)
 {	
 	(void)av;
@@ -44,7 +19,7 @@ int main(int ac, char **av)
 	{		
 		try {	
 		/* --------------------------------- Parsing -------------------------------- */
-			Config	configServer(av[1]);
+			Parsing	configServer(av[1]);
 			
 
 		// /* ----------------------------- Server Creation ---------------------------- */
