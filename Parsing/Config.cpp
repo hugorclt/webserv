@@ -23,16 +23,8 @@ const std::map<std::string, bool(*)(std::vector<std::string> &)>	Config::_server
 	{"server_name", NULL}, 
 };
 
-/*
-const std::map<std::string, bool(*)(std::vector<std::string> &)>	Config::_nonUniqKey{
-	{"cgi", &Config::_checkPath},
-	{"error_page", &Config::_checkPath},
-};
-*/
 
-enum {UNIQ_KEY, NON_UNIQ_KEY};
-
-const std::map<std::pair<std::string, int>, std::pair<void(*)(std::vector<std::string> &), std::pair<int, std::set<std::string>>>>	Config::_keyParsingMap
+const std::map<std::pair<std::string, Config::_KeyType>, std::pair<void(*)(std::vector<std::string> &), std::pair<int, std::set<std::string>>>>	Config::_keyParsingMap
 {
 	// if POSSIBLE PARAMS is empty it means thant it's checked in the FUNC
 	// {{    KEY     , KEY_TYPE }, {FUNC, {MAX_PARAMS, {POSSIBLE PARAMS}}}}
@@ -45,54 +37,9 @@ const std::map<std::pair<std::string, int>, std::pair<void(*)(std::vector<std::s
 	{{"error_page"   , NON_UNIQ_KEY}, {NULL           , {1, {"404", "403", "442"    }}}}
 };
 
-/*
-const std::map<std::string, bool(*)(std::vector<std::string> &)>	Config::_uniqKey{
-	{"body_size", &Config::_checkPath},
-	{"allow_methods", &Config::_checkPath},
-	{"root", &Config::_checkPath},
-	{"index", &Config::_checkPath},
-	{"auto_index", &Config::_checkPath},
-};
-*/
-
 /* -------------------------------------------------------------------------- */
 /*                                CheckFunction                               */
 /* -------------------------------------------------------------------------- */
-
-/*
-bool	Config::_checkKeyConfServer(ServerConfig::confType &confServ)
-{
-	if (confServ.find("listen") == confServ.end())
-		return (false);
-	if (confServ.find("body_size") == confServ.end())
-		return (false);
-
-	//add loop throught the map and send all vector in the tab of pointer function _optionConf
-	return (true);
-}
-
-bool	Config::_checkKeyLocation(ServerConfig::locationType &confLocation)
-{
-	if (confLocation.size() < 1)
-		return (false);
-	for (ServerConfig::locationType::iterator itLocations = confLocation.begin(); itLocations != confLocation.end(); itLocations++)
-	{
-		if (itLocations->second.find("root") == itLocations->second.end())
-			return (false);
-		//add loop throught the map and send all vector in the tab of pointer function _optionLocation
-
-	}
-	return (true);
-}
-*/
-
-
-/*
-bool	Config::_checkAutoIndex(std::vector<std::string> &vec)
-{
-	return ((vec.size() == 1) && (vec[0] == "on" || vec[0] == "off"));
-}
-*/
 
 void	Config::_checkCgi(std::vector<std::string> &vec)
 {
@@ -110,12 +57,7 @@ void	Config::_checkBodySize(std::vector<std::string> &vec)
 		throw ParsingError("body_size overflow, max value : " + to_string(INT_MAX));
 }
 
-/*
-bool	Config::_checkPath(std::vector<std::string> &vec)
-{
-	return (vec.size() == 1);
-}
-
+/* Saved for later help
 bool	Config::_checkListen(std::vector<std::string> &vec)
 {
 	int							port;
@@ -142,26 +84,6 @@ bool	Config::_checkListen(std::vector<std::string> &vec)
 
 bool	Config::_isServerKey(const std::string &key)
 { return (_serverKey.find(key) != _serverKey.end()); }
-
-/*
-bool	Config::_isUniqKey(const std::string &key)
-{ return (_uniqKey.find(key) != _uniqKey.end()); }
-
-bool	Config::_isNonUniqKey(const std::string &key)
-{ return (_nonUniqKey.find(key) != _nonUniqKey.end()); }
-
-bool	Config::_isValidKey(const std::string &key)
-{ return (_isUniqKey(key) || _isNonUniqKey(key)); }
-*/
-
-// bool	Config::_checkIpHost(void) {
-// 	for (data_type::iterator it = _data.begin(), last = --_data.end(); it != last; it++)
-// 
-// 		if ((*it)["listen"] == (*last)["listen"])
-// 			return (false);
-// 	}
-// 	return (true);
-// }
 
 /* -------------------------------------------------------------------------- */
 /*                                 Constructor                                */
@@ -350,19 +272,6 @@ void			Config::_insertKeyValuesInLocation(LocationConfig &location, keyValues_ty
 	else
 		throw ParsingError("Unrecognized Key : " + keyValues.first);
 }
-/*
-void			Config::_insertKeyValuesInLocation(LocationConfig &location, keyValues_type &keyValues)
-{
-	if (!_isValidKey(keyValues.first))
-		throw ParsingError("Unregognized Key : " + keyValues.first);
-	if (keyValues.second.empty())
-		throw ParsingError("Key without options");
-	if (_isUniqKey(keyValues.first) && !location.uniqKey.insert(keyValues).second)
-		throw ParsingError("Key \"" + keyValues.first + "\" already exist");
-	else if (_isNonUniqKey(keyValues.first) && !(location.nonUniqKey[keyValues.first].insert(std::make_pair(keyValues.second[0], std::vector<std::string> (keyValues.second.begin() + 1, keyValues.second.end())))).second)
-		throw ParsingError("subKey \"" + keyValues.second[0] + "\" already exist");
-}
-*/
 
 LocationConfig	Config::_createNewLocation(lineRange_type &lineRange, fileRange_type &fileRange)
 {
@@ -450,12 +359,14 @@ void	Config::_goToNextWordInFile(lineRange_type &lineRange, fileRange_type &file
 
 std::string	Config::_getWord(lineRange_type &lineRange)
 {
-	std::string::iterator	it = lineRange.first;
+	std::string	res;
 	
-	while (it != lineRange.second && (_whitespacesSet + _lineBreakSet + _commentSet + _scopeSet).find(*it) == std::string::npos)
-		it++;
-	std::string res(lineRange.first, it);
-	lineRange.first = it;
+	while (lineRange.first != lineRange.second && (_whitespacesSet + _lineBreakSet + _commentSet + _scopeSet).find(*lineRange.first) == std::string::npos)
+	{
+		if (*lineRange.first == '\\')
+			lineRange.first++;
+		res.push_back(*lineRange.first++);
+	}
 	return (res);
 }
 

@@ -51,9 +51,10 @@ class Config {
 		int							_nbServer;
 		data_type					_data;
 		const static std::map<std::string, bool(*)(std::vector<std::string> &)>	_serverKey;
-		//const static std::map<std::string, bool(*)(std::vector<std::string> &)>	_nonUniqKey;
-		//const static std::map<std::string, bool(*)(std::vector<std::string> &)>	_uniqKey;
-		const static std::map<std::pair<std::string, int>, std::pair<void(*)(std::vector<std::string> &), std::pair<int, std::set<std::string>>>>	_keyParsingMap;
+
+		enum _KeyType {UNIQ_KEY, NON_UNIQ_KEY};
+		const static std::map<std::pair<std::string, _KeyType>, std::pair<void(*)(std::vector<std::string> &), std::pair<int, std::set<std::string>>>>	_keyParsingMap;
+
 		const static std::string	_whitespacesSet;
 		const static std::string	_lineBreakSet;
 		const static std::string	_commentSet;
