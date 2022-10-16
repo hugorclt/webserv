@@ -89,22 +89,22 @@ bool	Config::_isServerKey(const std::string &key)
 /*                                 Constructor                                */
 /* -------------------------------------------------------------------------- */
 
-static void	printVec(const std::vector<std::string> &vec)
+static void	printSet(const std::set<std::string> &set)
 {
-	if (vec.empty())
+	if (set.empty())
 		std::cout << "(NONE)";
-	for (std::vector<std::string>::const_iterator it = vec.begin(); it != vec.end(); it++)
+	for (std::set<std::string>::const_iterator it = set.begin(); it != set.end(); it++)
 		std::cout << " " << *it;
 }
 
-static void printMap(const std::map<std::string, std::vector<std::string>> &map, const std::string &indent)
+static void printMap(const std::map<std::string, std::set<std::string>> &map, const std::string &indent)
 {
 	if (map.empty())
 		std::cout << indent << "(NONE)" << std::endl;
-	for (std::map<std::string, std::vector<std::string>>::const_iterator it = map.begin(); it != map.end(); it++)
+	for (std::map<std::string, std::set<std::string>>::const_iterator it = map.begin(); it != map.end(); it++)
 	{
 		std::cout << indent << "[\"" << it->first << "\"] :";
-		printVec(it->second);
+		printSet(it->second);
 		std::cout << std::endl;
 	}
 }
@@ -215,7 +215,13 @@ bool	Config::_isLocation(keyValues_type keyValues, lineRange_type &lineRange, fi
 	lineRange_type	lineRangeCpy = lineRange;
 	fileRange_type	fileRangeCpy = fileRange;
 	_goToNextWordInFile(lineRangeCpy, fileRangeCpy);
-	return (keyValues.first == "location" && keyValues.second.size() == 1 && *lineRangeCpy.first == '{');
+	if (keyValues.first != "location")
+		return (false);
+	if (keyValues.second.size() != 1)
+		throw ParsingError("location need to have one and no more params");
+	if (*lineRangeCpy.first != '{')
+		throw ParsingError("location : can't find '{'");
+	return (true);
 }
 
 Config::keyValues_type	Config::_getKeyValues(lineRange_type &lineRange)
@@ -249,8 +255,12 @@ void			Config::_insertKeyValuesInLocation(LocationConfig &location, keyValues_ty
 		}
 		if (tmp.first) // call check FUNC if there is one
 			tmp.first(keyValues.second);
-		if (!location.uniqKey.insert(keyValues).second)
+		if (location.uniqKey.count(keyValues.first))
 			throw ParsingError("Key already present");
+		std::set	s(keyValues.second.begin(), keyValues.second.end());
+		if (s.size() != keyValues.second.size()) 
+			throw ParsingError("duplicated params");
+		location.uniqKey.insert(std::make_pair(keyValues.first, s));
 	}
 	else if (_keyParsingMap.count(std::make_pair(keyValues.first, NON_UNIQ_KEY)))
 	{
@@ -266,8 +276,12 @@ void			Config::_insertKeyValuesInLocation(LocationConfig &location, keyValues_ty
 			throw ParsingError("Unrecognized SubKey : " + keyValues.second[0]);
 		if (tmp.first) // call check FUNC if there is one
 			tmp.first(keyValues.second);
-		if (!location.nonUniqKey[keyValues.first].insert(std::make_pair(keyValues.second[0], params)).second)
-			throw ParsingError("SubKey already present");
+		if (location.nonUniqKey[keyValues.first].count(keyValues.second[0]))
+			throw ParsingError("duplicated params");
+		std::set	s(params.begin(), params.end());
+		if (s.size() != params.size())
+			throw ParsingError("duplicated params");
+		location.nonUniqKey[keyValues.first].insert(std::make_pair(keyValues.second[0], s)).second;
 	}
 	else
 		throw ParsingError("Unrecognized Key : " + keyValues.first);

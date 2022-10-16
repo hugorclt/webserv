@@ -17,8 +17,8 @@
 
 struct LocationConfig
 {
-	typedef std::map<std::string, std::map<std::string, std::vector<std::string>>>	nonUniqKey_type; // Usage Ex : Conf._data[0].locations.nonUniqKey["error_pages"]["404"] -> ./404.html
-	typedef std::map<std::string, std::vector<std::string>>							uniqKey_type; // Usage Ex : Conf_data[0].location.uniqKey["root"] -> ./var/srv
+	typedef std::map<std::string, std::map<std::string, std::set<std::string>>>	nonUniqKey_type; // Usage Ex : Conf._data[0].locations.nonUniqKey["error_pages"]["404"] -> ./404.html
+	typedef std::map<std::string, std::set<std::string>>						uniqKey_type; // Usage Ex : Conf_data[0].location.uniqKey["root"] -> ./var/srv
 	
 	nonUniqKey_type	nonUniqKey;
 	uniqKey_type	uniqKey;
