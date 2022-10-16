@@ -24,7 +24,7 @@ const std::map<std::string, bool(*)(std::vector<std::string> &)>	Config::_server
 };
 
 
-const std::map<std::pair<std::string, Config::_KeyType>, std::pair<void(*)(std::vector<std::string> &), std::pair<int, std::set<std::string>>>>	Config::_keyParsingMap
+const std::map<std::pair<std::string, Config::_KeyType>, std::pair<void(*)(Config::keyValues_type &), std::pair<int, std::set<std::string>>>>	Config::_keyParsingMap
 {
 	// if POSSIBLE PARAMS is empty it means thant it's checked in the FUNC
 	// {{    KEY     , KEY_TYPE }, {FUNC, {MAX_PARAMS, {POSSIBLE PARAMS}}}}
@@ -41,19 +41,19 @@ const std::map<std::pair<std::string, Config::_KeyType>, std::pair<void(*)(std::
 /*                                CheckFunction                               */
 /* -------------------------------------------------------------------------- */
 
-void	Config::_checkCgi(std::vector<std::string> &vec)
+void	Config::_checkCgi(keyValues_type &keyValues)
 {
-	if (vec[0].rfind('.') != 0)
+	if (keyValues.first.rfind('.') != 0)
 		throw ParsingError("cgi SubKey should always contains one and no more '.' at start as it should be an ext");
-	if (vec[0].size() < 2)
+	if (keyValues.first.size() < 2)
 		throw ParsingError("cgi SubKey should have at least one char after the point");
 }
 
-void	Config::_checkBodySize(std::vector<std::string> &vec)
+void	Config::_checkBodySize(keyValues_type &keyValues)
 {
-	if (!isDigits(vec[0]))
+	if (!isDigits(keyValues.second[0]))
 		throw ParsingError("body_size is a positive integer and should contains only numbers");
-	if (atoi(vec[0].c_str()) <= 0)
+	if (atoi(keyValues.second[0].c_str()) <= 0)
 		throw ParsingError("body_size overflow, max value : " + to_string(INT_MAX));
 }
 
@@ -238,11 +238,56 @@ Config::keyValues_type	Config::_getKeyValues(lineRange_type &lineRange)
 	return (std::make_pair(key, values));
 }
 
-void			Config::_insertKeyValuesInLocation(LocationConfig &location, keyValues_type &keyValues) // need optimization (synt)
+void			Config::_insertKeyValuesInLocation(LocationConfig &location, keyValues_type &keyValues) // still need to be cleaned
 {
+	_KeyType kt;
+
+	// Get Key Type
+	if (_keyParsingMap.count({keyValues.first, UNIQ_KEY}))
+		kt = UNIQ_KEY;
+	else if (_keyParsingMap.count({keyValues.first, NON_UNIQ_KEY}))
+		kt = NON_UNIQ_KEY;
+	else
+		throw ParsingError("Unrecognized Key : " + keyValues.first);
+
+	// Get keyParsingMap data
+	const std::pair<void(*)(keyValues_type &), std::pair<int, std::set<std::string>>>	tmp = _keyParsingMap.find({keyValues.first, kt})->second;
+	// Get insertionPoint
+	LocationConfig::uniqKey_type	&insertionPoint = (kt == UNIQ_KEY) ? location.uniqKey : location.nonUniqKey[keyValues.first];
+
+	if (kt == NON_UNIQ_KEY && !keyValues.second.empty()) // set SubKey as keyValues.first and SubKey params as keyValues.second
+	{
+		keyValues.first = keyValues.second[0];
+		keyValues.second.erase(keyValues.second.begin());
+	}
+	std::set<std::string>	sParams(keyValues.second.begin(), keyValues.second.end());
+	if (keyValues.second.empty())
+		throw ParsingError("Key without enough params");
+	if (!tmp.second.second.empty()) // If a set of valid param is provided
+	{
+		if (kt == UNIQ_KEY) // check than all params are present in this set
+		{
+			for (std::set<std::string>::iterator it = sParams.begin(); it != sParams.end(); it++)
+				if (!tmp.second.second.count(*it))
+					throw ParsingError("Unrecognized param : " + *it);
+		}
+		else if (!tmp.second.second.count(keyValues.first)) // check than SubKey is present in this set
+			throw ParsingError("Unrecognized param : " + keyValues.first);
+	}
+	if (sParams.size() != keyValues.second.size())
+		throw ParsingError("duplicated params");
+	if (sParams.size() > tmp.second.first)
+		throw ParsingError("Key with too many params (max : " + to_string(tmp.second.first) + ")");
+	if (!insertionPoint.insert({keyValues.first, sParams}).second)
+		throw ParsingError("Key already present");
+	if (tmp.first) // if a check function is provided, call it
+		tmp.first(keyValues);
+/*
+//////////////////////////////////////////////////////////////////////////////////
 	if (_keyParsingMap.count(std::make_pair(keyValues.first, UNIQ_KEY)))
 	{
-		const std::pair<void(*)(std::vector<std::string> &), std::pair<int, std::set<std::string>>>	tmp = _keyParsingMap.find(std::make_pair(keyValues.first, UNIQ_KEY))->second;
+		tmp = _keyParsingMap.find(std::make_pair(keyValues.first, UNIQ_KEY))->second;
+
 		if (keyValues.second.empty())
 			throw ParsingError("Key without params");
 		if (keyValues.second.size() > tmp.second.first) // check if params number exceed max params number
@@ -257,14 +302,15 @@ void			Config::_insertKeyValuesInLocation(LocationConfig &location, keyValues_ty
 			tmp.first(keyValues.second);
 		if (location.uniqKey.count(keyValues.first))
 			throw ParsingError("Key already present");
-		std::set	s(keyValues.second.begin(), keyValues.second.end());
+		std::set<std::string>	s(keyValues.second.begin(), keyValues.second.end());
 		if (s.size() != keyValues.second.size()) 
 			throw ParsingError("duplicated params");
 		location.uniqKey.insert(std::make_pair(keyValues.first, s));
 	}
 	else if (_keyParsingMap.count(std::make_pair(keyValues.first, NON_UNIQ_KEY)))
 	{
-		const std::pair<void(*)(std::vector<std::string> &), std::pair<int, std::set<std::string>>>	tmp = _keyParsingMap.find(std::make_pair(keyValues.first, NON_UNIQ_KEY))->second;
+		tmp = _keyParsingMap.find(std::make_pair(keyValues.first, NON_UNIQ_KEY))->second;
+
 		if (keyValues.second.empty())
 			throw ParsingError("Key without SubKey");
 		std::vector<std::string> params(keyValues.second.begin() + 1, keyValues.second.end());
@@ -277,14 +323,15 @@ void			Config::_insertKeyValuesInLocation(LocationConfig &location, keyValues_ty
 		if (tmp.first) // call check FUNC if there is one
 			tmp.first(keyValues.second);
 		if (location.nonUniqKey[keyValues.first].count(keyValues.second[0]))
-			throw ParsingError("duplicated params");
-		std::set	s(params.begin(), params.end());
+			throw ParsingError("duplicated SubKey");
+		std::set<std::string>	s(params.begin(), params.end());
 		if (s.size() != params.size())
 			throw ParsingError("duplicated params");
-		location.nonUniqKey[keyValues.first].insert(std::make_pair(keyValues.second[0], s)).second;
+		location.nonUniqKey[keyValues.first].insert(std::make_pair(keyValues.second[0], s));
 	}
 	else
 		throw ParsingError("Unrecognized Key : " + keyValues.first);
+*/
 }
 
 LocationConfig	Config::_createNewLocation(lineRange_type &lineRange, fileRange_type &fileRange)

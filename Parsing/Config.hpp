@@ -53,7 +53,7 @@ class Config {
 		const static std::map<std::string, bool(*)(std::vector<std::string> &)>	_serverKey;
 
 		enum _KeyType {UNIQ_KEY, NON_UNIQ_KEY};
-		const static std::map<std::pair<std::string, _KeyType>, std::pair<void(*)(std::vector<std::string> &), std::pair<int, std::set<std::string>>>>	_keyParsingMap;
+		const static std::map<std::pair<std::string, _KeyType>, std::pair<void(*)(keyValues_type &), std::pair<int, std::set<std::string>>>>	_keyParsingMap;
 
 		const static std::string	_whitespacesSet;
 		const static std::string	_lineBreakSet;
@@ -77,20 +77,12 @@ class Config {
 
 		//Check Functions
 		static bool	_isServerKey(const std::string &key);
-		static bool	_isUniqKey(const std::string &key);
-		static bool	_isNonUniqKey(const std::string &key);
-		static bool	_isValidKey(const std::string &key);
 
-		//static bool	_checkAutoIndex(std::vector<std::string> &vec);
-		static void	_checkBodySize(std::vector<std::string> &vec);
-		static void	_checkCgi(std::vector<std::string> &vec);
+		static void	_checkBodySize(keyValues_type &keyValues);
+		static void	_checkCgi(keyValues_type &keyValues);
 		/*
-		static bool	_checkPath(std::vector<std::string> &vec);
 		static bool	_checkListen(std::vector<std::string> &vec);
-		bool		_checkAllValue(map_type	&serverConfig);
 		bool		_checkIpHost(void);
-		bool		_checkKeyConfServer(ServerConfig::confType &confServ);
-		bool		_checkKeyLocation(ServerConfig::locationType &confLocation);
 		*/
 
 		//test
