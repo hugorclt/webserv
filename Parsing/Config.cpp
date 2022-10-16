@@ -365,6 +365,8 @@ std::string	Config::_getWord(lineRange_type &lineRange)
 	{
 		if (*lineRange.first == '\\')
 			lineRange.first++;
+		if (lineRange.first == lineRange.second)
+			throw ParsingError("'\\' need to be used in combination with either an other char or itself");
 		res.push_back(*lineRange.first++);
 	}
 	return (res);
