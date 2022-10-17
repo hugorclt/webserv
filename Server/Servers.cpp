@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/30 11:56:41 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/17 17:39:50 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/17 17:44:35 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,6 @@ void	Servers::_createNewServer(std::string ip, std::string port)
 	socketInfo.address.sin_port = htons(atoi(port.c_str()));
 	socketInfo.addrLen = sizeof(socketInfo.address);
 	
-	std::cout << ip << " " << port << std::endl;
 	if (bind(socketInfo.sockfd, (struct sockaddr*)&socketInfo.address, sizeof(socketInfo.address)) < 0) {
 	    close(socketInfo.sockfd);
 		perror("bite");
