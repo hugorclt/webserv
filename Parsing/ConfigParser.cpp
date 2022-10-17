@@ -137,6 +137,14 @@ void	ConfigParser::_printConfigParser(const data_type &data)
 		std::string	indent("");
 		std::cout << indent << "Server " << data.size() - (data.end() - itServ) << " :" << std::endl;
 		std::cout << indent << '{' << std::endl;
+		indent += "\t";
+		std::cout << indent << "server_name : " << itServ->server_name << std::endl
+				  << std::endl;
+		std::cout << indent << "listen" << std::endl
+				  << indent << '{' << std::endl;
+		printMap(itServ->listen, indent + "\t");
+		std::cout << indent << '}' << std::endl
+				  << std::endl;
 		for (Server::location_type::const_iterator itLoc = itServ->location.begin(); itLoc != itServ->location.end(); itLoc++)
 		{
 			std::string indent("\t");
