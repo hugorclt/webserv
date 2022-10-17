@@ -409,13 +409,6 @@ ConfigParser::Server	ConfigParser::_createNewServer(lineRange_type &lineRange, f
 	lineRange.first++;
 	res.location["/"].insert(serverLocationConf);
 	res.location["/"].insert(Conf::_defaultValues);
-	/*
-	for (Location::uniqKey_type::iterator it = serverLocationConf.uniqKey.begin(); it != serverLocationConf.uniqKey.end(); it++)
-		res.location["/"].uniqKey.insert(*it);
-	for (Location::nonUniqKey_type::iterator it = serverLocationConf.nonUniqKey.begin(); it != serverLocationConf.nonUniqKey.end(); it++)
-		for (Location::uniqKey_type::iterator nit = it->second.begin(); nit != it->second.end(); nit++)
-			res.location["/"].nonUniqKey[it->first].insert(*nit);
-	*/
 	return (res);
 }
 
