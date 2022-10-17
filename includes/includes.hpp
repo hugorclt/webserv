@@ -1,59 +1,19 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   webserv.hpp                                        :+:      :+:    :+:   */
+/*   includes.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/09/19 10:52:17 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/17 14:22:52 by hrecolet         ###   ########.fr       */
+/*   Created: 2022/10/17 14:21:50 by hrecolet          #+#    #+#             */
+/*   Updated: 2022/10/17 14:22:13 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
-
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <iostream>
-#include <fstream>
-#include <unistd.h>
-#include <cstdio>
-#include <cstdlib>
-#include <sys/epoll.h>
-#include <cstring>
-#include <fcntl.h>
-#include <sys/types.h>
 #include <vector>
 #include <map>
-#include <set>
-#include <cstring>
-#include <arpa/inet.h>
-#include <sstream>
-#include <ctime>
-#include <algorithm>
-#include <cstdbool>
-#include <exception>
-#include <cerrno>
-#include <dirent.h>
-
-
-#include "ConfigParser.hpp"
-#include "Server.hpp"
-#include "ServerList.hpp"
-#include "IOpoll.hpp"
-#include "HTTPRequest.hpp"
-//#include "Response.hpp"
-
-#define EXIT_FAILURE 1
-#define EXIT_SUCCESS 0
-#define	TRUE 1
-#define FALSE 0
-#define PORT 8080
-#define MAX_EVENTS 5
-
-/* -------------------------------------------------------------------------- */
-/*                                  protoype                                  */
-/* -------------------------------------------------------------------------- */
+#include <string>
 
 std::vector<std::string>						split(std::string s, std::string delimiter);
 int												parseStartLine(char **tab, std::map<std::string, std::vector<std::string>> &map);

@@ -6,19 +6,21 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/30 11:54:19 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/17 13:07:06 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/17 14:19:07 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
-#include <vector>
-#include "Server.hpp"
-#include "Config.hpp"
-#include <string>
+#include "webserv.hpp"
+
+class Server;
+
+class ConfigParser;
 
 class ServerList {
 	private:
 		std::vector<Server*> _server;
 	public:
-		launchServer(void);	
+		ServerList(ConfigParser &confFile);
+		void launchServer(void);	
 };

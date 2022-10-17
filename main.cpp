@@ -6,36 +6,11 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/18 12:57:12 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/11 18:37:09 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/17 14:31:26 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "webserv.hpp"
-
-void print_tab(std::vector<std::string> tab)
-{
-	int	i;
-
-	i = 0;
-	while (i < tab.size())
-	{
-		std::cout << tab[i] << std::endl;
-		i++;
-	}
-}
-
-void	printMap(std::map<std::string, std::vector<std::string>> map)
-{
-	for (std::map<std::string, std::vector<std::string>>::iterator	it = map.begin(); it != map.end(); it++)
-	{
-		std::cout << it->first << " : [" << it->second.size() << "]";
-		for (std::vector<std::string>::iterator itVec = it->second.begin(); itVec != it->second.end(); itVec++)
-		{
-			std::cout << " " << *itVec;
-		}
-		std::cout << std::endl;
-	}
-}
 
 int main(int ac, char **av)
 {	
@@ -44,12 +19,12 @@ int main(int ac, char **av)
 	{		
 		try {	
 		/* --------------------------------- Parsing -------------------------------- */
-			Config	configServer(av[1]);
+			ConfigParser	configServers(av[1]);
 			
+			ServerList serverList(configServers);
 
 		// /* ----------------------------- Server Creation ---------------------------- */
 		// 	IOpoll	epoll;
-		// 	ServerList serverList(configServer);
 
 
 		// 	serverList.listenConnection();
