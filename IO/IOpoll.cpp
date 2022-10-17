@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/20 15:57:26 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/17 14:10:52 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/17 15:59:41 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,16 +59,14 @@ void	IOpoll::addFd(int fd) {
 }
 
 void	IOpoll::addServerList(ServerList servers) {
-	// ServerList	serv = servers.getServers();
-	// ServerList::serverValue::iterator it = serv.begin();
+	Server::sock_type serv = servers.getSockIpPort();
 	
-	// while (it != serv.end()) {
-	// 	ev.data.fd = (*it)->getSockfd();
-	// 	if (epoll_ctl(this->epollfd, EPOLL_CTL_ADD, (*it)->getSockfd(), &this->ev)) {
-	// 		perror("Failed to add fd to epoll list");
-	// 		close(this->epollfd);
-	// 		exit(EXIT_FAILURE);
-	// 	}
-	// 	it++;
-	// }
+	for (Server::sock_type::iterator it = serv.begin(); it != serv.end(); it++) {
+		ev.data.fd = it->first.sockfd;
+		if (epoll_ctl(this->epollfd, EPOLL_CTL_ADD, it->first.sockfd, &this->ev)) {
+			perror("Failed to add fd to epoll list");
+			close(this->epollfd);
+			exit(EXIT_FAILURE);
+		}
+	}
 }

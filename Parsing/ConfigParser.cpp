@@ -322,7 +322,8 @@ void	ConfigParser::_insertKeyValuesInServer(Server &res, keyValues_type &keyValu
 	{
 		_listen(keyValues);
 		std::cout << "listen : " << keyValues.second[0] << " " << keyValues.second[1] << std::endl;
-		if (!res.listen[keyValues.second[0]].insert(atoi(keyValues.second[1]))
+		if (!res.listen[keyValues.second[0]].insert(keyValues.second[1]).second)
+			throw ParsingError("doublon listen");
 	}
 }
 

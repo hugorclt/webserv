@@ -6,21 +6,34 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/30 11:54:19 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/17 14:19:07 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/17 16:27:28 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
-#include "webserv.hpp"
+#include <vector>
+#include <string>
+#include <iostream>
+#include "Server.hpp"
 
 class Server;
 
 class ConfigParser;
 
 class ServerList {
+	public:
+		typedef std::vector<Server*>	server_type;
+		
 	private:
-		std::vector<Server*> _server;
+		server_type 		_server;
+		Server::sock_type 	_sockIpPort;
+		
 	public:
 		ServerList(ConfigParser &confFile);
-		void launchServer(void);	
+		void launchServer(void);
+
+		Server::sock_type::iterator	getSocketByFd(int fd);
+		int							acceptSocket(Server::socket_t sock);
+		server_type					getServers(void);
+		Server::sock_type			&getSockIpPort(void);
 };

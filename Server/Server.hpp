@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/20 14:52:01 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/17 14:33:00 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/17 15:57:04 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,19 +16,31 @@
 #include <netinet/in.h>
 #include <unistd.h>
 #include <arpa/inet.h>
+#include <fcntl.h>
 
 
-class Server {		
+class Server {
+	public:
+		struct socket_t {
+			int			sockfd;
+			sockaddr_in	address;
+			int			opt;
+			int			addrLen;
+		};
+
+		typedef std::vector<std::pair<socket_t, std::pair<std::string, std::string>>> sock_type;
+		
 	private:
-		static std::vector<std::pair<int, std::pair<std::string, std::string>>> _sockIpPort;
+		static sock_type 		_sockIpPort;
 		ConfigParser::Server	_serverInfo;
-		sockaddr_in	_address;
-		int			_opt;
-		int			_addrLen;
+
 		
 	public:
 		Server(ConfigParser::Server serverInfo);
 		
 
-		void	_launch(void);
+		void		_launch(void);
+		void    	_listenConnection(void);
+		sock_type	&getSocket(void) const;
+
 };
