@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/19 10:52:17 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/11 18:45:18 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/11 22:47:43 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <sys/epoll.h>
+#include <dirent.h>
 #include <cstring>
 #include <fcntl.h>
 #include <sys/types.h>

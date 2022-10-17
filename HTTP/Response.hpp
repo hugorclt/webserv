@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/21 11:47:56 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/12 15:07:32 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/18 00:23:05 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@ class Response {
 		std::vector<char>	_data;
 		std::string			_code;
 		std::string			_header;
+		std::string			_types;
 
 		static std::pair<std::string, std::string>	_mimeTypes[NB_MIME];
 		void		_constructBody(void);

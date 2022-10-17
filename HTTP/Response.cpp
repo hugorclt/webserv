@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/11 15:23:33 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/12 15:08:34 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/18 00:30:04 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -149,6 +149,36 @@ void	Request::send(void)
 {
 	if (send(clientFd, _data.data(), _data.size(), 0) == -1)
         perror("send error:");
+}
+
+bool	Response::_isBinaryFile(std::string filePath)
+{
+	int	character;
+	
+	std::ifstream file(filePath);
+	while ((character = file.get()) != EOF && c <= 127)
+		;
+	if (c == EOF)
+		return (false);
+	return (true);
+}
+
+void	Response::_setType(std::string url)
+{
+	std::string	extension = url.substr(url.find_last_of(".") + 1);
+	
+	for (int i = 0; i < NB_MIME; i++)
+	{
+		if (extension == _mimeTypes[i].first)
+		{
+			_types = _mimeTypes[i].second;
+			return ;
+		}
+	}
+	if (_isBinaryFile(url))
+		_types = "application/octet-stream";
+	else
+		_types = "text/plain";
 }
 
 
