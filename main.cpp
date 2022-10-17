@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/18 12:57:12 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/17 16:57:27 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/17 17:08:43 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,13 +20,10 @@ int main(int ac, char **av)
 		try {	
 		/* --------------------------------- Parsing -------------------------------- */
 			ConfigParser	configServers(av[1]);
-			
 			Servers serverList(configServers);
+			IOpoll	epoll(serverList);
 
 		/* ----------------------------- Server Creation ---------------------------- */
-			IOpoll	epoll;
-			epoll.addServerList(serverList);
-
 			while (42) {
 				try 
 				{

@@ -23,6 +23,7 @@
 
 class Servers {
 	public:
+		/* ------------------------- socket structure utils ------------------------- */
 		struct socket_t {
 			int			sockfd;
 			sockaddr_in	address;
@@ -33,15 +34,28 @@ class Servers {
 		typedef std::vector<std::pair<socket_t, std::pair<std::string, std::string>>> sock_type;
 		
 	private:
-		sock_type 			_sockIpPort;
+		sock_type	_sockIpPort;
 
-		void	_listenConnection(void);
-		void	_createNewServer(std::string ip, std::string port);
+		void		_listenConnection(void);
+		void		_createNewServer(std::string ip, std::string port);
 		
 	public:
+		/* ------------------------------- constructor ------------------------------ */
 		Servers(ConfigParser &confFile);
-		sock_type::iterator	getSocketByFd(int fd);
-		int				acceptSocket(socket_t sock);
-		sock_type		&getSockIpPort(void);
 
+		/* --------------------------------- methods -------------------------------- */
+		sock_type::iterator	getSocketByFd(int fd);
+		int					acceptSocket(socket_t sock);
+		sock_type			&getSockIpPort(void);
+
+		/* ------------------------------- error class ------------------------------ */
+		class ServersError: public std::exception {
+			private:
+				std::string	_error;
+			public:
+				ServersError(std::string error) : _error(error) {};
+				virtual const char *what() const throw() {
+					return (_error.c_str());
+				}
+		};
 };
