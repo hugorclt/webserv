@@ -26,8 +26,37 @@ const ConfigParser::Conf::data_type	ConfigParser::Conf::_data
 	{"cgi"          , {KT_NON_UNIQ, &_checkCgi     , 1, {                       }}},
 	{"error_page"   , {KT_NON_UNIQ, NULL           , 1, {"404", "403", "442"    }}},
 
-	{"listen"       , {KT_SERVER  , &formatListen       , 2, {                       }}},
+	{"listen"       , {KT_SERVER  , &formatListen  , 2, {                       }}},
 	{"server_name"  , {KT_SERVER  , NULL           , 1, {                       }}},
+};
+
+const ConfigParser::Location	ConfigParser::Conf::_defaultValues
+{
+	// nonUniqKey
+	{
+		{
+			"error_page",
+			{
+				{"404", {"PauloLePoulet"}},
+				{"403", {"HugoLePoulet" }},
+				{"442", {"NinoLePouolet"}},
+			},
+		},
+		{
+			"cgi",
+			{
+				{".bite", {"/bin/bite"}},
+				{".teub", {"/bin/teub"}},
+			},
+		},
+	},
+
+	// uniqKey
+	{
+		{"auto_index"   , {"off"                  }},
+		{"allow_methods", {"GET", "POST", "DELETE"}},
+		{"body_size"    , {"42"                   }},
+	},
 };
 
 const std::string ConfigParser::Conf::_whitespacesSet = "\t ";
@@ -378,11 +407,15 @@ ConfigParser::Server	ConfigParser::_createNewServer(lineRange_type &lineRange, f
 	if (fileRange.first == fileRange.second)
 		throw ParsingError("UnclosedServer");
 	lineRange.first++;
+	res.location["/"].insert(serverLocationConf);
+	res.location["/"].insert(Conf::_defaultValues);
+	/*
 	for (Location::uniqKey_type::iterator it = serverLocationConf.uniqKey.begin(); it != serverLocationConf.uniqKey.end(); it++)
 		res.location["/"].uniqKey.insert(*it);
 	for (Location::nonUniqKey_type::iterator it = serverLocationConf.nonUniqKey.begin(); it != serverLocationConf.nonUniqKey.end(); it++)
 		for (Location::uniqKey_type::iterator nit = it->second.begin(); nit != it->second.end(); nit++)
 			res.location["/"].nonUniqKey[it->first].insert(*nit);
+	*/
 	return (res);
 }
 
