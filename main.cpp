@@ -6,36 +6,11 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/18 12:57:12 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/11 18:37:09 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/17 17:08:43 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "webserv.hpp"
-
-void print_tab(std::vector<std::string> tab)
-{
-	int	i;
-
-	i = 0;
-	while (i < tab.size())
-	{
-		std::cout << tab[i] << std::endl;
-		i++;
-	}
-}
-
-void	printMap(std::map<std::string, std::vector<std::string>> map)
-{
-	for (std::map<std::string, std::vector<std::string>>::iterator	it = map.begin(); it != map.end(); it++)
-	{
-		std::cout << it->first << " : [" << it->second.size() << "]";
-		for (std::vector<std::string>::iterator itVec = it->second.begin(); itVec != it->second.end(); itVec++)
-		{
-			std::cout << " " << *itVec;
-		}
-		std::cout << std::endl;
-	}
-}
 
 int main(int ac, char **av)
 {	
@@ -44,60 +19,53 @@ int main(int ac, char **av)
 	{		
 		try {	
 		/* --------------------------------- Parsing -------------------------------- */
-			Config	configServer(av[1]);
-			
+			ConfigParser	configServers(av[1]);
+			Servers serverList(configServers);
+			IOpoll	epoll(serverList);
 
-		// /* ----------------------------- Server Creation ---------------------------- */
-		// 	IOpoll	epoll;
-		// 	ServerList serverList(configServer);
+		/* ----------------------------- Server Creation ---------------------------- */
+			while (42) {
+				try 
+				{
+					if (epoll_wait(epoll.getEpollfd(), epoll.getEvents(), MAX_EVENTS, -1) != -1)
+					{
+						int					index = 0;
 
+						int	client_fd = epoll.getEvents()[index].data.fd;
+						for (index = 0; index < MAX_EVENTS; index++)
+						{
+							int	newSocket;
+							Servers::sock_type::iterator sockTarget = serverList.getSocketByFd(client_fd);
+							if (sockTarget != serverList.getSockIpPort().end())
+							{
+								newSocket = serverList.acceptSocket(sockTarget->first);
+								epoll.addFd(newSocket);
+								break;
+							}
+							else
+							{
+								char	buffer[1024] = { 0 };
+								int		nb_bytes = recv(client_fd, buffer, 1024, 0);
+								if (nb_bytes)
+								{
+									std::string str(buffer);
+									std::cout << buffer << std::endl;
+									// HTTPRequest	req(createHttpRequest(str));
+									// Response	res(req, *it);
+									// res.construct();
 
-		// 	serverList.listenConnection();
-		// 	epoll.addServerList(serverList);
-
-		// 	while (42) {
-		// 		try 
-		// 		{
-		// 			if (epoll_wait(epoll.getEpollfd(), epoll.getEvents(), MAX_EVENTS, -1) != -1)
-		// 			{
-		// 				int					index = 0;
-
-		// 				int	client_fd = epoll.getEvents()[index].data.fd;
-		// 				for (index = 0; index < MAX_EVENTS; index++)
-		// 				{
-		// 					ServerList::serverValue::iterator it = serverList.getServerbyFd(client_fd);
-		// 					int	newSocket;
-		// 					std::cout << (it != serverList.getServers().end());
-		// 					if (it != serverList.getServers().end())
-		// 					{
-		// 						newSocket = (*it)->acceptSocket();
-		// 						epoll.addFd(newSocket);
-		// 						break;
-		// 					}
-		// 					else
-		// 					{
-		// 						char	buffer[1024] = { 0 };
-		// 						int		nb_bytes = recv(client_fd, buffer, 1024, 0);
-		// 						if (nb_bytes)
-		// 						{
-		// 							std::string str(buffer);
-		// 							std::cout << buffer << std::endl;
-		// 							HTTPRequest	req(createHttpRequest(str));
-		// 							Response	res(req, *it);
-		// 							res.construct();
-
-		// 							res.send(client_fd);
-		// 						}
-		// 						close(newSocket);
-		// 						break;
-		// 					}
-		// 				}
-		// 			}
-		// 		} catch (std::exception &e) {
-		// 			std::clog << "error: not fatal: server is listening" << std::endl;
-		// 			std::cerr << e.what() << std::endl;
-		// 		}
-		// 	}
+									// res.send(client_fd);
+								}
+								close(newSocket);
+								break;
+							}
+						}
+					}
+				} catch (std::exception &e) {
+					std::clog << "error: not fatal: server is listening" << std::endl;
+					std::cerr << e.what() << std::endl;
+				}
+			}
 
 
 

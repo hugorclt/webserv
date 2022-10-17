@@ -6,15 +6,15 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/20 15:56:52 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/09/20 17:48:01 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/17 17:10:10 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 #include "webserv.hpp"
-#include "ServerList.hpp"
+#include "Servers.hpp"
 
-class ServerList;
+class Servers;
 
 class IOpoll {
 	private:
@@ -23,7 +23,7 @@ class IOpoll {
 		struct epoll_event *events;
 		
 	public:
-		IOpoll();
+		IOpoll(Servers servers);
 		~IOpoll();
 
 		int	getEpollfd(void) const;
@@ -31,6 +31,4 @@ class IOpoll {
 		epoll_event *getEvents(void) const;
 
 		void	addFd(int fd);
-		void	addServerList(ServerList servers);
-
 };

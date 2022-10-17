@@ -6,29 +6,28 @@
 #    By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/09/19 10:51:56 by hrecolet          #+#    #+#              #
-#    Updated: 2022/10/12 11:23:00 by hrecolet         ###   ########.fr        #
+#    Updated: 2022/10/17 16:58:15 by hrecolet         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 SRCS		=	main.cpp\
-				Server/Server.cpp\
+				Parsing/ConfigParser.cpp\
 				IO/IOpoll.cpp\
 				Parsing/parse.cpp\
 				utils/ft_split.cpp\
-				Server/ServerList.cpp\
-				Parsing/Config.cpp\
+				Server/Servers.cpp\
 				Parsing/parse_config.cpp\
 				utils/copyFile.cpp\
 				exec/execRequest.cpp\
 				utils/intToStr.cpp\
-				utils/isDigits.cpp\
+				utils/isDigits.cpp
 
 
 INCL		=	includes/webserv.hpp\
-				Server/Server.hpp\
+				includes/includes.hpp\
+				Parsing/ConfigParser.hpp\
+				Server/Servers.hpp\
 				IO/IOpoll.hpp\
-				Server/ServerList.hpp\
-				Parsing/Config.hpp
 
 CC			=	c++
 
