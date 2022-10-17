@@ -31,6 +31,41 @@ class ConfigParser {
 		typedef std::pair<std::string, std::vector<std::string>>	keyValues_type;
 
 		
+	public:
+
+		struct Location
+		{
+			typedef std::map<std::string, std::map<std::string, std::set<std::string>>>	nonUniqKey_type; // Usage Ex : Conf._data[0].locations.nonUniqKey["error_pages"]["404"] -> ./404.html
+			typedef std::map<std::string, std::set<std::string>>						uniqKey_type; // Usage Ex : Conf_data[0].location.uniqKey["root"] -> ./var/srv
+			
+			nonUniqKey_type	nonUniqKey;
+			uniqKey_type	uniqKey;
+
+			static void			_insertUniqKey(const uniqKey_type &a, uniqKey_type &b)
+			{
+				for (uniqKey_type::const_iterator it = a.begin(); it != a.end(); it++)
+					b.insert(*it);
+			}
+
+			void			insert(const Location &otherInst)
+			{
+				_insertUniqKey(otherInst.uniqKey, uniqKey);
+				for (nonUniqKey_type::const_iterator it = otherInst.nonUniqKey.begin(); it != otherInst.nonUniqKey.end(); it++)
+					_insertUniqKey(it->second, nonUniqKey[it->first]);
+			}
+		};
+
+		struct Server
+		{
+			typedef std::map<std::string, Location>			location_type;
+			typedef std::map<std::string, std::set<std::string>>	listen_type;
+
+			std::map<std::string, std::set<std::string>>	listen; // map d'{Ip, set<port>}
+			std::string										server_name; // set de server_name
+			location_type									location;
+		};
+
+	private:
 		struct Conf
 		{
 			enum KeyType {KT_NONE, KT_SERVER, KT_UNIQ, KT_NON_UNIQ};
@@ -46,11 +81,13 @@ class ConfigParser {
 			typedef std::map<std::string, raw>					data_type;
 
 			const static data_type		_data;
+			const static Location		_defaultValues;
 			const static std::string	_whitespacesSet;
 			const static std::string	_lineBreakSet;
 			const static std::string	_commentSet;
 			const static std::string	_scopeSet;
 
+			static void		checkKeyValues(keyValues_type &keyValues, const raw &keyConf);
 			static KeyType	getKeyType(const std::string &key)
 			{
 				if (_data.find(key) != _data.end())
@@ -62,31 +99,11 @@ class ConfigParser {
 
 	public:
 
-		struct Location
-		{
-			typedef std::map<std::string, std::map<std::string, std::set<std::string>>>	nonUniqKey_type; // Usage Ex : Conf._data[0].locations.nonUniqKey["error_pages"]["404"] -> ./404.html
-			typedef std::map<std::string, std::set<std::string>>						uniqKey_type; // Usage Ex : Conf_data[0].location.uniqKey["root"] -> ./var/srv
-			
-			nonUniqKey_type	nonUniqKey;
-			uniqKey_type	uniqKey;
-		};
-
-		struct Server
-		{
-			typedef std::map<std::string, Location>			location_type;
-			typedef std::map<std::string, std::set<std::string>>	listen_type;
-
-			std::map<std::string, std::set<std::string>>	listen; // map d'{Ip, set<port>}
-			std::string										server_name; // set de server_name
-			location_type									location;
-		};
-
-
 		typedef std::vector<Server> 						data_type;
 		typedef std::map<std::string, std::vector<std::string>>	map_type;
 		
 	private:
-		data_type					_data;
+		data_type	_data;
 	
 		//parseFunction
 		void			_skipCharset(lineRange_type &lineRange, const std::string &charset);
@@ -104,7 +121,7 @@ class ConfigParser {
 		//Check Functions
 		static void	_checkBodySize(keyValues_type &keyValues);
 		static void	_checkCgi(keyValues_type &keyValues);
-		static void	_listen(keyValues_type &keyValues);
+		static void	formatListen(keyValues_type &keyValues);
 		/*
 		static bool	_checkListen(std::vector<std::string> &vec);
 		bool		_checkIpHost(void);

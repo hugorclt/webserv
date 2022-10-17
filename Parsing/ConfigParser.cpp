@@ -12,8 +12,8 @@
 
 #include "ConfigParser.hpp"
 #include <climits>
-#define DEFAULT_LISTEN_INTERFACE "0.0.0.0"
-#define DEFAULT_LISTEN_PORT "80"
+#define DEFAULTformatListen_INTERFACE "0.0.0.0"
+#define DEFAULTformatListen_PORT "80"
 
 const ConfigParser::Conf::data_type	ConfigParser::Conf::_data
 {
@@ -26,8 +26,37 @@ const ConfigParser::Conf::data_type	ConfigParser::Conf::_data
 	{"cgi"          , {KT_NON_UNIQ, &_checkCgi     , 1, {                       }}},
 	{"error_page"   , {KT_NON_UNIQ, NULL           , 1, {"404", "403", "442"    }}},
 
-	{"listen"       , {KT_SERVER  , NULL           , 0, {                       }}},
-	{"server_name"  , {KT_SERVER  , NULL           , 0, {                       }}},
+	{"listen"       , {KT_SERVER  , &formatListen  , 2, {                       }}},
+	{"server_name"  , {KT_SERVER  , NULL           , 1, {                       }}},
+};
+
+const ConfigParser::Location	ConfigParser::Conf::_defaultValues
+{
+	// nonUniqKey
+	{
+		{
+			"error_page",
+			{
+				{"404", {"PauloLePoulet"}},
+				{"403", {"HugoLePoulet" }},
+				{"442", {"NinoLePouolet"}},
+			},
+		},
+		{
+			"cgi",
+			{
+				{".bite", {"/bin/bite"}},
+				{".teub", {"/bin/teub"}},
+			},
+		},
+	},
+
+	// uniqKey
+	{
+		{"auto_index"   , {"off"                  }},
+		{"allow_methods", {"GET", "POST", "DELETE"}},
+		{"body_size"    , {"42"                   }},
+	},
 };
 
 const std::string ConfigParser::Conf::_whitespacesSet = "\t ";
@@ -44,24 +73,24 @@ static void	checkPort(std::string str) // tmp
 	int	port;
 
 	if (!isDigits(str))
-		throw ConfigParser::ParsingError("_listen");
+		throw ConfigParser::ParsingError("listen");
 	port = atoi(str.c_str());
 	if (port < 0 || port > MAX_PORT)
-		throw ConfigParser::ParsingError("_listen");
+		throw ConfigParser::ParsingError("listen");
 }
 
 static void checkIp(std::vector<std::string> ip) // tmp
 {
 	if (ip.size() != 4)
-		throw ConfigParser::ParsingError("_listen");
+		throw ConfigParser::ParsingError("listen");
 	for (std::vector<std::string>::iterator it = ip.begin(); it < ip.end(); it++)
 	{
 		if (atoi(it->c_str()) < 0 || atoi(it->c_str()) > 255)
-			throw ConfigParser::ParsingError("_listen");
+			throw ConfigParser::ParsingError("listen");
 	}
 }
 
-void	ConfigParser::_listen(keyValues_type &keyValues)
+void	ConfigParser::formatListen(keyValues_type &keyValues)
 {
 		if (isDigits(keyValues.second[0]))
 		{
@@ -72,7 +101,7 @@ void	ConfigParser::_listen(keyValues_type &keyValues)
 				std::swap(keyValues.second[0], keyValues.second[1]);
 			}
 			else
-				keyValues.second.insert(keyValues.second.begin(), DEFAULT_LISTEN_INTERFACE);
+				keyValues.second.insert(keyValues.second.begin(), DEFAULTformatListen_INTERFACE);
 		}
 		else
 		{
@@ -80,7 +109,7 @@ void	ConfigParser::_listen(keyValues_type &keyValues)
 			if (keyValues.second.size() == 2)
 				checkPort(keyValues.second[1]);
 			else
-				keyValues.second.push_back(DEFAULT_LISTEN_PORT);
+				keyValues.second.push_back(DEFAULTformatListen_PORT);
 		}
 }
 
@@ -137,6 +166,14 @@ void	ConfigParser::_printConfigParser(const data_type &data)
 		std::string	indent("");
 		std::cout << indent << "Server " << data.size() - (data.end() - itServ) << " :" << std::endl;
 		std::cout << indent << '{' << std::endl;
+		indent += "\t";
+		std::cout << indent << "server_name : " << itServ->server_name << std::endl
+				  << std::endl;
+		std::cout << indent << "listen" << std::endl
+				  << indent << '{' << std::endl;
+		printMap(itServ->listen, indent + "\t");
+		std::cout << indent << '}' << std::endl
+				  << std::endl;
 		for (Server::location_type::const_iterator itLoc = itServ->location.begin(); itLoc != itServ->location.end(); itLoc++)
 		{
 			std::string indent("\t");
@@ -255,43 +292,42 @@ ConfigParser::keyValues_type	ConfigParser::_getKeyValues(lineRange_type &lineRan
 	return (std::make_pair(key, values));
 }
 
-void			ConfigParser::_insertKeyValuesInLocation(Location &location, keyValues_type &keyValues) // still need to be cleaned
+void			ConfigParser::Conf::checkKeyValues(keyValues_type &keyValues, const raw &keyConf)
 {
-	Conf::KeyType	kt = Conf::getKeyType(keyValues.first);
-
-	if (kt == Conf::KT_NONE)
-		throw ParsingError("Unknown Key '" + keyValues.first + "'");
-	// Get keyConfigParserMap data
-	const Conf::raw	tmp = Conf::_data.find(keyValues.first)->second;
-	// Get insertionPoint
-	Location::uniqKey_type	&insertionPoint = (kt == Conf::KT_UNIQ) ? location.uniqKey : location.nonUniqKey[keyValues.first];
-
-	if (kt == Conf::KT_NON_UNIQ && !keyValues.second.empty()) // set SubKey as keyValues.first and SubKey params as keyValues.second
-	{
-		keyValues.first = keyValues.second[0];
-		keyValues.second.erase(keyValues.second.begin());
-	}
 	std::set<std::string>	sParams(keyValues.second.begin(), keyValues.second.end());
 	if (keyValues.second.empty())
 		throw ParsingError("Key without enough params");
-	if (!tmp.validParams.empty()) // If a set of valid param is provided
+	if (!keyConf.validParams.empty()) // If a set of valid param is provided
 	{
-		if (kt == Conf::KT_UNIQ) // check than all params are present in this set
+		if (keyConf.kt == KT_UNIQ) // check than all params are present in this set
 		{
 			for (std::set<std::string>::iterator it = sParams.begin(); it != sParams.end(); it++)
-				if (!tmp.validParams.count(*it))
+				if (!keyConf.validParams.count(*it))
 					throw ParsingError("Unknown param '" + *it + "'");
 		}
-		else if (!tmp.validParams.count(keyValues.first)) // check than SubKey is present in this set
+		else if (keyConf.kt == KT_NON_UNIQ && !keyConf.validParams.count(keyValues.first)) // check than SubKey is present in this set
 			throw ParsingError("Unknown param '" + keyValues.first + "'");
 	}
 	if (sParams.size() != keyValues.second.size())
 		throw ParsingError("duplicated params");
-	if (sParams.size() > tmp.maxParams)
-		throw ParsingError("Key with too many params (max : " + to_string(tmp.maxParams) + ")");
-	if (tmp.func) // if a check function is provided, call it
-		tmp.func(keyValues);
-	if (!insertionPoint.insert({keyValues.first, sParams}).second)
+	if (sParams.size() > keyConf.maxParams)
+		throw ParsingError("Key with too many params (max : " + to_string(keyConf.maxParams) + ")");
+	if (keyConf.func) // if a check function is provided, call it
+		keyConf.func(keyValues);
+}
+
+void			ConfigParser::_insertKeyValuesInLocation(Location &location, keyValues_type &keyValues) // still need to be cleaned
+{
+	const Conf::raw	keyConf = Conf::_data.find(keyValues.first)->second;
+	Location::uniqKey_type	&insertionPoint = (keyConf.kt == Conf::KT_UNIQ) ? location.uniqKey : location.nonUniqKey[keyValues.first];
+
+	if (keyConf.kt == Conf::KT_NON_UNIQ && !keyValues.second.empty()) // set SubKey as keyValues.first and SubKey params as keyValues.second
+	{
+		keyValues.first = keyValues.second[0];
+		keyValues.second.erase(keyValues.second.begin());
+	}
+	Conf::checkKeyValues(keyValues, keyConf);
+	if (!insertionPoint.insert({keyValues.first, {keyValues.second.begin(), keyValues.second.end()}}).second)
 		throw ParsingError("Key already present");
 }
 
@@ -303,7 +339,12 @@ ConfigParser::Location	ConfigParser::_createNewLocation(lineRange_type &lineRang
 	keyValues_type	keyValues = _getKeyValues(lineRange);
 	while (fileRange.first != fileRange.second && !keyValues.first.empty())
 	{
-		_insertKeyValuesInLocation(res, keyValues);
+		if (Conf::getKeyType(keyValues.first) == Conf::KT_UNIQ || Conf::getKeyType(keyValues.first) == Conf::KT_NON_UNIQ)
+			_insertKeyValuesInLocation(res, keyValues);
+		else if (Conf::getKeyType(keyValues.first) == Conf::KT_SERVER)
+			throw ParsingError("Key '" + keyValues.first + "' is a Server Key");
+		else
+			throw ParsingError("Unknown Key '" + keyValues.first + "'");
 		_goToNextWordInFile(lineRange, fileRange);
 		keyValues = _getKeyValues(lineRange);
 	}
@@ -318,12 +359,16 @@ ConfigParser::Location	ConfigParser::_createNewLocation(lineRange_type &lineRang
 
 void	ConfigParser::_insertKeyValuesInServer(Server &res, keyValues_type &keyValues)
 {
-	if (keyValues.first == "listen")
+	const Conf::raw	keyConf = Conf::_data.find(keyValues.first)->second;
+	Conf::checkKeyValues(keyValues, keyConf);
+	if (keyValues.first == "listen" && !res.listen[keyValues.second[0]].insert(keyValues.second[1]).second)
+		throw ParsingError("already listening on " + keyValues.second[0] + ":" + keyValues.second[1]);
+	else if (keyValues.first == "server_name")
 	{
-		_listen(keyValues);
-		std::cout << "listen : " << keyValues.second[0] << " " << keyValues.second[1] << std::endl;
-		if (!res.listen[keyValues.second[0]].insert(keyValues.second[1]).second)
-			throw ParsingError("doublon listen");
+		if (res.server_name.empty())
+			res.server_name = keyValues.second[0];
+		else
+			throw ParsingError("Key already present");
 	}
 }
 
@@ -338,7 +383,7 @@ ConfigParser::Server	ConfigParser::_createNewServer(lineRange_type &lineRange, f
 	{
 		if (_isLocation(keyValues, lineRange, fileRange))
 		{
-			if (res.location.find(keyValues.second[0]) != res.location.end())
+			if (res.location.count(keyValues.second[0]))
 				throw ParsingError("Location duplication : \"" + keyValues.second[0] + "\"");
 			_goToNextWordInFile(lineRange, fileRange); //skip the location
 			lineRange.first++; //skip the location
@@ -347,12 +392,12 @@ ConfigParser::Server	ConfigParser::_createNewServer(lineRange_type &lineRange, f
 		}
 		else
 		{
-			if (Conf::getKeyType(keyValues.first) != Conf::KT_SERVER)
+			if (Conf::getKeyType(keyValues.first) == Conf::KT_UNIQ || Conf::getKeyType(keyValues.first) == Conf::KT_NON_UNIQ)
 				_insertKeyValuesInLocation(serverLocationConf, keyValues);
-			else
-			{
+			else if (Conf::getKeyType(keyValues.first) == Conf::KT_SERVER)
 				_insertKeyValuesInServer(res, keyValues);
-			}
+			else
+				throw ParsingError("Unknown Key '" + keyValues.first + "'");
 		}
 		_goToNextWordInFile(lineRange, fileRange);
 		keyValues = _getKeyValues(lineRange);
@@ -362,11 +407,8 @@ ConfigParser::Server	ConfigParser::_createNewServer(lineRange_type &lineRange, f
 	if (fileRange.first == fileRange.second)
 		throw ParsingError("UnclosedServer");
 	lineRange.first++;
-	for (Location::uniqKey_type::iterator it = serverLocationConf.uniqKey.begin(); it != serverLocationConf.uniqKey.end(); it++)
-		res.location["/"].uniqKey.insert(*it);
-	for (Location::nonUniqKey_type::iterator it = serverLocationConf.nonUniqKey.begin(); it != serverLocationConf.nonUniqKey.end(); it++)
-		for (Location::uniqKey_type::iterator nit = it->second.begin(); nit != it->second.end(); nit++)
-			res.location["/"].nonUniqKey[it->first].insert(*nit);
+	res.location["/"].insert(serverLocationConf);
+	res.location["/"].insert(Conf::_defaultValues);
 	return (res);
 }
 
