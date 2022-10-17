@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/20 14:52:01 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/11 16:12:54 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/17 13:11:44 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,29 +16,11 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 
+
 class Server {		
 	private:
-		int			_sockfd;
-		sockaddr_in	_address;
-		int			_opt;
-		int			_addrLen;
-		std::string	_root;
-		std::string _port;
-		std::string _ip;
-		std::string	_errorPath;
-
+		static std::vector<std::pair<int, std::pair<std::string, std::string>>> 
+		Config::Server	_serverInfo;
+			
 	public:
-		Server(std::map<std::string, std::vector<std::string>> serverInfo);
-		~Server(void);
-		
-		void			listenConnection(void);
-		int				acceptSocket(void);
-		void			sendRequest(int	socket, void *data);
-
-		std::string		getError(void) const;
-		int				getSockfd(void) const;
-		sockaddr_in		getAddress(void) const;
-		std::string		getRoot(void) const;
-		std::string		getPort(void) const;
-		std::string		getIp(void) const ;
 };
