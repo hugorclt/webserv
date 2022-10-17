@@ -12,8 +12,8 @@
 
 #include "ConfigParser.hpp"
 #include <climits>
-#define DEFAULTformatListen_INTERFACE "0.0.0.0"
-#define DEFAULTformatListen_PORT "80"
+#define DEFAULT_LISTEN_INTERFACE "0.0.0.0"
+#define DEFAULT_LISTEN_PORT "8080"
 
 const ConfigParser::Conf::data_type	ConfigParser::Conf::_data
 {
@@ -101,7 +101,7 @@ void	ConfigParser::formatListen(keyValues_type &keyValues)
 				std::swap(keyValues.second[0], keyValues.second[1]);
 			}
 			else
-				keyValues.second.insert(keyValues.second.begin(), DEFAULTformatListen_INTERFACE);
+				keyValues.second.insert(keyValues.second.begin(), DEFAULT_LISTEN_INTERFACE);
 		}
 		else
 		{
@@ -109,7 +109,7 @@ void	ConfigParser::formatListen(keyValues_type &keyValues)
 			if (keyValues.second.size() == 2)
 				checkPort(keyValues.second[1]);
 			else
-				keyValues.second.push_back(DEFAULTformatListen_PORT);
+				keyValues.second.push_back(DEFAULT_LISTEN_PORT);
 		}
 }
 
@@ -310,7 +310,7 @@ void			ConfigParser::Conf::checkKeyValues(keyValues_type &keyValues, const raw &
 	}
 	if (sParams.size() != keyValues.second.size())
 		throw ParsingError("duplicated params");
-	if (sParams.size() > keyConf.maxParams)
+	if (sParams.size() > keyConf.maxParams && keyConf.maxParams != -1)
 		throw ParsingError("Key with too many params (max : " + to_string(keyConf.maxParams) + ")");
 	if (keyConf.func) // if a check function is provided, call it
 		keyConf.func(keyValues);
