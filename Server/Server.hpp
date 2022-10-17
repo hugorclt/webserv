@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/20 14:52:01 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/17 13:11:44 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/17 13:13:10 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@
 
 class Server {		
 	private:
-		static std::vector<std::pair<int, std::pair<std::string, std::string>>> 
+		static std::vector<std::pair<int, std::pair<std::string, std::string>>> _sockIpPort;
 		Config::Server	_serverInfo;
 			
 	public:
