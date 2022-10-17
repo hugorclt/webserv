@@ -19,7 +19,7 @@ int main(int ac, char **av)
 	{		
 		try {	
 		/* --------------------------------- Parsing -------------------------------- */
-			Parsing	configServer(av[1]);
+			ConfigParser	configServers(av[1]);
 			
 
 		// /* ----------------------------- Server Creation ---------------------------- */

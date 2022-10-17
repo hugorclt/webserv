@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Parsing.cpp                                         :+:      :+:    :+:   */
+/*   ConfigParser.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -10,94 +10,81 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Parsing.hpp"
+#include "ConfigParser.hpp"
 #include <climits>
-#define DEFAULT_LISTEN_INTEFACE "0.0.0.0"
+#define DEFAULT_LISTEN_INTERFACE "0.0.0.0"
 #define DEFAULT_LISTEN_PORT "80"
 
-const Parsing::_Config::data_type	Parsing::_Config::_data
+const ConfigParser::Conf::data_type	ConfigParser::Conf::_data
 {
-	{{"body_size"    , KT_UNIQ    }, {&_checkBodySize, {1, {                       }}}},
-	{{"allow_methods", KT_UNIQ    }, {NULL           , {3, {"GET", "POST", "DELETE"}}}},
-	{{"root"         , KT_UNIQ    }, {NULL           , {1, {                       }}}},
-	{{"index"        , KT_UNIQ    }, {NULL           , {1, {                       }}}},
-	{{"auto_index"   , KT_UNIQ    }, {NULL           , {1, {"on", "off"            }}}},
+	{"body_size"    , {KT_UNIQ    , &_checkBodySize, 1, {                       }}},
+	{"allow_methods", {KT_UNIQ    , NULL           , 3, {"GET", "POST", "DELETE"}}},
+	{"root"         , {KT_UNIQ    , NULL           , 1, {                       }}},
+	{"index"        , {KT_UNIQ    , NULL           , 1, {                       }}},
+	{"auto_index"   , {KT_UNIQ    , NULL           , 1, {"on", "off"            }}},
 
-	{{"cgi"          , KT_NON_UNIQ}, {&_checkCgi     , {1, {                       }}}},
-	{{"error_page"   , KT_NON_UNIQ}, {NULL           , {1, {"404", "403", "442"    }}}},
+	{"cgi"          , {KT_NON_UNIQ, &_checkCgi     , 1, {                       }}},
+	{"error_page"   , {KT_NON_UNIQ, NULL           , 1, {"404", "403", "442"    }}},
 
-	{{"listen"       , KT_SERVER  }, {NULL           , {0, {                       }}}},
-	{{"server_name"  , KT_SERVER  }, {NULL           , {0, {                       }}}}
+	{"listen"       , {KT_SERVER  , NULL           , 0, {                       }}},
+	{"server_name"  , {KT_SERVER  , NULL           , 0, {                       }}},
 };
 
-const std::string Parsing::_Config::_whitespacesSet = "\t ";
-const std::string Parsing::_Config::_lineBreakSet = ";";
-const std::string Parsing::_Config::_commentSet = "#";
-const std::string Parsing::_Config::_scopeSet = "{}";
+const std::string ConfigParser::Conf::_whitespacesSet = "\t ";
+const std::string ConfigParser::Conf::_lineBreakSet = ";";
+const std::string ConfigParser::Conf::_commentSet = "#";
+const std::string ConfigParser::Conf::_scopeSet = "{}";
 
 /* -------------------------------------------------------------------------- */
 /*                                CheckFunction                               */
 /* -------------------------------------------------------------------------- */
 
-/* DUMB SHIT LOL
 static void	checkPort(std::string str) // tmp
 {
 	int	port;
 
 	if (!isDigits(str))
-		throw ParsingError("_listen");
+		throw ConfigParser::ParsingError("_listen");
 	port = atoi(str.c_str());
 	if (port < 0 || port > MAX_PORT)
-		throw ParsingError("_listen");
+		throw ConfigParser::ParsingError("_listen");
 }
 
-static void checkIp(std::string str) // tmp
+static void checkIp(std::vector<std::string> ip) // tmp
 {
-	std::vector<std::string>	ip;
-
-	ip = split(keyValues.second[1], ".");
 	if (ip.size() != 4)
-		throw ParsingError("_listen");
+		throw ConfigParser::ParsingError("_listen");
 	for (std::vector<std::string>::iterator it = ip.begin(); it < ip.end(); it++)
 	{
 		if (atoi(it->c_str()) < 0 || atoi(it->c_str()) > 255)
-			throw ParsingError("_listen");
+			throw ConfigParser::ParsingError("_listen");
 	}
 }
 
-void	Parsing::_listen(keyValues_type &keyValues)
+void	ConfigParser::_listen(keyValues_type &keyValues)
 {
-	if (keyValues.second.size() == 2)
-	{
 		if (isDigits(keyValues.second[0]))
 		{
 			checkPort(keyValues.second[0]);
-			checkIp(keyValues.second[1]);
-			std::swap(keyValues.second[0], keyValues.second[1]);
+			if (keyValues.second.size() == 2)
+			{
+				checkIp(split(keyValues.second[1], "."));
+				std::swap(keyValues.second[0], keyValues.second[1]);
+			}
+			else
+				keyValues.second.insert(keyValues.second.begin(), DEFAULT_LISTEN_INTERFACE);
 		}
 		else
 		{
-			checkPort(keyValues.second[1]);
-			checkIp(keyValues.second[0]);
+			checkIp(split(keyValues.second[0], "."));
+			if (keyValues.second.size() == 2)
+				checkPort(keyValues.second[1]);
+			else
+				keyValues.second.push_back(DEFAULT_LISTEN_PORT);
 		}
-	}
-	else
-	{
-		if (isDigits(KeyValues.second[0]))
-		{
-			checkPort(keyValues.second[0]));
-			keyValues.second.insert(keyValue.second.begin(), DEFAULT_LISTEN_INTERFACE);
-		}
-		else
-		{
-			checkIp(keyValues.second[0]));
-			keyValues.second.push_back(DEFAULT_LISTEN_PORT);
-		}
-	}
 }
-*/
 
-void	Parsing::_checkCgi(keyValues_type &keyValues)
+void	ConfigParser::_checkCgi(keyValues_type &keyValues)
 {
 	if (keyValues.first.rfind('.') != 0)
 		throw ParsingError("cgi first param should start by a point (the only one)");
@@ -105,7 +92,7 @@ void	Parsing::_checkCgi(keyValues_type &keyValues)
 		throw ParsingError("cgi first param should have at least one char after the point");
 }
 
-void	Parsing::_checkBodySize(keyValues_type &keyValues)
+void	ConfigParser::_checkBodySize(keyValues_type &keyValues)
 {
 	if (!isDigits(keyValues.second[0]))
 		throw ParsingError("body_size should be a positive integer");
@@ -137,9 +124,9 @@ static void printMap(const std::map<std::string, std::set<std::string>> &map, co
 	}
 }
 
-void	Parsing::_printParsing(const data_type &data)
+void	ConfigParser::_printConfigParser(const data_type &data)
 {
-	std::cout << "PrintParsing :" << std::endl << std::endl;
+	std::cout << "PrintConfigParser :" << std::endl << std::endl;
 	if (data.empty())
 	{
 		std::cout << "(NONE)" << std::endl;
@@ -150,7 +137,7 @@ void	Parsing::_printParsing(const data_type &data)
 		std::string	indent("");
 		std::cout << indent << "Server " << data.size() - (data.end() - itServ) << " :" << std::endl;
 		std::cout << indent << '{' << std::endl;
-		for (_Server::locationType::const_iterator itLoc = itServ->location.begin(); itLoc != itServ->location.end(); itLoc++)
+		for (Server::location_type::const_iterator itLoc = itServ->location.begin(); itLoc != itServ->location.end(); itLoc++)
 		{
 			std::string indent("\t");
 			std::cout << indent << "location [\"" << itLoc->first << "\"] :" << std::endl;
@@ -165,7 +152,7 @@ void	Parsing::_printParsing(const data_type &data)
 			std::cout << indent << '{' << std::endl;
 			if (itLoc->second.nonUniqKey.empty())
 				std::cout << indent + "\t" << "(NONE)" << std::endl;
-			for (_Location::nonUniqKey_type::const_iterator it = itLoc->second.nonUniqKey.begin(); it != itLoc->second.nonUniqKey.end(); it++)
+			for (Location::nonUniqKey_type::const_iterator it = itLoc->second.nonUniqKey.begin(); it != itLoc->second.nonUniqKey.end(); it++)
 			{
 				std::string indent("\t\t\t");
 				std::cout << indent << it->first << " :" << std::endl;
@@ -183,7 +170,7 @@ void	Parsing::_printParsing(const data_type &data)
 	}
 }
 
-Parsing::Parsing(char *filename) {
+ConfigParser::ConfigParser(char *filename) {
 	std::ifstream				input(filename);
 	std::vector<std::string>	fullFile;
 
@@ -193,7 +180,7 @@ Parsing::Parsing(char *filename) {
 	
 	if (fullFile.empty())
 	{
-		_printParsing(_data);
+		_printConfigParser(_data);
 		return ;
 	}
 
@@ -223,14 +210,14 @@ Parsing::Parsing(char *filename) {
 		+ "line " + to_string(fullFile.size() - (fileRange.second - fileRange.first) + 1) + " : "
 		+ *(fileRange.first - (fileRange.first == fileRange.second)));
 	}
-	_printParsing(_data);
+	_printConfigParser(_data);
 }
 
 /* -------------------------------------------------------------------------- */
-/*                               ParsingFunction                              */
+/*                               ConfigParserFunction                              */
 /* -------------------------------------------------------------------------- */
 
-bool	Parsing::_isServer(keyValues_type keyValues, lineRange_type &lineRange, fileRange_type &fileRange)
+bool	ConfigParser::_isServer(keyValues_type keyValues, lineRange_type &lineRange, fileRange_type &fileRange)
 {
 	if (keyValues.first != "server")
 		return (false);
@@ -240,7 +227,7 @@ bool	Parsing::_isServer(keyValues_type keyValues, lineRange_type &lineRange, fil
 	return (*lineRange.first == '{');
 }
 
-bool	Parsing::_isLocation(keyValues_type keyValues, lineRange_type &lineRange, fileRange_type &fileRange)
+bool	ConfigParser::_isLocation(keyValues_type keyValues, lineRange_type &lineRange, fileRange_type &fileRange)
 {
 	lineRange_type	lineRangeCpy = lineRange;
 	fileRange_type	fileRangeCpy = fileRange;
@@ -254,7 +241,7 @@ bool	Parsing::_isLocation(keyValues_type keyValues, lineRange_type &lineRange, f
 	return (true);
 }
 
-Parsing::keyValues_type	Parsing::_getKeyValues(lineRange_type &lineRange)
+ConfigParser::keyValues_type	ConfigParser::_getKeyValues(lineRange_type &lineRange)
 {
 	std::string	key = _getWordSkipSpace(lineRange);
 	
@@ -268,18 +255,18 @@ Parsing::keyValues_type	Parsing::_getKeyValues(lineRange_type &lineRange)
 	return (std::make_pair(key, values));
 }
 
-void			Parsing::_insertKeyValuesInLocation(_Location &location, keyValues_type &keyValues) // still need to be cleaned
+void			ConfigParser::_insertKeyValuesInLocation(Location &location, keyValues_type &keyValues) // still need to be cleaned
 {
-	_Config::KeyType	kt = _Config::getKeyType(keyValues.first);
+	Conf::KeyType	kt = Conf::getKeyType(keyValues.first);
 
-	if (kt == _Config::KT_NONE)
+	if (kt == Conf::KT_NONE)
 		throw ParsingError("Unknown Key '" + keyValues.first + "'");
-	// Get keyParsingMap data
-	const _Config::dataValue_type	tmp = _Config::_data.find({keyValues.first, kt})->second;
+	// Get keyConfigParserMap data
+	const Conf::raw	tmp = Conf::_data.find(keyValues.first)->second;
 	// Get insertionPoint
-	_Location::uniqKey_type	&insertionPoint = (kt == _Config::KT_UNIQ) ? location.uniqKey : location.nonUniqKey[keyValues.first];
+	Location::uniqKey_type	&insertionPoint = (kt == Conf::KT_UNIQ) ? location.uniqKey : location.nonUniqKey[keyValues.first];
 
-	if (kt == _Config::KT_NON_UNIQ && !keyValues.second.empty()) // set SubKey as keyValues.first and SubKey params as keyValues.second
+	if (kt == Conf::KT_NON_UNIQ && !keyValues.second.empty()) // set SubKey as keyValues.first and SubKey params as keyValues.second
 	{
 		keyValues.first = keyValues.second[0];
 		keyValues.second.erase(keyValues.second.begin());
@@ -287,30 +274,30 @@ void			Parsing::_insertKeyValuesInLocation(_Location &location, keyValues_type &
 	std::set<std::string>	sParams(keyValues.second.begin(), keyValues.second.end());
 	if (keyValues.second.empty())
 		throw ParsingError("Key without enough params");
-	if (!tmp.second.second.empty()) // If a set of valid param is provided
+	if (!tmp.validParams.empty()) // If a set of valid param is provided
 	{
-		if (kt == _Config::KT_UNIQ) // check than all params are present in this set
+		if (kt == Conf::KT_UNIQ) // check than all params are present in this set
 		{
 			for (std::set<std::string>::iterator it = sParams.begin(); it != sParams.end(); it++)
-				if (!tmp.second.second.count(*it))
+				if (!tmp.validParams.count(*it))
 					throw ParsingError("Unknown param '" + *it + "'");
 		}
-		else if (!tmp.second.second.count(keyValues.first)) // check than SubKey is present in this set
+		else if (!tmp.validParams.count(keyValues.first)) // check than SubKey is present in this set
 			throw ParsingError("Unknown param '" + keyValues.first + "'");
 	}
 	if (sParams.size() != keyValues.second.size())
 		throw ParsingError("duplicated params");
-	if (sParams.size() > tmp.second.first)
-		throw ParsingError("Key with too many params (max : " + to_string(tmp.second.first) + ")");
-	if (tmp.first) // if a check function is provided, call it
-		tmp.first(keyValues);
+	if (sParams.size() > tmp.maxParams)
+		throw ParsingError("Key with too many params (max : " + to_string(tmp.maxParams) + ")");
+	if (tmp.func) // if a check function is provided, call it
+		tmp.func(keyValues);
 	if (!insertionPoint.insert({keyValues.first, sParams}).second)
 		throw ParsingError("Key already present");
 }
 
-Parsing::_Location	Parsing::_createNewLocation(lineRange_type &lineRange, fileRange_type &fileRange)
+ConfigParser::Location	ConfigParser::_createNewLocation(lineRange_type &lineRange, fileRange_type &fileRange)
 {
-	_Location	res;
+	Location	res;
 
 	_goToNextWordInFile(lineRange, fileRange);
 	keyValues_type	keyValues = _getKeyValues(lineRange);
@@ -321,18 +308,28 @@ Parsing::_Location	Parsing::_createNewLocation(lineRange_type &lineRange, fileRa
 		keyValues = _getKeyValues(lineRange);
 	}
 	if (*lineRange.first == '{')
-		throw ParsingError("Wrong { token in _Location");
+		throw ParsingError("Wrong { token in Location");
 	if (fileRange.first == fileRange.second)
-		throw ParsingError("Unclosed _Location");
+		throw ParsingError("Unclosed Location");
 	lineRange.first++;
 	_goToNextWordInFile(lineRange, fileRange);
 	return (res);
 }
 
-Parsing::_Server	Parsing::_createNewServer(lineRange_type &lineRange, fileRange_type &fileRange)
+void	ConfigParser::_insertKeyValuesInServer(Server &res, keyValues_type &keyValues)
 {
-	_Server	res;
-	_Location	server_LocationConf;
+	if (keyValues.first == "listen")
+	{
+		_listen(keyValues);
+		std::cout << "listen : " << keyValues.second[0] << " " << keyValues.second[1] << std::endl;
+		//if (!res.listen[keyValues.second[0]].insert(atoi(keyValues.second[1]))
+	}
+}
+
+ConfigParser::Server	ConfigParser::_createNewServer(lineRange_type &lineRange, fileRange_type &fileRange)
+{
+	Server	res;
+	Location	serverLocationConf;
 	
 	_goToNextWordInFile(lineRange, fileRange);
 	keyValues_type	keyValues = _getKeyValues(lineRange);
@@ -341,7 +338,7 @@ Parsing::_Server	Parsing::_createNewServer(lineRange_type &lineRange, fileRange_
 		if (_isLocation(keyValues, lineRange, fileRange))
 		{
 			if (res.location.find(keyValues.second[0]) != res.location.end())
-				throw ParsingError("_Location duplication : \"" + keyValues.second[0] + "\"");
+				throw ParsingError("Location duplication : \"" + keyValues.second[0] + "\"");
 			_goToNextWordInFile(lineRange, fileRange); //skip the location
 			lineRange.first++; //skip the location
 			try { res.location.insert(std::make_pair(keyValues.second[0], _createNewLocation(lineRange, fileRange))); }
@@ -349,55 +346,58 @@ Parsing::_Server	Parsing::_createNewServer(lineRange_type &lineRange, fileRange_
 		}
 		else
 		{
-			if (_Config::getKeyType(keyValues.first) != _Config::KT_SERVER)
-				_insertKeyValuesInLocation(server_LocationConf, keyValues);
-			//_insertKeyValuesIServer(res, keyValues);
+			if (Conf::getKeyType(keyValues.first) != Conf::KT_SERVER)
+				_insertKeyValuesInLocation(serverLocationConf, keyValues);
+			else
+			{
+				_insertKeyValuesInServer(res, keyValues);
+			}
 		}
 		_goToNextWordInFile(lineRange, fileRange);
 		keyValues = _getKeyValues(lineRange);
 	}
 	if (*lineRange.first == '{')
-		throw ParsingError("Wrong { token inServer (not related to a _Location)");
+		throw ParsingError("Wrong { token inServer (not related to a Location)");
 	if (fileRange.first == fileRange.second)
 		throw ParsingError("UnclosedServer");
 	lineRange.first++;
-	for (_Location::uniqKey_type::iterator it = server_LocationConf.uniqKey.begin(); it != server_LocationConf.uniqKey.end(); it++)
+	for (Location::uniqKey_type::iterator it = serverLocationConf.uniqKey.begin(); it != serverLocationConf.uniqKey.end(); it++)
 		res.location["/"].uniqKey.insert(*it);
-	for (_Location::nonUniqKey_type::iterator it = server_LocationConf.nonUniqKey.begin(); it != server_LocationConf.nonUniqKey.end(); it++)
-		for (_Location::uniqKey_type::iterator nit = it->second.begin(); nit != it->second.end(); nit++)
+	for (Location::nonUniqKey_type::iterator it = serverLocationConf.nonUniqKey.begin(); it != serverLocationConf.nonUniqKey.end(); it++)
+		for (Location::uniqKey_type::iterator nit = it->second.begin(); nit != it->second.end(); nit++)
 			res.location["/"].nonUniqKey[it->first].insert(*nit);
 	return (res);
 }
 
-void	Parsing::_skipCharset(lineRange_type &lineRange, const std::string &charset)
+void	ConfigParser::_skipCharset(lineRange_type &lineRange, const std::string &charset)
 { 
 	while (lineRange.first != lineRange.second && charset.find(*lineRange.first) != std::string::npos)
 		lineRange.first++;
-	if (lineRange.first != lineRange.second && _Config::_commentSet.find(*lineRange.first) != std::string::npos)
+	if (lineRange.first != lineRange.second && Conf::_commentSet.find(*lineRange.first) != std::string::npos)
 		lineRange.first = lineRange.second;
 }
 
-void	Parsing::_goToNextWordInFile(lineRange_type &lineRange, fileRange_type &fileRange)
+void	ConfigParser::_goToNextWordInFile(lineRange_type &lineRange, fileRange_type &fileRange)
 {
 	if (fileRange.first == fileRange.second)
 		return ;
-	_skipCharset(lineRange, _Config::_whitespacesSet + _Config::_lineBreakSet);
+	_skipCharset(lineRange, Conf::_whitespacesSet + Conf::_lineBreakSet);
 	while (fileRange.first != fileRange.second && lineRange.first == lineRange.second) {
 		fileRange.first++;
 		if (fileRange.first == fileRange.second)
 			break ;
 		lineRange.first = fileRange.first->begin();
 		lineRange.second = fileRange.first->end();
-		_skipCharset(lineRange, _Config::_whitespacesSet + _Config::_lineBreakSet);
+		_skipCharset(lineRange, Conf::_whitespacesSet + Conf::_lineBreakSet);
 	}
 }
 
-std::string	Parsing::_getWord(lineRange_type &lineRange)
+std::string	ConfigParser::_getWord(lineRange_type &lineRange)
 {
 	std::string	res;
 	
-	while (lineRange.first != lineRange.second && (_Config::_whitespacesSet + _Config::_lineBreakSet +
-		   _Config::_commentSet + _Config::_scopeSet).find(*lineRange.first) == std::string::npos)
+	while (lineRange.first != lineRange.second && (Conf::_whitespacesSet + Conf::_lineBreakSet +
+		   Conf::_commentSet + Conf::_scopeSet).find(*lineRange.first) == std::string::npos)
 	{
 		if (*lineRange.first == '\\')
 			lineRange.first++;
@@ -408,11 +408,11 @@ std::string	Parsing::_getWord(lineRange_type &lineRange)
 	return (res);
 }
 
-std::string	Parsing::_getWordSkipSpace(lineRange_type &lineRange)
+std::string	ConfigParser::_getWordSkipSpace(lineRange_type &lineRange)
 {
-	_skipCharset(lineRange, _Config::_whitespacesSet);
+	_skipCharset(lineRange, Conf::_whitespacesSet);
 	std::string word = _getWord(lineRange);
-	_skipCharset(lineRange, _Config::_whitespacesSet);
+	_skipCharset(lineRange, Conf::_whitespacesSet);
 	return (word);
 }
 
@@ -420,6 +420,6 @@ std::string	Parsing::_getWordSkipSpace(lineRange_type &lineRange)
 /*                                  accessor                                  */
 /* -------------------------------------------------------------------------- */
 
-Parsing::data_type	Parsing::getData(void) {
+ConfigParser::data_type	ConfigParser::getData(void) {
 	return (_data);
 }

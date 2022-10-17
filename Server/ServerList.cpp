@@ -12,10 +12,10 @@
 
 #include "ServerList.hpp"
 
-ServerList::ServerList(Parsing &conf) {
-	Parsing::data_type	dataConf = conf.getData();
+ServerList::ServerList(ConfigParser &conf) {
+	ConfigParser::data_type	dataConf = conf.getData();
 	
-	for (Parsing::data_type::iterator confIt = dataConf.begin(); confIt != dataConf.end(); confIt++)
+	for (ConfigParser::data_type::iterator confIt = dataConf.begin(); confIt != dataConf.end(); confIt++)
 	{
 		//Server *server = new Server(*confIt);
 		//_servers.push_back(server);

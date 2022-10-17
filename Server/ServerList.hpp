@@ -13,12 +13,12 @@
 #pragma once
 #include <vector>
 #include "Server.hpp"
-#include "Parsing.hpp"
+#include "ConfigParser.hpp"
 #include <string>
 
 class Server;
 
-class Parsing;
+class ConfigParser;
 
 class ServerList {
 	public:
@@ -27,7 +27,7 @@ class ServerList {
 		serverValue	_servers;
 
 	public:
-		ServerList(Parsing &conf);
+		ServerList(ConfigParser &conf);
 		
 		std::string getRootOfServ(int port);
 		int			getNbServers(void);

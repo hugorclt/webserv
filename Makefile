@@ -16,7 +16,7 @@ SRCS		=	main.cpp\
 				Parsing/parse.cpp\
 				utils/ft_split.cpp\
 				Server/ServerList.cpp\
-				Parsing/Parsing.cpp\
+				Parsing/ConfigParser.cpp\
 				Parsing/parse_config.cpp\
 				utils/copyFile.cpp\
 				exec/execRequest.cpp\
@@ -28,7 +28,7 @@ INCL		=	includes/webserv.hpp\
 				Server/Server.hpp\
 				IO/IOpoll.hpp\
 				Server/ServerList.hpp\
-				Parsing/Parsing.hpp
+				Parsing/ConfigParser.hpp
 
 CC			=	c++
 
