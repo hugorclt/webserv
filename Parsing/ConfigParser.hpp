@@ -46,6 +46,7 @@ class ConfigParser {
 			const static std::string	_commentSet;
 			const static std::string	_scopeSet;
 
+			static void		checkKeyValues(keyValues_type &keyValues, const raw &keyConf);
 			static KeyType	getKeyType(const std::string &key)
 			{
 				if (_data.find(key) != _data.end())
@@ -81,7 +82,7 @@ class ConfigParser {
 		typedef std::map<std::string, std::vector<std::string>>	map_type;
 		
 	private:
-		data_type					_data;
+		data_type	_data;
 	
 		//parseFunction
 		void			_skipCharset(lineRange_type &lineRange, const std::string &charset);
@@ -99,7 +100,7 @@ class ConfigParser {
 		//Check Functions
 		static void	_checkBodySize(keyValues_type &keyValues);
 		static void	_checkCgi(keyValues_type &keyValues);
-		static void	_listen(keyValues_type &keyValues);
+		static void	formatListen(keyValues_type &keyValues);
 		/*
 		static bool	_checkListen(std::vector<std::string> &vec);
 		bool		_checkIpHost(void);
