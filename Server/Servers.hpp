@@ -1,25 +1,27 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Server.hpp                                         :+:      :+:    :+:   */
+/*   Servers.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/09/20 14:52:01 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/17 15:57:04 by hrecolet         ###   ########.fr       */
+/*   Created: 2022/09/30 11:54:19 by hrecolet          #+#    #+#             */
+/*   Updated: 2022/10/17 16:38:56 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
-#include "ConfigParser.hpp"
+#include <vector>
+#include <string>
+#include <iostream>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <fcntl.h>
+#include "ConfigParser.hpp"
 
-
-class Server {
+class Servers {
 	public:
 		struct socket_t {
 			int			sockfd;
@@ -31,16 +33,15 @@ class Server {
 		typedef std::vector<std::pair<socket_t, std::pair<std::string, std::string>>> sock_type;
 		
 	private:
-		static sock_type 		_sockIpPort;
-		ConfigParser::Server	_serverInfo;
+		sock_type 			_sockIpPort;
 
+		void	_listenConnection(void);
+		void	_createNewServer(std::string ip, std::string port);
 		
 	public:
-		Server(ConfigParser::Server serverInfo);
-		
-
-		void		_launch(void);
-		void    	_listenConnection(void);
-		sock_type	&getSocket(void) const;
+		Servers(ConfigParser &confFile);
+		sock_type::iterator	getSocketByFd(int fd);
+		int				acceptSocket(socket_t sock);
+		sock_type		&getSockIpPort(void);
 
 };

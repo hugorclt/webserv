@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/18 12:57:12 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/17 16:23:16 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/17 16:57:27 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,9 +21,9 @@ int main(int ac, char **av)
 		/* --------------------------------- Parsing -------------------------------- */
 			ConfigParser	configServers(av[1]);
 			
-			ServerList serverList(configServers);
+			Servers serverList(configServers);
 
-		// /* ----------------------------- Server Creation ---------------------------- */
+		/* ----------------------------- Server Creation ---------------------------- */
 			IOpoll	epoll;
 			epoll.addServerList(serverList);
 
@@ -38,7 +38,7 @@ int main(int ac, char **av)
 						for (index = 0; index < MAX_EVENTS; index++)
 						{
 							int	newSocket;
-							Server::sock_type::iterator sockTarget = serverList.getSocketByFd(client_fd);
+							Servers::sock_type::iterator sockTarget = serverList.getSocketByFd(client_fd);
 							if (sockTarget != serverList.getSockIpPort().end())
 							{
 								newSocket = serverList.acceptSocket(sockTarget->first);

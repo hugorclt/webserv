@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/19 10:52:17 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/17 14:22:52 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/17 16:58:22 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,8 +38,7 @@
 
 
 #include "ConfigParser.hpp"
-#include "Server.hpp"
-#include "ServerList.hpp"
+#include "Servers.hpp"
 #include "IOpoll.hpp"
 #include "HTTPRequest.hpp"
 //#include "Response.hpp"
