@@ -25,6 +25,7 @@ const ConfigParser::Conf::data_type	ConfigParser::Conf::_data
 
 	{"cgi"          , {KT_NON_UNIQ, &_checkCgi     , 1, {                       }}},
 	{"error_page"   , {KT_NON_UNIQ, NULL           , 1, {"404", "403", "442"    }}},
+	{"return"       , {KT_NON_UNIQ, NULL           , 1, {"200", "404"           }}},
 
 	{"listen"       , {KT_SERVER  , &formatListen  , 2, {                       }}},
 	{"server_name"  , {KT_SERVER  , NULL           ,-1, {                       }}},
@@ -47,6 +48,13 @@ const ConfigParser::Location	ConfigParser::Conf::_defaultValues
 			{
 				{".bite", {"/bin/bite"}},
 				{".teub", {"/bin/teub"}},
+			},
+		},
+		{
+			"return",
+			{
+				{"200", {"OK"}},
+				{"404", {"KO"}},
 			},
 		},
 	},
