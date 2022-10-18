@@ -54,7 +54,8 @@ const ConfigParser::Location	ConfigParser::Conf::_defaultValues
 			"return",
 			{
 				{"200", {"OK"}},
-				{"404", {"KO"}},
+				{"404", {"Not Found"}},
+				{"405", {"Method Not Allowed"}},
 			},
 		},
 	},
