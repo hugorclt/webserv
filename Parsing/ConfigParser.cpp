@@ -274,6 +274,8 @@ bool	ConfigParser::_isLocation(keyValues_type keyValues, lineRange_type &lineRan
 		return (false);
 	if (keyValues.second.size() != 1)
 		throw ParsingError("location take one param");
+	if (keyValues.second[0].front() != '/')
+		throw ParsingError("location need to start by a '/'");
 	if (*lineRangeCpy.first != '{')
 		throw ParsingError("location : can't find '{'");
 	return (true);

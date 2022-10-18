@@ -31,6 +31,23 @@ ConfigParser::Server    selectServ(std::string ip, std::string port, std::string
    return (*firstOccu);
 }
 
+ConfigParser::Location	getEnvFromTarget(std::string target, ConfigParser::Server serv)
+{
+	std::vector<std::string>	splitedTarget = split(target, "/");
+	ConfigParser::Location		res;
+	
+	for (std::vector<std::string>::reverse_iterator	rit = splitedTarget.rbegin(); rit != splitedTarget.rend(); rit++)
+	{
+		std::string	currLoc;
+		for (std::vector<std::string>::iterator it = splitedTarget.begin(); std::reverse_iterator(it) != rit; it++)
+			currLoc += "/" + *it;
+		if (serv.location.count(currLoc))
+			res.insert(serv.location[currLoc]);
+	}
+	res.insert(serv.location["/"]);
+	return (res);
+}
+
 ConfigParser::Server	findServ(HTTPRequest &req, int serverFd, Servers serverList, ConfigParser::data_type conf)
 {
 	HTTPRequest::request_type reqData = req.getData();
@@ -81,6 +98,9 @@ int main(int ac, char **av)
 									std::string str(buffer);
 									HTTPRequest	req(createHttpRequest(str));
 									ConfigParser::Server server = findServ(req, serverContacted, serverList, configServers.getData());
+									ConfigParser::Location	env = getEnvFromTarget(req.getData()["target"][0], server);
+									std::cout << req.getData()["target"][0] << std::endl;
+									std::cout << *(env.uniqKey["root"].begin()) << std::endl;
 									// Response	res(req, *it);
 									// res.construct();
 									// res.send(client_fd);
