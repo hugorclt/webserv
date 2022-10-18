@@ -29,9 +29,11 @@ class Servers {
 			sockaddr_in	address;
 			int			opt;
 			int			addrLen;
+			std::string ip;
+			std::string port;
 		};
 
-		typedef std::vector<std::pair<socket_t, std::pair<std::string, std::string>>> sock_type;
+		typedef std::map<int, socket_t> sock_type;
 		
 	private:
 		sock_type	_sockIpPort;
@@ -47,6 +49,7 @@ class Servers {
 		sock_type::iterator	getSocketByFd(int fd);
 		int					acceptSocket(socket_t sock);
 		sock_type			&getSockIpPort(void);
+		std::string			findIpByFd(int fd);
 
 		/* ------------------------------- error class ------------------------------ */
 		class ServersError: public std::exception {

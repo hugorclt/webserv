@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/18 12:57:12 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/18 12:21:25 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/18 13:29:20 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,37 @@
 #include "ConfigParser.hpp"
 #include "IOpoll.hpp"
 #include "Servers.hpp"
+#include "HTTPRequest.hpp"
+
+ConfigParser::Server    selectServ(std::string ip, std::string port, std::string hostName, ConfigParser::data_type vecServs)
+{
+	//hostName = ip:port -> first occurence find 
+	//else check first occurence with all 
+   //else check only ip and port 
+   //portset = listen.find(ip);
+   //portset.find(port);
+   //hostName == it->server_name
+   ConfigParser::data_type::iterator   firstOccu = vecServs.end();
+   for (ConfigParser::data_type::iterator it = vecServs.begin(); it != vecServs.end(); it++)
+   {
+		std::map<std::string, std::set<std::string>>::iterator itPortset = it->listen.find(ip);
+		if (itPortset == it->listen.end() || !itPortset->second.count(port))
+			continue ;
+		if (hostName == it->server_name || hostName == ip)
+			return (*it);
+		else if (firstOccu != vecServs.end())
+			firstOccu = it;
+   }
+   return (*firstOccu);
+}
+
+ConfigParser::Server	findServ(HTTPRequest &req, int serverFd, Servers serverList, ConfigParser::data_type conf)
+{
+	HTTPRequest::request_type reqData = req.getData();
+	std::string ip = serverList.findIpByFd(serverFd);
+
+	return (selectServ(ip, reqData["Host"][1], reqData["Host"][0], conf));
+}
 
 int main(int ac, char **av)
 {	
@@ -30,18 +61,21 @@ int main(int ac, char **av)
 			while (42) {
 				try 
 				{
+					int	serverContacted;
+					
 					if (epoll_wait(epoll.getEpollfd(), epoll.getEvents(), MAX_EVENTS, -1) != -1)
 					{
-						int					index = 0;
-
+						int	index = 0;
 						int	client_fd = epoll.getEvents()[index].data.fd;
+						
 						for (index = 0; index < MAX_EVENTS; index++)
 						{
 							int	newSocket;
 							Servers::sock_type::iterator sockTarget = serverList.getSocketByFd(client_fd);
 							if (sockTarget != serverList.getSockIpPort().end())
 							{
-								newSocket = serverList.acceptSocket(sockTarget->first);
+								newSocket = serverList.acceptSocket(sockTarget->second);
+								serverContacted = client_fd;
 								epoll.addFd(newSocket);
 								break;
 							}
@@ -53,8 +87,7 @@ int main(int ac, char **av)
 								{
 									std::string str(buffer);
 									HTTPRequest	req(createHttpRequest(str));
-
-
+									ConfigParser::Server server = findServ(req, serverContacted, serverList, configServers.getData());
 									// Response	res(req, *it);
 									// res.construct();
 

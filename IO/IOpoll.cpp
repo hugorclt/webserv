@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/20 15:57:26 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/17 17:10:01 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/18 13:03:34 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,8 +25,8 @@ IOpoll::IOpoll(Servers servers) {
 
 	Servers::sock_type serv = servers.getSockIpPort();
 	for (Servers::sock_type::iterator it = serv.begin(); it != serv.end(); it++) {
-		ev.data.fd = it->first.sockfd;
-		if (epoll_ctl(this->epollfd, EPOLL_CTL_ADD, it->first.sockfd, &this->ev)) {
+		ev.data.fd = it->first;
+		if (epoll_ctl(this->epollfd, EPOLL_CTL_ADD, it->first, &this->ev)) {
 			perror("Failed to add fd to epoll list");
 			close(this->epollfd);
 			exit(EXIT_FAILURE);

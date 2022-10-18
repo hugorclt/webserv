@@ -6,7 +6,7 @@
 #    By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/09/19 10:51:56 by hrecolet          #+#    #+#              #
-#    Updated: 2022/10/18 11:29:43 by hrecolet         ###   ########.fr        #
+#    Updated: 2022/10/18 12:43:21 by hrecolet         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -20,13 +20,16 @@ SRCS		=	main.cpp\
 				utils/copyFile.cpp\
 				exec/execRequest.cpp\
 				utils/intToStr.cpp\
-				utils/isDigits.cpp
+				utils/isDigits.cpp\
+				HTTP/HTTPRequest.cpp
+
 
 
 INCL		=	includes/webserv.hpp\
 				Parsing/ConfigParser.hpp\
 				Server/Servers.hpp\
 				IO/IOpoll.hpp\
+				HTTP/HTTPRequest.hpp
 
 CC			=	c++
 

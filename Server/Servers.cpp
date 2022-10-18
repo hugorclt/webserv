@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/30 11:56:41 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/18 12:21:06 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/18 13:13:47 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,14 +14,18 @@
 
 void	Servers::_createNewServer(std::string ip, std::string port)
 {
-	socket_t socketInfo;
+	socket_t	socketInfo;
+	int			sockfd;
 	
-	socketInfo.sockfd = socket(AF_INET, SOCK_STREAM, 0);
-	if (!socketInfo.sockfd)
+	socketInfo.ip = ip;
+	socketInfo.port = port;
+	sockfd = socket(AF_INET, SOCK_STREAM, 0);
+	socketInfo.sockfd = sockfd;
+	if (!sockfd)
 		throw ServersError("Socket creation failed");
 	
-	if (setsockopt(socketInfo.sockfd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &socketInfo.opt, sizeof(socketInfo.opt)) < 0) {
-	    close(socketInfo.sockfd);
+	if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &socketInfo.opt, sizeof(socketInfo.opt)) < 0) {
+	    close(sockfd);
         throw ServersError("Configuration failed");
 	}
 	
@@ -30,19 +34,19 @@ void	Servers::_createNewServer(std::string ip, std::string port)
 	socketInfo.address.sin_port = htons(atoi(port.c_str()));
 	socketInfo.addrLen = sizeof(socketInfo.address);
 	
-	if (bind(socketInfo.sockfd, (struct sockaddr*)&socketInfo.address, sizeof(socketInfo.address)) < 0) {
-	    close(socketInfo.sockfd);
+	if (bind(sockfd, (struct sockaddr*)&socketInfo.address, sizeof(socketInfo.address)) < 0) {
+	    close(sockfd);
 		throw ServersError("binding socket failed");
 	}
-	_sockIpPort.push_back(std::make_pair(socketInfo, std::make_pair(ip, port)));
+	_sockIpPort.insert({sockfd, socketInfo});
 }
 
 void    Servers::_listenConnection(void)
 {
     for (Servers::sock_type::iterator it = _sockIpPort.begin(); it != _sockIpPort.end(); it++)
     {        
-        if (listen(it->first.sockfd, 5) < 0) {
-            close(it->first.sockfd);
+        if (listen(it->first, 5) < 0) {
+            close(it->first);
             throw ServersError("listen failed");
         }
     }
@@ -72,7 +76,7 @@ Servers::sock_type::iterator Servers::getSocketByFd(int fd)
 	
     for (; it != _sockIpPort.end(); it++)
     {
-        if (it->first.sockfd == fd)
+        if (it->first == fd)
             return (it);
     }
     return (it);
@@ -100,4 +104,9 @@ int	Servers::acceptSocket(Servers::socket_t sock)
 Servers::sock_type	&Servers::getSockIpPort()
 {
 	return (_sockIpPort);
+}
+
+std::string	Servers::findIpByFd(int fd)
+{
+	return (_sockIpPort[fd].ip);
 }

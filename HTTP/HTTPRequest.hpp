@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/21 10:25:37 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/11 18:44:53 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/18 12:39:43 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,8 @@
 class Response;
 
 class HTTPRequest {
+	public:
+		typedef std::map<std::string, std::vector<std::string>> request_type;
 	private:
 		std::map<std::string, std::vector<std::string>>	data;
 
