@@ -27,7 +27,7 @@ const ConfigParser::Conf::data_type	ConfigParser::Conf::_data
 	{"error_page"   , {KT_NON_UNIQ, NULL           , 1, {"404", "403", "442"    }}},
 
 	{"listen"       , {KT_SERVER  , &formatListen  , 2, {                       }}},
-	{"server_name"  , {KT_SERVER  , NULL           , 1, {                       }}},
+	{"server_name"  , {KT_SERVER  , NULL           ,-1, {                       }}},
 };
 
 const ConfigParser::Location	ConfigParser::Conf::_defaultValues
@@ -167,8 +167,9 @@ void	ConfigParser::_printConfigParser(const data_type &data)
 		std::cout << indent << "Server " << data.size() - (data.end() - itServ) << " :" << std::endl;
 		std::cout << indent << '{' << std::endl;
 		indent += "\t";
-		std::cout << indent << "server_name : " << itServ->server_name << std::endl
-				  << std::endl;
+		std::cout << indent << "server_name : ";
+		printSet(itServ->server_name);
+		std::cout << std::endl << std::endl;
 		std::cout << indent << "listen" << std::endl
 				  << indent << '{' << std::endl;
 		printMap(itServ->listen, indent + "\t");
@@ -365,10 +366,10 @@ void	ConfigParser::_insertKeyValuesInServer(Server &res, keyValues_type &keyValu
 		throw ParsingError("already listening on " + keyValues.second[0] + ":" + keyValues.second[1]);
 	else if (keyValues.first == "server_name")
 	{
-		if (res.server_name.empty())
-			res.server_name = keyValues.second[0];
-		else
-			throw ParsingError("Key already present");
+		size_t	oldSize = res.server_name.size();
+		res.server_name.insert(keyValues.second.begin(), keyValues.second.end());
+		if (res.server_name.size() != oldSize + keyValues.second.size())
+			throw ParsingError("server_name already present");
 	}
 }
 

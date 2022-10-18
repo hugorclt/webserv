@@ -50,12 +50,13 @@ class ConfigParser {
 
 		struct Server
 		{
-			typedef std::map<std::string, Location>			location_type;
 			typedef std::map<std::string, std::set<std::string>>	listen_type;
+			typedef std::set<std::string>							server_name_type;
+			typedef std::map<std::string, Location>					location_type;
 
-			std::map<std::string, std::set<std::string>>	listen; // map d'{Ip, set<port>}
-			std::string										server_name; // set de server_name
-			location_type									location;
+			listen_type			listen; // map d'{Ip, set<port>}
+			server_name_type	server_name; // set de server_name
+			location_type		location;
 		};
 
 	private:

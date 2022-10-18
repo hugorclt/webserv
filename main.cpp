@@ -18,19 +18,12 @@
 
 ConfigParser::Server    selectServ(std::string ip, std::string port, std::string hostName, ConfigParser::data_type vecServs)
 {
-	//hostName = ip:port -> first occurence find 
-	//else check first occurence with all 
-   //else check only ip and port 
-   //portset = listen.find(ip);
-   //portset.find(port);
-   //hostName == it->server_name
    ConfigParser::data_type::iterator   firstOccu = vecServs.end();
    for (ConfigParser::data_type::iterator it = vecServs.begin(); it != vecServs.end(); it++)
    {
-		std::map<std::string, std::set<std::string>>::iterator itPortset = it->listen.find(ip);
-		if (itPortset == it->listen.end() || !itPortset->second.count(port))
-			continue ;
-		if (hostName == it->server_name || hostName == ip)
+	   if (!it->listen.count(ip) || !it->listen[ip].count(port))
+		   continue ;
+		if (it->server_name.count(hostName) || hostName == ip)
 			return (*it);
 		else if (firstOccu != vecServs.end())
 			firstOccu = it;
