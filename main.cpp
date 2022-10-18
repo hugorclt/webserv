@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/18 12:57:12 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/18 11:28:54 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/18 12:21:25 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,8 +52,9 @@ int main(int ac, char **av)
 								if (nb_bytes)
 								{
 									std::string str(buffer);
-									std::cout << buffer << std::endl;
-									// HTTPRequest	req(createHttpRequest(str));
+									HTTPRequest	req(createHttpRequest(str));
+
+
 									// Response	res(req, *it);
 									// res.construct();
 
