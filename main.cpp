@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/18 12:57:12 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/18 13:29:20 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/18 13:31:23 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,7 +90,6 @@ int main(int ac, char **av)
 									ConfigParser::Server server = findServ(req, serverContacted, serverList, configServers.getData());
 									// Response	res(req, *it);
 									// res.construct();
-
 									// res.send(client_fd);
 								}
 								close(newSocket);
