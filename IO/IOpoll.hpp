@@ -6,15 +6,13 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/20 15:56:52 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/17 17:10:10 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/18 11:26:08 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
-#include "webserv.hpp"
 #include "Servers.hpp"
 
-class Servers;
 
 class IOpoll {
 	private:

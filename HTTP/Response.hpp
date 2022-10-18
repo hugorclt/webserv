@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/21 11:47:56 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/18 00:23:05 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/18 11:56:02 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,21 +19,22 @@ class HTTPRequest;
 
 class Response {
 	private:
-		Server				*_server;
 		HTTPRequest			&_req;
 		std::vector<char>	_data;
 		std::string			_code;
 		std::string			_header;
 		std::string			_types;
 
-		static std::pair<std::string, std::string>	_mimeTypes[NB_MIME];
+		static std::map<std::string, std::string>	_mimeTypes;
 		void		_constructBody(void);
 		void		_constructHeader(void);
 		std::string	_getDate(void);
+		std::string	_getDefaultErrorPage(void);
+
 
 
 	public:
-		Response(HTTPRequest &req, Server *server);
+		Response(HTTPRequest &req);
 
 
 		void	construct(void);

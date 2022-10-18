@@ -6,7 +6,7 @@
 #    By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/09/19 10:51:56 by hrecolet          #+#    #+#              #
-#    Updated: 2022/10/17 16:58:15 by hrecolet         ###   ########.fr        #
+#    Updated: 2022/10/18 11:29:43 by hrecolet         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -24,7 +24,6 @@ SRCS		=	main.cpp\
 
 
 INCL		=	includes/webserv.hpp\
-				includes/includes.hpp\
 				Parsing/ConfigParser.hpp\
 				Server/Servers.hpp\
 				IO/IOpoll.hpp\

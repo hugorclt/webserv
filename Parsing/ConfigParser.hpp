@@ -11,14 +11,7 @@
 /* ************************************************************************** */
 
 #pragma once
-#include <string>
-#include <vector>
-#include <map>
-#include <set>
-#include <exception>
-#include "includes.hpp"
-#include <iostream>
-#include <fstream>
+#include "webserv.hpp"
 
 #define MAX_PORT	65535
 

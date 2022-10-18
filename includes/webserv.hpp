@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/19 10:52:17 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/18 00:31:59 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/18 11:27:56 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,13 +36,6 @@
 #include <exception>
 #include <cerrno>
 #include <dirent.h>
-
-
-#include "ConfigParser.hpp"
-#include "Servers.hpp"
-#include "IOpoll.hpp"
-#include "HTTPRequest.hpp"
-//#include "Response.hpp"
 
 #define EXIT_FAILURE 1
 #define EXIT_SUCCESS 0

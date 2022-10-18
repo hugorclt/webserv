@@ -6,11 +6,14 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/18 12:57:12 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/17 17:08:43 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/18 11:28:54 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "webserv.hpp"
+#include "ConfigParser.hpp"
+#include "IOpoll.hpp"
+#include "Servers.hpp"
 
 int main(int ac, char **av)
 {	
