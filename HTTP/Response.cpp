@@ -6,13 +6,13 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/11 15:23:33 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/18 12:07:33 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/18 17:20:10 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Response.hpp"
 
-const std::map<std::string, std::string>	Response::_mimeTypes = {
+const std::map<std::string, std::string>	Response::_mimeTypes {
 	{".aac", "audio/aac"},
 	{".abw", "application/x-abiword"},
 	{".arc", "application/octet-stream"},
@@ -78,14 +78,22 @@ const std::map<std::string, std::string>	Response::_mimeTypes = {
 	{".zip", "application/zip"},
 	{".3gp", "video/3gpp"},
 	{".3g2", "video/3gpp2"},
-	{".7z", "application/x-7z-compressed"}};
+	{".7z", "application/x-7z-compressed"}
+};
+
+const std::map<std::string, void(Response::*)()>	Response::_methodsFunction
+{
+	{"GET", &Response::_execGet},
+	{"POST", NULL},
+	{"DELETE", NULL}
+};
 
 /* -------------------------------------------------------------------------- */
 /*                                 constructor                                */
 /* -------------------------------------------------------------------------- */
 
-Response::Response(HTTPRequest &req, Server *server) : _req(req) , _server(server)
-{	
+Response::Response(ConfigParser::Location &env, HTTPRequest &req) : _env(env), _req(req)
+{
 }
 
 /* -------------------------------------------------------------------------- */
@@ -94,7 +102,7 @@ Response::Response(HTTPRequest &req, Server *server) : _req(req) , _server(serve
 
 std::string	Response::_getDefaultErrorPage(void)
 {
-	return ("<center><h2>backup error pages" + _code + "</h2></center>";
+	return ("<center><h2>backup error pages" + _code + "</h2></center>");
 }
 
 std::string	Response::_getDate(void) {
@@ -108,55 +116,88 @@ std::string	Response::_getDate(void) {
 	return (std::string(buffer));
 }
 
-void	Response::_constructBody(void)
-{
-	std::string	target = root + _req.getData()["target"][0];
+// void	Response::_constructBody(void)
+// {
+// 	std::string	target = root + _req.getData()["target"][0];
 
-	std::ifstream in(target, ::std::ios::binary);
-	_code = 200;
-	if (!in.good())
+// 	std::ifstream in(target, ::std::ios::binary);
+// 	_code = 200;
+// 	if (!in.good())
+// 	{
+// 		std::cout << errno << std::endl;
+// 		std::ifstream in(_server->getError() + "404.html", ::std::ios::binary);
+// 		_code = 404;
+// 		if (!in.good())
+// 		{
+// 			std::string errorPage = _getDefaultErrorPage();
+// 			_data.insert(errorPage.begin(), errorPage.end());
+// 			return ;
+// 		}
+// 	}
+
+// }
+
+bool	Response::is_file_accessible(std::string filename)
+{
+	struct stat buffer;   
+	return (stat(filename.c_str(), &buffer) == 0); 
+}
+
+bool	Response::is_file_opened(std::ifstream file)
+{
+	return (file.is_open());
+}
+
+/*
+root ./bite
+location /coucou/hugo
+	root ./lol
+
+target = /coucou/hugo/caca/index.html
+./lol/caca/index.html
+*/
+void	Response::_execGet(void) {
+	std::string root = _req.getData()["target"][0].erase(0, (*(_env.uniqKey["_rootToDel_"].begin())).length());
+	root = *(_env.uniqKey["root"].begin()) + root;
+}
+
+void	Response::_readFile(std::ifstream file)
+{
+	while (file) 
 	{
-		std::cout << errno << std::endl;
-		std::ifstream in(_server->getError() + "404.html", ::std::ios::binary);
-		_code = 404;
-		if (!in.good())
-		{
-			std::string errorPage = _getDefaultErrorPage();
-			_data.insert(errorPage.begin(), errorPage.end());
-			return ;
-		}
-	}
-	while (in) {
 		char c;
-		in.get(c);
+		file.get(c);
 		_data.push_back(c);
 	}
 }
 
-void	Response::_constructHeader(void)
-{
-	
+
+void	Response::execute(void) {
+	std::string method = _req.getData()["methods"][0];
+	if (_env.uniqKey["allow_methods"].count(method))
+	{
+		(this->*(_methodsFunction.find(method)->second))();
+		return ;	
+	}
+	_code = "405";
+	_status = (*_env.nonUniqKey["return"][_code].begin());
+	return ;
 }
 
-void	Response::construct(void) {
-	_constructBody();
-	_constructHeader();
-}
-
-void	Request::send(void)
-{
-	if (send(clientFd, _data.data(), _data.size(), 0) == -1)
-        perror("send error:");
-}
+// void	Response::send(int clientFd)
+// {
+// 	if (send(clientFd, _data.data(), _data.size(), 0) == -1)
+//         perror("send error:");
+// }
 
 bool	Response::_isBinaryFile(std::string filePath)
 {
 	int	character;
 	
 	std::ifstream file(filePath);
-	while ((character = file.get()) != EOF && c <= 127)
+	while ((character = file.get()) != EOF && character <= 127)
 		;
-	if (c == EOF)
+	if (character == EOF)
 		return (false);
 	return (true);
 }
@@ -164,11 +205,11 @@ bool	Response::_isBinaryFile(std::string filePath)
 void	Response::_setType(std::string url)
 {
 	std::string	extension = url.substr(url.find_last_of(".") + 1);
-	std::string::iterator = _mimeTypes.find(extension);
+	std::map<std::string, std::string>::const_iterator it = _mimeTypes.find(extension);
 
-	if (iterator != _mimeTypes.end())
+	if (it != _mimeTypes.end())
 	{
-		_types = iterator->second;
+		_types = it->second;
 		return ;
 	}
 	if (_isBinaryFile(url))

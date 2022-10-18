@@ -6,40 +6,53 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/21 11:47:56 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/18 11:56:02 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/18 16:55:23 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 #include "webserv.hpp"
+#include "HTTPRequest.hpp"
+#include "ConfigParser.hpp"
 
 #define NB_MIME 66
 
-class HTTPRequest;
-
 class Response {
 	private:
-		HTTPRequest			&_req;
+		HTTPRequest				&_req;
+		ConfigParser::Location	&_env;
 		std::vector<char>	_data;
 		std::string			_code;
+		std::string			_status;
 		std::string			_header;
 		std::string			_types;
 
-		static std::map<std::string, std::string>	_mimeTypes;
+		const static std::map<std::string, std::string>	_mimeTypes;
+		const static std::map<std::string, void(Response::*)()> _methodsFunction;
 		void		_constructBody(void);
 		void		_constructHeader(void);
 		std::string	_getDate(void);
+
 		std::string	_getDefaultErrorPage(void);
+		void		_setType(std::string url);
+		bool		_isBinaryFile(std::string filePath);
+		void		_readFile(std::ifstream file);
+		bool		is_file_opened(std::ifstream file);
+		bool		is_file_accessible(std::string filename);
+		void		_execGet(void);
+
+
 
 
 
 	public:
-		Response(HTTPRequest &req);
+	
+		Response(ConfigParser::Location &env, HTTPRequest &req);
 
 
-		void	construct(void);
-		void	send();
-}
+		void	execute(void);
+		void	send(int clientFd);
+};
 
 
 

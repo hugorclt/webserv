@@ -6,7 +6,7 @@
 #    By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/09/19 10:51:56 by hrecolet          #+#    #+#              #
-#    Updated: 2022/10/18 12:43:21 by hrecolet         ###   ########.fr        #
+#    Updated: 2022/10/18 15:31:48 by hrecolet         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -21,7 +21,8 @@ SRCS		=	main.cpp\
 				exec/execRequest.cpp\
 				utils/intToStr.cpp\
 				utils/isDigits.cpp\
-				HTTP/HTTPRequest.cpp
+				HTTP/HTTPRequest.cpp\
+				HTTP/Response.cpp
 
 
 
@@ -29,9 +30,10 @@ INCL		=	includes/webserv.hpp\
 				Parsing/ConfigParser.hpp\
 				Server/Servers.hpp\
 				IO/IOpoll.hpp\
-				HTTP/HTTPRequest.hpp
+				HTTP/HTTPRequest.hpp\
+				HTTP/Response.hpp
 
-CC			=	c++
+CC			=	g++
 
 CPPFLAGS		=	-Wall -Werror -Wextra -std=c++98 -g3
 

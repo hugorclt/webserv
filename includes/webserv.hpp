@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/19 10:52:17 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/18 12:24:40 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/18 16:02:25 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,7 @@
 #include <exception>
 #include <cerrno>
 #include <dirent.h>
+#include <sys/stat.h>
 
 #define EXIT_FAILURE 1
 #define EXIT_SUCCESS 0
