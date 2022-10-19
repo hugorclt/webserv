@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/18 12:57:12 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/18 16:19:16 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/19 13:15:19 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,7 @@ ConfigParser::Location	getEnvFromTarget(std::string target, ConfigParser::Server
 			res.insert(serv.location[currLoc]);
 		}
 	}
+	res.uniqKey.insert({"_rootToDel_", {""}});
 	res.insert(serv.location["/"]);
 	return (res);
 }
@@ -60,7 +61,7 @@ ConfigParser::Server	findServ(HTTPRequest &req, int serverFd, Servers serverList
 	return (selectServ(ip, reqData["Host"][1], reqData["Host"][0], conf));
 }
 
-int main(int ac, char **av)
+int main(int ac, char **av, char **envSys)
 {	
 	(void)av;
 	if (ac > 1 && ac <= 2)
@@ -105,10 +106,10 @@ int main(int ac, char **av)
 									ConfigParser::Server server = findServ(req, serverContacted, serverList, configServers.getData());
 									ConfigParser::Location	env = getEnvFromTarget(req.getData()["target"][0], server);
 									
-									Response	res(env, req);
+									Response	res(env, req, envSys);
 									res.execute();
-									// res.construct();
-									// res.send(client_fd);
+									res.constructData();
+									res.sendData(client_fd);
 								}
 								close(newSocket);
 								break;

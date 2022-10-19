@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/11 15:23:33 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/19 11:22:46 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/19 13:47:32 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,7 +92,7 @@ const std::map<std::string, void(Response::*)()>	Response::_methodsFunction
 /*                                 constructor                                */
 /* -------------------------------------------------------------------------- */
 
-Response::Response(ConfigParser::Location &env, HTTPRequest &req) : _env(env), _req(req)
+Response::Response(ConfigParser::Location &env, HTTPRequest &req, char **envSys) : _env(env), _req(req), _envSys(envSys) 
 {
 }
 
@@ -102,7 +102,7 @@ Response::Response(ConfigParser::Location &env, HTTPRequest &req) : _env(env), _
 
 std::vector<char>	Response::_getDefaultErrorPage(void)
 {
-	std::string	page("<center><h2>backup error pages" + _code + "</h2></center>");
+	std::string	page("<center><h2> " + _code + " " + _status + " </h2></center>");
 	std::vector<char>	res(page.begin(), page.end());
 	return (res);
 }
@@ -118,82 +118,110 @@ std::string	Response::_getDate(void) {
 	return (std::string(buffer));
 }
 
-// void	Response::_constructBody(void)
-// {
-// 	std::string	target = root + _req.getData()["target"][0];
-
-// 	std::ifstream in(target, ::std::ios::binary);
-// 	_code = 200;
-// 	if (!in.good())
-// 	{
-// 		std::cout << errno << std::endl;
-// 		std::ifstream in(_server->getError() + "404.html", ::std::ios::binary);
-// 		_code = 404;
-// 		if (!in.good())
-// 		{
-// 			std::string errorPage = _getDefaultErrorPage();
-// 			_data.insert(errorPage.begin(), errorPage.end());
-// 			return ;
-// 		}
-// 	}
-
-// }
-
-bool	Response::_isFileAccessible(std::string filename)
-{
-	struct stat buffer;   
-	return (stat(filename.c_str(), &buffer)); 
-}
-
-/*
-root ./bite
-location /coucou/hugo
-	root ./lol
-
-target = /coucou/hugo/caca/index.html
-./lol/caca/index.html
-*/
-
-bool Response::_isCgiFile(std::string root)
-{
-	std::string	extension = root.substr(root.find_last_of(".") + 1);
-	if (root == _env.nonUniqKey["cgi"].find("extension")->first)
-		return (true);
-	return (false);
-}
-
-std::ifstream	Response::_execCgi(std::string)
-{
-	
-}
-
 void	Response::_setError(std::string code)
 {
 	_code = code;
 	_status = (*_env.nonUniqKey["return"][_code].begin());
 	_data = _getDefaultErrorPage();
+	_types = "text/html";
 }
 
+bool	Response::_checkFile(std::string filename)
+{
+	struct stat buf;
+	
+	stat(filename.c_str(), &buf);
+	if (access(filename.c_str(), F_OK) != 0)
+	{
+		std::cout << "cc" << std::endl;
+		_setError("404");
+		return (true);
+	}
+	if (access(filename.c_str(), R_OK) != 0)
+	{
+		_setError("403");
+		return (true);
+	}
+	if (S_ISDIR(buf.st_mode))
+	{
+		if ((*_env.uniqKey["auto_index"].begin()) == "on")
+		{
+			_code = "200";
+			_status = (*_env.nonUniqKey["return"][_code].begin());
+			_data = listingFile(filename);
+			_types = "text/html";
+		}
+		else
+			_setError("403");
+		return (true);
+	}
+	return (false);
+}
+
+bool Response::_isCgiFile(std::string root)
+{
+	std::string	extension = root.substr(root.find_last_of(".") + 1);
+	return (_env.nonUniqKey["cgi"].count(extension));
+}
+
+int	Response::_execCgi(std::string root)
+{
+	std::string extension = root.substr(root.find_last_of(".") + 1);
+	std::string binCgi = (*_env.nonUniqKey["cgi"][extension].begin());
+	int tabPipe[2];
+
+	pipe(tabPipe);
+	int pid = fork();
+	if (pid == 0)
+	{
+		char * const *cmdArgs = new char*const[2]{
+			(char * const)binCgi.c_str(),
+			(char * const)root.c_str()
+		};
+		dup2(STDOUT_FILENO, tabPipe[1]);
+		close(tabPipe[0]);
+		if (!execve(binCgi.c_str(), cmdArgs, _envSys) == -1)
+		{
+			delete []cmdArgs;
+			perror("exec fail");
+			exit(EXIT_FAILURE);
+		}
+	}
+	else
+	{
+		close(tabPipe[1]);
+		wait(NULL);
+	}
+	return (tabPipe[0]);
+}
+
+		
 void	Response::_execGet(void) {
+	std::cout << "_" << *(_env.uniqKey["_rootToDel_"].begin()) << "_" << std::endl;
 	std::string root = _req.getData()["target"][0].erase(0, (*(_env.uniqKey["_rootToDel_"].begin())).length());
 	root = *(_env.uniqKey["root"].begin()) + root;
 
-	if (!_isFileAccessible(root))
-	{
-		_setError("403");
+	std::cout << root << std::endl;
+	_setType(root);
+	if (_checkFile(root))
 		return ;
-	}
 	std::ifstream file;
 	if (_isCgiFile(root))
-		file = _execCgi(root);
-	else
-		file.open(root.c_str(), std::ios::binary);
-	if (!file.is_open())
 	{
-		_setError("404");
+		int pipefd = _execCgi(root);
+		_readPipe(pipefd);
 		return ;
 	}
+	file.open(root.c_str(), std::ios::binary);
 	_readFile(file);
+}
+
+void	Response::_readPipe(int pipeToRead)
+{
+	char c;
+	while (read(pipeToRead, &c, 1) != -1) 
+		_data.push_back(c);
+	close(pipeToRead);
 }
 
 void	Response::_readFile(std::ifstream &file)
@@ -208,7 +236,7 @@ void	Response::_readFile(std::ifstream &file)
 }
 
 
-void	Response::execute(void) {
+void	Response::execute() {
 	std::string method = _req.getData()["methods"][0];
 	if (_env.uniqKey["allow_methods"].count(method))
 	{
@@ -219,11 +247,11 @@ void	Response::execute(void) {
 	return ;
 }
 
-// void	Response::send(int clientFd)
-// {
-// 	if (send(clientFd, _data.data(), _data.size(), 0) == -1)
-//         perror("send error:");
-// }
+void	Response::sendData(int clientFd)
+{
+	if (send(clientFd, _data.data(), _data.size(), 0) == -1)
+        perror("send error:");
+}
 
 bool	Response::_isBinaryFile(std::string filePath)
 {
@@ -239,7 +267,7 @@ bool	Response::_isBinaryFile(std::string filePath)
 
 void	Response::_setType(std::string url)
 {
-	std::string	extension = url.substr(url.find_last_of(".") + 1);
+	std::string	extension = url.substr(url.find_last_of("."));
 	std::map<std::string, std::string>::const_iterator it = _mimeTypes.find(extension);
 
 	if (it != _mimeTypes.end())
@@ -253,52 +281,17 @@ void	Response::_setType(std::string url)
 		_types = "text/plain";
 }
 
-
-
-
-
-
-
-
-
-
-
-/*
-HTTPResponse::HTTPResponse(HTTPRequest &req, ServerList &servers) {
-	std::map<std::string, std::vector<std::string>> dataReq = req.getData();
-	std::vector<std::string> hostIp (dataReq["Host"].rbegin(), dataReq["Host"].rend());
-    ServerList::serverValue::iterator serverIt = servers.getServerByIpPort(hostIp);
-    
-    int code = execRequest(req , *this, (*serverIt)->getRoot());
-	this->data.insert(std::make_pair("version", dataReq["httpVersion"][0]));
-	this->data.insert(std::make_pair("date", getDate()));
-	this->data.insert(std::make_pair("server", "webserv/0.1"));
-    this->data.insert(std::make_pair("code", to_string(code)));
-    this->data.insert(std::make_pair("status", "OK"));
-}
-
-void     HTTPResponse::sendRequest(int clientFd) {
-    std::string         header;
-
-    header = this->data["version"] + " " + this->data["code"] + " " + this->data["status"] + "\r\n"
-        + "Date: " + this->data["date"] + "\r\n"
-        + "Server: " + this->data["server"] + "\r\n"
-        + "Content-Length: " + to_string(this->body.size()) + "\r\n"
-        // + "Content-Type: " + this->data["type"] + "\r\n"
-        + "Content-Type: text/html\r\n" 
+void	Response::constructData(void)
+{
+	HTTPRequest::request_type reqData = _req.getData();
+	
+	_header = reqData["httpVersion"][0] + " " + _code + " " + _status + "\r\n"
+        + "Date: " + _getDate() + "\r\n"
+        + "Server: webserv/1.0" + "\r\n"
+        + "Content-Length: " + to_string(_data.size()) + "\r\n"
+        + "Content-Type: " + _types + "\r\n"
         + "Connection: Closed" + "\r\n"
         + "\n";
 
-    this->body.insert(this->body.begin(), header.begin(), header.end());
-    if (send(clientFd, this->body.data(), this->body.size(), 0) == -1)
-        perror("send error:");
+	_data.insert(_data.begin(), _header.begin(), _header.end());
 }
-
-void    HTTPResponse::setBody(std::vector<char> body) {
-    this->body = body;
-}
-
-void    HTTPResponse::setLength(int length) {
-    this->length = length;
-}
-*/

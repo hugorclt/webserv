@@ -6,7 +6,7 @@
 #    By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/09/19 10:51:56 by hrecolet          #+#    #+#              #
-#    Updated: 2022/10/18 15:31:48 by hrecolet         ###   ########.fr        #
+#    Updated: 2022/10/19 12:39:00 by hrecolet         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -22,7 +22,8 @@ SRCS		=	main.cpp\
 				utils/intToStr.cpp\
 				utils/isDigits.cpp\
 				HTTP/HTTPRequest.cpp\
-				HTTP/Response.cpp
+				HTTP/Response.cpp\
+				utils/directoryListing.cpp
 
 
 

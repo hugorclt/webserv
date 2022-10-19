@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/19 10:52:17 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/18 16:02:25 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/19 13:13:36 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,7 @@
 #include <cerrno>
 #include <dirent.h>
 #include <sys/stat.h>
+#include <sys/wait.h>
 
 #define EXIT_FAILURE 1
 #define EXIT_SUCCESS 0
@@ -62,3 +63,4 @@ std::string										getDate(void);
 std::string                                     to_string(int nb);
 void											printMap(std::map<std::string, std::vector<std::string>> map);
 bool											isDigits(std::string &digits);
+std::vector<char>                               listingFile(std::string root);

@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/21 11:47:56 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/19 11:21:10 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/19 13:45:51 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@ class Response {
 	private:
 		HTTPRequest				&_req;
 		ConfigParser::Location	&_env;
+		char				**_envSys;
 		std::vector<char>	_data;
 		std::string			_code;
 		std::string			_status;
@@ -29,8 +30,6 @@ class Response {
 
 		const static std::map<std::string, std::string>	_mimeTypes;
 		const static std::map<std::string, void(Response::*)()> _methodsFunction;
-		void		_constructBody(void);
-		void		_constructHeader(void);
 		std::string	_getDate(void);
 		std::vector<char>	_getDefaultErrorPage(void);
 		void		_setType(std::string url);
@@ -39,8 +38,12 @@ class Response {
 		bool		_isFileAccessible(std::string filename);
 		void		_execGet(void);
 		bool		_isCgiFile(std::string root);
-		std::ifstream	_execCgi(std::string root);
+		int			_execCgi(std::string root);
 		void		_setError(std::string code);
+		bool		_checkFile(std::string filename);
+		void		_readPipe(int pipeToRead);
+
+
 
 
 
@@ -49,11 +52,12 @@ class Response {
 
 	public:
 	
-		Response(ConfigParser::Location &env, HTTPRequest &req);
+		Response(ConfigParser::Location &env, HTTPRequest &req, char **envSys);
 
 
+		void	constructData(void);
 		void	execute(void);
-		void	send(int clientFd);
+		void	sendData(int clientFd);
 };
 
 
