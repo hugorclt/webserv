@@ -1,0 +1,5 @@
+<ul>
+<?php
+    phpinfo();
+?>
+</ul>

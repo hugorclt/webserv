@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/11 15:23:33 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/19 13:47:32 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/19 14:30:42 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -160,13 +160,13 @@ bool	Response::_checkFile(std::string filename)
 
 bool Response::_isCgiFile(std::string root)
 {
-	std::string	extension = root.substr(root.find_last_of(".") + 1);
+	std::string	extension = root.substr(root.find_last_of("."));
 	return (_env.nonUniqKey["cgi"].count(extension));
 }
 
 int	Response::_execCgi(std::string root)
 {
-	std::string extension = root.substr(root.find_last_of(".") + 1);
+	std::string extension = root.substr(root.find_last_of("."));
 	std::string binCgi = (*_env.nonUniqKey["cgi"][extension].begin());
 	int tabPipe[2];
 
@@ -174,34 +174,35 @@ int	Response::_execCgi(std::string root)
 	int pid = fork();
 	if (pid == 0)
 	{
-		char * const *cmdArgs = new char*const[2]{
+		char * const *cmdArgs = new char*const[]{
 			(char * const)binCgi.c_str(),
-			(char * const)root.c_str()
+			(char * const)root.c_str(),
+			(char * const)NULL
 		};
-		dup2(STDOUT_FILENO, tabPipe[1]);
+		dup2(tabPipe[1], STDOUT_FILENO);
 		close(tabPipe[0]);
-		if (!execve(binCgi.c_str(), cmdArgs, _envSys) == -1)
-		{
-			delete []cmdArgs;
-			perror("exec fail");
-			exit(EXIT_FAILURE);
-		}
+		close(tabPipe[1]);
+		execve(binCgi.c_str(), cmdArgs, _envSys);
+		delete []cmdArgs;
+		perror("exec fail");
+		exit(EXIT_FAILURE);
+		std::cout << "c" << std::endl;
 	}
 	else
 	{
 		close(tabPipe[1]);
+		std::cout << "debut wait" << std::endl;
 		wait(NULL);
+		std::cout << "fin wait" << std::endl;
 	}
 	return (tabPipe[0]);
 }
 
 		
 void	Response::_execGet(void) {
-	std::cout << "_" << *(_env.uniqKey["_rootToDel_"].begin()) << "_" << std::endl;
 	std::string root = _req.getData()["target"][0].erase(0, (*(_env.uniqKey["_rootToDel_"].begin())).length());
 	root = *(_env.uniqKey["root"].begin()) + root;
 
-	std::cout << root << std::endl;
 	_setType(root);
 	if (_checkFile(root))
 		return ;
@@ -210,6 +211,7 @@ void	Response::_execGet(void) {
 	{
 		int pipefd = _execCgi(root);
 		_readPipe(pipefd);
+		_types = "text/html";
 		return ;
 	}
 	file.open(root.c_str(), std::ios::binary);
@@ -219,8 +221,12 @@ void	Response::_execGet(void) {
 void	Response::_readPipe(int pipeToRead)
 {
 	char c;
-	while (read(pipeToRead, &c, 1) != -1) 
+	std::cout << "avant while" << std::endl;
+	while (read(pipeToRead, &c, 1))
+	{
 		_data.push_back(c);
+	}
+	std::cout << "apres while" << std::endl;
 	close(pipeToRead);
 }
 
