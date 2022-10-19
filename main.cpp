@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/18 12:57:12 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/18 13:31:23 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/18 16:19:16 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 #include "IOpoll.hpp"
 #include "Servers.hpp"
 #include "HTTPRequest.hpp"
+#include "Response.hpp"
 
 ConfigParser::Server    selectServ(std::string ip, std::string port, std::string hostName, ConfigParser::data_type vecServs)
 {
@@ -42,7 +43,10 @@ ConfigParser::Location	getEnvFromTarget(std::string target, ConfigParser::Server
 		for (std::vector<std::string>::iterator it = splitedTarget.begin(); std::reverse_iterator(it) != rit; it++)
 			currLoc += "/" + *it;
 		if (serv.location.count(currLoc))
+		{
+			res.uniqKey.insert({"_rootToDel_", {currLoc}});
 			res.insert(serv.location[currLoc]);
+		}
 	}
 	res.insert(serv.location["/"]);
 	return (res);
@@ -96,12 +100,13 @@ int main(int ac, char **av)
 								if (nb_bytes)
 								{
 									std::string str(buffer);
+									std::cout << str << std::endl;
 									HTTPRequest	req(createHttpRequest(str));
 									ConfigParser::Server server = findServ(req, serverContacted, serverList, configServers.getData());
 									ConfigParser::Location	env = getEnvFromTarget(req.getData()["target"][0], server);
-									std::cout << req.getData()["target"][0] << std::endl;
-									std::cout << *(env.uniqKey["root"].begin()) << std::endl;
-									// Response	res(req, *it);
+									
+									Response	res(env, req);
+									res.execute();
 									// res.construct();
 									// res.send(client_fd);
 								}
