@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/21 11:47:56 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/18 17:21:04 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/19 11:21:10 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,13 +32,16 @@ class Response {
 		void		_constructBody(void);
 		void		_constructHeader(void);
 		std::string	_getDate(void);
-		std::string	_getDefaultErrorPage(void);
+		std::vector<char>	_getDefaultErrorPage(void);
 		void		_setType(std::string url);
 		bool		_isBinaryFile(std::string filePath);
-		void		_readFile(std::ifstream file);
-		bool		is_file_opened(std::ifstream file);
-		bool		is_file_accessible(std::string filename);
+		void		_readFile(std::ifstream &file);
+		bool		_isFileAccessible(std::string filename);
 		void		_execGet(void);
+		bool		_isCgiFile(std::string root);
+		std::ifstream	_execCgi(std::string root);
+		void		_setError(std::string code);
+
 
 
 
