@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/11 15:23:33 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/18 17:20:10 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/19 11:22:46 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,9 +100,11 @@ Response::Response(ConfigParser::Location &env, HTTPRequest &req) : _env(env), _
 /*                                   methods                                  */
 /* -------------------------------------------------------------------------- */
 
-std::string	Response::_getDefaultErrorPage(void)
+std::vector<char>	Response::_getDefaultErrorPage(void)
 {
-	return ("<center><h2>backup error pages" + _code + "</h2></center>");
+	std::string	page("<center><h2>backup error pages" + _code + "</h2></center>");
+	std::vector<char>	res(page.begin(), page.end());
+	return (res);
 }
 
 std::string	Response::_getDate(void) {
@@ -137,15 +139,10 @@ std::string	Response::_getDate(void) {
 
 // }
 
-bool	Response::is_file_accessible(std::string filename)
+bool	Response::_isFileAccessible(std::string filename)
 {
 	struct stat buffer;   
-	return (stat(filename.c_str(), &buffer) == 0); 
-}
-
-bool	Response::is_file_opened(std::ifstream file)
-{
-	return (file.is_open());
+	return (stat(filename.c_str(), &buffer)); 
 }
 
 /*
@@ -156,12 +153,50 @@ location /coucou/hugo
 target = /coucou/hugo/caca/index.html
 ./lol/caca/index.html
 */
+
+bool Response::_isCgiFile(std::string root)
+{
+	std::string	extension = root.substr(root.find_last_of(".") + 1);
+	if (root == _env.nonUniqKey["cgi"].find("extension")->first)
+		return (true);
+	return (false);
+}
+
+std::ifstream	Response::_execCgi(std::string)
+{
+	
+}
+
+void	Response::_setError(std::string code)
+{
+	_code = code;
+	_status = (*_env.nonUniqKey["return"][_code].begin());
+	_data = _getDefaultErrorPage();
+}
+
 void	Response::_execGet(void) {
 	std::string root = _req.getData()["target"][0].erase(0, (*(_env.uniqKey["_rootToDel_"].begin())).length());
 	root = *(_env.uniqKey["root"].begin()) + root;
+
+	if (!_isFileAccessible(root))
+	{
+		_setError("403");
+		return ;
+	}
+	std::ifstream file;
+	if (_isCgiFile(root))
+		file = _execCgi(root);
+	else
+		file.open(root.c_str(), std::ios::binary);
+	if (!file.is_open())
+	{
+		_setError("404");
+		return ;
+	}
+	_readFile(file);
 }
 
-void	Response::_readFile(std::ifstream file)
+void	Response::_readFile(std::ifstream &file)
 {
 	while (file) 
 	{
@@ -169,6 +204,7 @@ void	Response::_readFile(std::ifstream file)
 		file.get(c);
 		_data.push_back(c);
 	}
+	file.close();
 }
 
 
@@ -179,8 +215,7 @@ void	Response::execute(void) {
 		(this->*(_methodsFunction.find(method)->second))();
 		return ;	
 	}
-	_code = "405";
-	_status = (*_env.nonUniqKey["return"][_code].begin());
+	_setError("405");
 	return ;
 }
 

@@ -25,7 +25,7 @@ const ConfigParser::Conf::data_type	ConfigParser::Conf::_data
 
 	{"cgi"          , {KT_NON_UNIQ, &_checkCgi     , 1, {                       }}},
 	{"error_page"   , {KT_NON_UNIQ, NULL           , 1, {"404", "403", "442"    }}},
-	{"return"       , {KT_NON_UNIQ, NULL           , 1, {"200", "404"           }}},
+	{"return"       , {KT_NON_UNIQ, NULL           , 1, {"200", "404", "403", "405" }}},
 
 	{"listen"       , {KT_SERVER  , &formatListen  , 2, {                       }}},
 	{"server_name"  , {KT_SERVER  , NULL           ,-1, {                       }}},
@@ -56,6 +56,7 @@ const ConfigParser::Location	ConfigParser::Conf::_defaultValues
 				{"200", {"OK"}},
 				{"404", {"Not Found"}},
 				{"405", {"Method Not Allowed"}},
+				{"403", {"Forbidden"}},
 			},
 		},
 	},
