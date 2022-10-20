@@ -1,37 +1,55 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   HTTPRequest.hpp                                    :+:      :+:    :+:   */
+/*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/21 10:25:37 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/19 11:31:52 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/20 15:58:08 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 #include "webserv.hpp"
 
-class Response;
-
-class HTTPRequest {
+class Request {
 	public:
 		typedef std::map<std::string, std::vector<std::string>> request_type;
+		
 	private:
-		request_type	data;
+		static const std::map<std::string, void(Request::*)(std::string &)> _splitTable;
+		request_type				_header;
+		std::string					_method;
+		std::string					_target;
+		std::string					_version;
+		std::vector<char>			_body;
+		std::vector<std::string>	_var;
+
+		
+		void	_basicSplit(std::string &line);
+		void	_secSplit(std::string &line);
+		void	_userSplit(std::string &line);
+		void	_acceptSplit(std::string &line);
+		void 	_parseFirstLine(std::vector<std::string> &request);
+		void	_printValue(void);
+
 
 	public:
-		HTTPRequest(std::map<std::string, std::vector<std::string>>	reqData);
-		~HTTPRequest();
+		Request(std::string &req);
+		~Request();
 
-		void	setData(std::map<std::string, std::vector<std::string>> data);
-		std::map<std::string, std::vector<std::string>>	getData(void) const;
+		request_type				getData(void) const;
+		std::vector<std::string>	&getVar(void) ;
+		std::string		getMethod(void) const;
+		std::string		getTarget(void) const;
+		std::string		getVersion(void) const;
+
 };
 
 
 /*
-GET / HTTP/1.1
+GET /index.html HTTP/1.1
 Host: 127.0.0.1:8080
 Connection: keep-alive
 sec-ch-ua: "Google Chrome";v="105", "Not)A;Brand";v="8", "Chromium";v="105"

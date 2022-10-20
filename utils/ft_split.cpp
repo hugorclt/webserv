@@ -6,11 +6,29 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/26 13:15:41 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/09/26 18:06:27 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/20 15:34:39 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "webserv.hpp"
+
+std::vector<std::string> split_charset(std::string toSplit, std::string charset)
+{
+    std::vector<std::string> res;
+
+    for (std::string::iterator it = toSplit.begin(); it < toSplit.end(); it++)
+    {
+        std::string buffer;
+        while (it != toSplit.end() && charset.find(*it) == std::string::npos)
+        {
+            buffer.push_back(*it);
+            it++;
+        }
+        if (!buffer.empty())
+            res.push_back(buffer);
+    }
+    return (res);
+}
 
 std::vector<std::string> split(std::string s, std::string delimiter){
     std::vector<std::string> list;

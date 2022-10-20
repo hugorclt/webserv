@@ -6,20 +6,20 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/21 11:47:56 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/19 13:45:51 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/20 15:28:34 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 #include "webserv.hpp"
-#include "HTTPRequest.hpp"
+#include "Request.hpp"
 #include "ConfigParser.hpp"
 
 #define NB_MIME 66
 
 class Response {
 	private:
-		HTTPRequest				&_req;
+		Request				&_req;
 		ConfigParser::Location	&_env;
 		char				**_envSys;
 		std::vector<char>	_data;
@@ -27,6 +27,7 @@ class Response {
 		std::string			_status;
 		std::string			_header;
 		std::string			_types;
+		std::vector<char *> _var;
 
 		const static std::map<std::string, std::string>	_mimeTypes;
 		const static std::map<std::string, void(Response::*)()> _methodsFunction;
@@ -52,7 +53,7 @@ class Response {
 
 	public:
 	
-		Response(ConfigParser::Location &env, HTTPRequest &req, char **envSys);
+		Response(ConfigParser::Location &env, Request &req, char **envSys);
 
 
 		void	constructData(void);
@@ -82,7 +83,7 @@ class HTTPResponse {
 
 
 	public:
-		HTTPResponse(HTTPRequest &req, ServerList &servers);
+		HTTPResponse(Request &req, ServerList &servers);
 		
 		void    setBody(std::vector<char> body);
 		void	setLength(int	length);

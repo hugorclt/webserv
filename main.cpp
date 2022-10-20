@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/18 12:57:12 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/19 13:15:19 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/20 15:59:42 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 #include "ConfigParser.hpp"
 #include "IOpoll.hpp"
 #include "Servers.hpp"
-#include "HTTPRequest.hpp"
+#include "Request.hpp"
 #include "Response.hpp"
 
 ConfigParser::Server    selectServ(std::string ip, std::string port, std::string hostName, ConfigParser::data_type vecServs)
@@ -53,9 +53,9 @@ ConfigParser::Location	getEnvFromTarget(std::string target, ConfigParser::Server
 	return (res);
 }
 
-ConfigParser::Server	findServ(HTTPRequest &req, int serverFd, Servers serverList, ConfigParser::data_type conf)
+ConfigParser::Server	findServ(Request &req, int serverFd, Servers serverList, ConfigParser::data_type conf)
 {
-	HTTPRequest::request_type reqData = req.getData();
+	Request::request_type reqData = req.getData();
 	std::string ip = serverList.findIpByFd(serverFd);
 
 	return (selectServ(ip, reqData["Host"][1], reqData["Host"][0], conf));
@@ -102,9 +102,9 @@ int main(int ac, char **av, char **envSys)
 								{
 									std::string str(buffer);
 									std::cout << str << std::endl;
-									HTTPRequest	req(createHttpRequest(str));
+									Request	req(str);
 									ConfigParser::Server server = findServ(req, serverContacted, serverList, configServers.getData());
-									ConfigParser::Location	env = getEnvFromTarget(req.getData()["target"][0], server);
+									ConfigParser::Location	env = getEnvFromTarget(req.getTarget(), server);
 									
 									Response	res(env, req, envSys);
 									res.execute();

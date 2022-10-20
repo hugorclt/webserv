@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/11 15:23:33 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/19 14:30:42 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/20 16:00:34 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,7 +83,7 @@ const std::map<std::string, std::string>	Response::_mimeTypes {
 
 const std::map<std::string, void(Response::*)()>	Response::_methodsFunction
 {
-	{"GET", &Response::_execGet},
+	{"GET", &Response::_execGet}, ///REMETTRE EXECGET !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	{"POST", NULL},
 	{"DELETE", NULL}
 };
@@ -92,8 +92,14 @@ const std::map<std::string, void(Response::*)()>	Response::_methodsFunction
 /*                                 constructor                                */
 /* -------------------------------------------------------------------------- */
 
-Response::Response(ConfigParser::Location &env, HTTPRequest &req, char **envSys) : _env(env), _req(req), _envSys(envSys) 
+Response::Response(ConfigParser::Location &env, Request &req, char **envSys) : _env(env), _req(req), _envSys(envSys) 
 {
+	std::vector<std::string> &var = req.getVar();
+	
+	for (std::vector<std::string>::iterator it = var.begin(); it != var.end(); it++)
+	{
+		_var.push_back(&((*it)[0]));
+	}
 }
 
 /* -------------------------------------------------------------------------- */
@@ -174,16 +180,13 @@ int	Response::_execCgi(std::string root)
 	int pid = fork();
 	if (pid == 0)
 	{
-		char * const *cmdArgs = new char*const[]{
-			(char * const)binCgi.c_str(),
-			(char * const)root.c_str(),
-			(char * const)NULL
-		};
+		_var.insert(_var.begin(), &root[0]);
+		_var.insert(_var.begin() ,&binCgi[0]);\
+		_var.push_back(NULL);
 		dup2(tabPipe[1], STDOUT_FILENO);
 		close(tabPipe[0]);
 		close(tabPipe[1]);
-		execve(binCgi.c_str(), cmdArgs, _envSys);
-		delete []cmdArgs;
+		execve(binCgi.c_str(), _var.data(), _envSys);
 		perror("exec fail");
 		exit(EXIT_FAILURE);
 		std::cout << "c" << std::endl;
@@ -191,16 +194,14 @@ int	Response::_execCgi(std::string root)
 	else
 	{
 		close(tabPipe[1]);
-		std::cout << "debut wait" << std::endl;
 		wait(NULL);
-		std::cout << "fin wait" << std::endl;
 	}
 	return (tabPipe[0]);
 }
 
 		
 void	Response::_execGet(void) {
-	std::string root = _req.getData()["target"][0].erase(0, (*(_env.uniqKey["_rootToDel_"].begin())).length());
+	std::string root = _req.getTarget().erase(0, (*(_env.uniqKey["_rootToDel_"].begin())).length());
 	root = *(_env.uniqKey["root"].begin()) + root;
 
 	_setType(root);
@@ -221,12 +222,10 @@ void	Response::_execGet(void) {
 void	Response::_readPipe(int pipeToRead)
 {
 	char c;
-	std::cout << "avant while" << std::endl;
 	while (read(pipeToRead, &c, 1))
 	{
 		_data.push_back(c);
 	}
-	std::cout << "apres while" << std::endl;
 	close(pipeToRead);
 }
 
@@ -243,7 +242,7 @@ void	Response::_readFile(std::ifstream &file)
 
 
 void	Response::execute() {
-	std::string method = _req.getData()["methods"][0];
+	std::string method = _req.getMethod();
 	if (_env.uniqKey["allow_methods"].count(method))
 	{
 		(this->*(_methodsFunction.find(method)->second))();
@@ -288,10 +287,8 @@ void	Response::_setType(std::string url)
 }
 
 void	Response::constructData(void)
-{
-	HTTPRequest::request_type reqData = _req.getData();
-	
-	_header = reqData["httpVersion"][0] + " " + _code + " " + _status + "\r\n"
+{	
+	_header = _req.getVersion() + " " + _code + " " + _status + "\r\n"
         + "Date: " + _getDate() + "\r\n"
         + "Server: webserv/1.0" + "\r\n"
         + "Content-Length: " + to_string(_data.size()) + "\r\n"
