@@ -12,7 +12,7 @@
 
 #include "HTTPRequest.hpp"
 
-HTTPRequest::HTTPRequest(std::map<std::string, std::vector<std::string>> reqData) : data(reqData) {}
+HTTPRequest::HTTPRequest(std::map< std::string, std::vector<std::string> > reqData) : data(reqData) {}
 
 HTTPRequest::~HTTPRequest() {}
 
@@ -20,10 +20,10 @@ HTTPRequest::~HTTPRequest() {}
 /*                                   Methods                                  */
 /* -------------------------------------------------------------------------- */
 
-void	HTTPRequest::setData(std::map<std::string, std::vector<std::string>> map) {
+void	HTTPRequest::setData(std::map< std::string, std::vector<std::string> > map) {
 	this->data = map;
 }
 
-std::map<std::string, std::vector<std::string>>	HTTPRequest::getData(void) const {
+std::map< std::string, std::vector<std::string> >	HTTPRequest::getData(void) const {
 	return (this->data);
 }

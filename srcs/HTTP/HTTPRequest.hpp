@@ -17,16 +17,16 @@ class Response;
 
 class HTTPRequest {
 	public:
-		typedef std::map<std::string, std::vector<std::string>> request_type;
+		typedef std::map< std::string, std::vector<std::string> > request_type;
 	private:
 		request_type	data;
 
 	public:
-		HTTPRequest(std::map<std::string, std::vector<std::string>>	reqData);
+		HTTPRequest(std::map< std::string, std::vector<std::string> >	reqData);
 		~HTTPRequest();
 
-		void	setData(std::map<std::string, std::vector<std::string>> data);
-		std::map<std::string, std::vector<std::string>>	getData(void) const;
+		void	setData(std::map< std::string, std::vector<std::string> > data);
+		std::map< std::string, std::vector<std::string> >	getData(void) const;
 };
 
 

@@ -21,15 +21,15 @@ class ConfigParser {
 		typedef std::vector<std::string>::iterator					fileIt_type;
 		typedef std::pair<lineIt_type, lineIt_type>					lineRange_type;
 		typedef std::pair<fileIt_type, fileIt_type>					fileRange_type;
-		typedef std::pair<std::string, std::vector<std::string>>	keyValues_type;
+		typedef std::pair< std::string, std::vector<std::string> >	keyValues_type;
 
 		
 	public:
 
 		struct Location
 		{
-			typedef std::map<std::string, std::map<std::string, std::set<std::string>>>	nonUniqKey_type; // Usage Ex : Conf._data[0].locations.nonUniqKey["error_pages"]["404"] -> ./404.html
-			typedef std::map<std::string, std::set<std::string>>						uniqKey_type; // Usage Ex : Conf_data[0].location.uniqKey["root"] -> ./var/srv
+			typedef std::map< std::string, std::map< std::string, std::set<std::string> > >	nonUniqKey_type; // Usage Ex : Conf._data[0].locations.nonUniqKey["error_pages"]["404"] -> ./404.html
+			typedef std::map< std::string, std::set<std::string> >						uniqKey_type; // Usage Ex : Conf_data[0].location.uniqKey["root"] -> ./var/srv
 			
 			nonUniqKey_type	nonUniqKey;
 			uniqKey_type	uniqKey;
@@ -50,7 +50,7 @@ class ConfigParser {
 
 		struct Server
 		{
-			typedef std::map<std::string, std::set<std::string>>	listen_type;
+			typedef std::map< std::string, std::set<std::string> >	listen_type;
 			typedef std::set<std::string>							server_name_type;
 			typedef std::map<std::string, Location>					location_type;
 
@@ -94,7 +94,7 @@ class ConfigParser {
 	public:
 
 		typedef std::vector<Server> 						data_type;
-		typedef std::map<std::string, std::vector<std::string>>	map_type;
+		typedef std::map< std::string, std::vector<std::string> >	map_type;
 		
 	private:
 		data_type	_data;
@@ -116,10 +116,6 @@ class ConfigParser {
 		static void	_checkBodySize(keyValues_type &keyValues);
 		static void	_checkCgi(keyValues_type &keyValues);
 		static void	formatListen(keyValues_type &keyValues);
-		/*
-		static bool	_checkListen(std::vector<std::string> &vec);
-		bool		_checkIpHost(void);
-		*/
 
 		//test
 
@@ -135,9 +131,12 @@ class ConfigParser {
 			private:
 				std::string	_error;
 			public:
-				ParsingError(std::string error) : _error(error) {};
-				virtual const char *what() const throw() {
-					return (_error.c_str());
-				}
+				ParsingError(const std::string &error)
+				: _error(error) {};
+
+				virtual ~ParsingError(void) throw() {}
+
+				virtual const char *what() const throw()
+				{ return (_error.c_str()); }
 		};
 };
