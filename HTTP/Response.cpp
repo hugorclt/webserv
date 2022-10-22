@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/11 15:23:33 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/20 16:00:34 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/22 21:17:30 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -128,24 +128,32 @@ void	Response::_setError(std::string code)
 {
 	_code = code;
 	_status = (*_env.nonUniqKey["return"][_code].begin());
-	_data = _getDefaultErrorPage();
+	if (_checkFile(*(_env.nonUniqKey["error_page"][_code].begin()), 1) == false)
+	{
+		std::cout << *(_env.nonUniqKey["error_page"][_code].begin()) << std::endl;
+		std::ifstream file(*(_env.nonUniqKey["error_page"][_code].begin()));
+		_readFile(file);
+	}
+	else
+		_data = _getDefaultErrorPage();
 	_types = "text/html";
 }
 
-bool	Response::_checkFile(std::string filename)
+bool	Response::_checkFile(std::string filename, int isErrorFile)
 {
 	struct stat buf;
 	
 	stat(filename.c_str(), &buf);
 	if (access(filename.c_str(), F_OK) != 0)
 	{
-		std::cout << "cc" << std::endl;
-		_setError("404");
+		if (isErrorFile == 0)
+			_setError("404");
 		return (true);
 	}
 	if (access(filename.c_str(), R_OK) != 0)
 	{
-		_setError("403");
+		if (isErrorFile == 0)
+			_setError("403");
 		return (true);
 	}
 	if (S_ISDIR(buf.st_mode))
@@ -158,7 +166,10 @@ bool	Response::_checkFile(std::string filename)
 			_types = "text/html";
 		}
 		else
-			_setError("403");
+		{
+			if (isErrorFile == 0)
+				_setError("403");
+		}
 		return (true);
 	}
 	return (false);
@@ -205,7 +216,7 @@ void	Response::_execGet(void) {
 	root = *(_env.uniqKey["root"].begin()) + root;
 
 	_setType(root);
-	if (_checkFile(root))
+	if (_checkFile(root, 0))
 		return ;
 	std::ifstream file;
 	if (_isCgiFile(root))

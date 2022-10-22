@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/18 12:57:12 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/20 15:59:42 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/22 21:08:26 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ ConfigParser::Server    selectServ(std::string ip, std::string port, std::string
    ConfigParser::data_type::iterator   firstOccu = vecServs.end();
    for (ConfigParser::data_type::iterator it = vecServs.begin(); it != vecServs.end(); it++)
    {
-	   if (!it->listen.count(ip) || !it->listen[ip].count(port))
+	   	if (!it->listen.count(ip) || !it->listen[ip].count(port))
 		   continue ;
 		if (it->server_name.count(hostName) || hostName == ip)
 			return (*it);

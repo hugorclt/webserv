@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/21 11:47:56 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/20 15:28:34 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/22 21:14:26 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ class Response {
 		bool		_isCgiFile(std::string root);
 		int			_execCgi(std::string root);
 		void		_setError(std::string code);
-		bool		_checkFile(std::string filename);
+		bool		_checkFile(std::string filename, int isErrorFile);
 		void		_readPipe(int pipeToRead);
 
 
