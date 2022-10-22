@@ -10,55 +10,39 @@
 #                                                                              #
 # **************************************************************************** #
 
-SRCS		=	main.cpp\
-				Parsing/ConfigParser.cpp\
-				IO/IOpoll.cpp\
-				Parsing/parse.cpp\
-				utils/ft_split.cpp\
-				Server/Servers.cpp\
-				Parsing/parse_config.cpp\
-				utils/copyFile.cpp\
-				exec/execRequest.cpp\
-				utils/intToStr.cpp\
-				utils/isDigits.cpp\
-				HTTP/HTTPRequest.cpp\
-				HTTP/Response.cpp\
-				utils/directoryListing.cpp
+.DEFAULT_GOAL = all
 
+NAME = webserv
 
+CXX = c++
+CXXFLAGS = -Wall -Wextra -Werror -std=c++98
+INCFLAGS = $(addprefix -I./, $(wildcard $(DIR_SRC)/*)) -I./includes
 
-INCL		=	includes/webserv.hpp\
-				Parsing/ConfigParser.hpp\
-				Server/Servers.hpp\
-				IO/IOpoll.hpp\
-				HTTP/HTTPRequest.hpp\
-				HTTP/Response.hpp
+DIR_SRC = srcs
+DIR_OBJ = .obj
 
-CC			=	g++
+SRC = $(wildcard $(DIR_SRC)/*/*.cpp)
+INC = $(wildcard $(DIR_SRC)/*/*.hpp)
+OBJ = $(addprefix $(DIR_OBJ)/, $(notdir $(SRC:.cpp=.o)))
 
-CPPFLAGS		=	-Wall -Werror -Wextra -std=c++98 -g3
+$(DIR_OBJ):
+	mkdir -p $(DIR_OBJ)
 
-RM			=	rm -f
+$(DIR_OBJ)/%.o : $(DIR_SRC)/*/%.cpp $(INC)
+	$(CXX) $(CXXFLAGS) -o $@ -c $< $(INCFLAGS)
 
-NAME		=	webserv
+$(NAME): $(OBJ)
+	$(CXX) $(CXXFLAGS) $(OBJ) -o $(NAME)
 
-OBJ			=	$(SRCS:.cpp=.o)
+all: $(DIR_OBJ) $(NAME)
 
-all			:	$(NAME) 
+clean:
+	rm -f $(OBJ)
 
-%.o : %.cpp
-	$(CC) $(CFLAGS) -I./Parsing -I./includes -I./HTTP -I./IO -I./Server -o $@ -c $< 
+fclean: clean
+	rm -f $(NAME)
+	rm -rf $(DIR_OBJ)
 
-$(NAME)		:	$(OBJ) $(INCL)
-				$(CC) $(CPPFLAGS) $(OBJ) -o $(NAME) 
-		
-clean		:	
-				$(RM) $(OBJ)
+re: fclean all
 
-fclean		:	clean
-				$(RM) $(NAME)
-
-re			:	fclean
-				$(MAKE)
-
-.PHONY		:	clean fclean re all
+.PHONY: all clean fclean re
