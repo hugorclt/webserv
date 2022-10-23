@@ -16,7 +16,7 @@ IOpoll::IOpoll(Servers servers) {
 	this->ev.events = EPOLLIN | EPOLLET;
 	this->events = new epoll_event[5];
 	this->epollfd = epoll_create1(0);
-	this->ev.data = {0};
+	//this->ev.data = {0};
 	if (this->epollfd < 0)
 	{
 		perror("Epoll creation failure");

@@ -12,7 +12,7 @@
 
 #include "webserv.hpp"
 
-int	parseStartLine(std::string	firstLine, std::map<std::string, std::vector<std::string>> &map) {
+int	parseStartLine(std::string	firstLine, std::map< std::string, std::vector<std::string> > &map) {
 	std::vector<std::string>	start_line = split(firstLine, " ");
 	for (int i = 0; i < 3; i++) {
 		std::vector<std::string> vec;
@@ -27,7 +27,7 @@ int	parseStartLine(std::string	firstLine, std::map<std::string, std::vector<std:
 	return (TRUE);
 }
 
-void	parseHost(std::string tab, std::map<std::string, std::vector<std::string>> &map) {
+void	parseHost(std::string tab, std::map< std::string, std::vector<std::string> > &map) {
 	std::vector<std::string>	host = split(tab, ":");
 	
 	std::string	key = host[0];
@@ -41,10 +41,10 @@ void	parseHost(std::string tab, std::map<std::string, std::vector<std::string>> 
 	map.insert(std::make_pair(key, vec));
 }
 
-int	parseHeaders(std::vector<std::string> tab, std::map<std::string, std::vector<std::string>> &map) {
+int	parseHeaders(std::vector<std::string> tab, std::map< std::string, std::vector<std::string> > &map) {
 	std::string					key;
 			
-	for (int i = 2; i < tab.size(); i++) {
+	for (size_t i = 2; i < tab.size(); i++) {
 		std::vector<std::string>	value;
 		key = tab[i].substr(0, tab[i].find(":"));
 		if (key == "Accept" || key == "Accept-Language")
@@ -52,15 +52,15 @@ int	parseHeaders(std::vector<std::string> tab, std::map<std::string, std::vector
 		else
 			value = split(tab[i], ' ', tab[i].find(":") + 2);
 		std::vector<std::string> vec;
-		for (int j = 0; j < value.size(); j++)
+		for (size_t j = 0; j < value.size(); j++)
 			vec.push_back(value[j]);
 		map.insert(std::make_pair(key, vec));
 	}
 	return (0);
 }
 
-std::map<std::string, std::vector<std::string>>	createHttpRequest(std::string req) {
-	std::map<std::string, std::vector<std::string>>	res;
+std::map< std::string, std::vector<std::string> >	createHttpRequest(std::string req) {
+	std::map< std::string, std::vector<std::string> >	res;
 	std::vector<std::string>	tab = split(req, "\r\n");
 	
 	parseStartLine(tab[0], res);

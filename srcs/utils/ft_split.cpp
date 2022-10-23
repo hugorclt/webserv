@@ -29,7 +29,7 @@ std::vector<std::string> split(std::string s, std::string delimiter){
 
 bool isStringEnquoted(const std::string str) { 
 	int nQuote = 0;
-	for (int i = 0; i < str.length(); i++) {
+	for (size_t i = 0; i < str.length(); i++) {
 		if ('\"' == str.at(i)) { 
 			nQuote ++; 
 		} 

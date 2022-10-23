@@ -28,8 +28,8 @@ class ConfigParser {
 
 		struct Location
 		{
-			typedef std::map< std::string, std::map< std::string, std::set<std::string> > >	nonUniqKey_type; // Usage Ex : Conf._data[0].locations.nonUniqKey["error_pages"]["404"] -> ./404.html
-			typedef std::map< std::string, std::set<std::string> >						uniqKey_type; // Usage Ex : Conf_data[0].location.uniqKey["root"] -> ./var/srv
+			typedef std::map< std::string, std::map< std::string, std::vector<std::string> > >	nonUniqKey_type;
+			typedef std::map< std::string, std::vector<std::string> >							uniqKey_type;
 			
 			nonUniqKey_type	nonUniqKey;
 			uniqKey_type	uniqKey;
@@ -68,14 +68,26 @@ class ConfigParser {
 			{
 				KeyType						kt;
 				void						(*func)(keyValues_type &);
-				int							maxParams;
+				size_t						maxParams;
 				std::set<std::string>		validParams;
+
+				raw(void) {};
+
+				raw(const KeyType &kt, void (*func)(keyValues_type &), size_t maxParams, std::string validParamsTab[], size_t validParamsSize)
+				: kt(kt), func(func), maxParams(maxParams), validParams(validParamsTab, validParamsTab + validParamsSize) {};
+
+				raw(const KeyType &kt, void (*func)(keyValues_type &), size_t maxParams)
+				: kt(kt), func(func), maxParams(maxParams) {};
 			};
 
-			typedef std::map<std::string, raw>					data_type;
+			typedef std::map<std::string, raw>	data_type;
 
-			const static data_type		_data;
-			const static Location		_defaultValues;
+			static data_type	_data;
+			static void			init_data(void);
+
+			static Location		_defaultValues;
+			static void			init_defaultValues(void);
+
 			const static std::string	_whitespacesSet;
 			const static std::string	_lineBreakSet;
 			const static std::string	_commentSet;

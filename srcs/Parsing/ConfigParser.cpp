@@ -12,62 +12,73 @@
 
 #include "ConfigParser.hpp"
 #include <climits>
+#include <cstdlib>
+
 #define DEFAULT_LISTEN_INTERFACE "0.0.0.0"
 #define DEFAULT_LISTEN_PORT "8080"
+#define SIZEOF(arr) sizeof(arr) / sizeof(*arr)
 
-const ConfigParser::Conf::data_type	ConfigParser::Conf::_data
+// patch this shit later
+ConfigParser::Conf::data_type	ConfigParser::Conf::_data = ConfigParser::Conf::data_type ();
+
+void	ConfigParser::Conf::init_data(void)
 {
-	{"body_size"    , {KT_UNIQ    , &_checkBodySize, 1, {                       }}},
-	{"allow_methods", {KT_UNIQ    , NULL           , 3, {"GET", "POST", "DELETE"}}},
-	{"root"         , {KT_UNIQ    , NULL           , 1, {                       }}},
-	{"index"        , {KT_UNIQ    , NULL           , 1, {                       }}},
-	{"auto_index"   , {KT_UNIQ    , NULL           , 1, {"on", "off"            }}},
+	if (!_data.empty())
+		return ;
+	std::string allow_methodsVP[] = {"GET", "POST", "DELETE"};
+	std::string auto_indexVP[] = {"on", "off"};
+	std::string error_pageVP[] = {"404", "403", "405"};
+	std::string returnVP[] = {"200", "404", "403", "405"};
 
-	{"cgi"          , {KT_NON_UNIQ, &_checkCgi     , 1, {                       }}},
-	{"error_page"   , {KT_NON_UNIQ, NULL           , 1, {"404", "403", "442"    }}},
-	{"return"       , {KT_NON_UNIQ, NULL           , 1, {"200", "404", "403", "405" }}},
-
-	{"listen"       , {KT_SERVER  , &formatListen  , 2, {                       }}},
-	{"server_name"  , {KT_SERVER  , NULL           ,-1, {                       }}},
-};
-
-const ConfigParser::Location	ConfigParser::Conf::_defaultValues
-{
-	// nonUniqKey
+	std::pair<std::string, raw>	data[] =
 	{
-		{
-			"error_page",
-			{
-				{"404", {"PauloLePoulet"}},
-				{"403", {"HugoLePoulet" }},
-				{"442", {"NinoLePouolet"}},
-			},
-		},
-		{
-			"cgi",
-			{
-				{".bite", {"/bin/bite"}},
-				{".teub", {"/bin/teub"}},
-			},
-		},
-		{
-			"return",
-			{
-				{"200", {"OK"}},
-				{"404", {"Not Found"}},
-				{"405", {"Method Not Allowed"}},
-				{"403", {"Forbidden"}},
-			},
-		},
-	},
+		std::make_pair("body_size",     raw(KT_UNIQ, &_checkBodySize, 1)),
+		std::make_pair("allow_methods", raw(KT_UNIQ, NULL, 3, allow_methodsVP, SIZEOF(allow_methodsVP))),
+		std::make_pair("root",          raw(KT_UNIQ, NULL, 1)),
+		std::make_pair("index",         raw(KT_UNIQ, NULL, 1)),
+		std::make_pair("auto_index",    raw(KT_UNIQ, NULL, 3, auto_indexVP, SIZEOF(auto_indexVP))),
+
+		std::make_pair("cgi",           raw(KT_NON_UNIQ, &_checkCgi, 1)),
+		std::make_pair("error_page",    raw(KT_NON_UNIQ, NULL, 1, error_pageVP, SIZEOF(error_pageVP))),
+		std::make_pair("return",        raw(KT_NON_UNIQ, NULL, 1, returnVP, SIZEOF(returnVP))),
+
+		std::make_pair("listen",        raw(KT_SERVER, &formatListen, 2)),
+		std::make_pair("server_name",   raw(KT_SERVER, NULL, 0)),
+	};
+	_data.insert(data, data + SIZEOF(data));
+}
+
+ConfigParser::Location	ConfigParser::Conf::_defaultValues = ConfigParser::Location ();
+
+void	ConfigParser::Conf::init_defaultValues(void)
+{
+	if (!_defaultValues.nonUniqKey.empty() && !_defaultValues.uniqKey.empty())
+		return ;
+	// nonUniqKey
+	std::pair< std::string, std::vector<std::string> >	returnTab[] =
+	{
+		std::make_pair("200", std::vector<std::string> (1, "OK")),
+		std::make_pair("403", std::vector<std::string> (1, "Forbidden")),
+		std::make_pair("404", std::vector<std::string> (1, "Not Found")),
+		std::make_pair("405", std::vector<std::string> (1, "Method Not Allowed")),
+	};
+
+	std::pair< std::string, std::map< std::string, std::vector<std::string> > >	nonUniqKey[] =
+	{
+		std::make_pair("return", std::map< std::string, std::vector<std::string> > (returnTab, returnTab + SIZEOF(returnTab))),
+	};
+	_defaultValues.nonUniqKey.insert(nonUniqKey, nonUniqKey + SIZEOF(nonUniqKey));
 
 	// uniqKey
+	std::string	allow_methods[] = {"GET", "POST", "DELETE"};
+
+	std::pair< std::string, std::vector<std::string> >	uniqKey[] =
 	{
-		{"auto_index"   , {"off"                  }},
-		{"allow_methods", {"GET", "POST", "DELETE"}},
-		{"body_size"    , {"42"                   }},
-	},
-};
+		std::make_pair("auto_index",    std::vector<std::string> (1, "off")),
+		std::make_pair("allow_methods", std::vector<std::string> (allow_methods, allow_methods + SIZEOF(allow_methods))),
+	};
+	_defaultValues.uniqKey.insert(uniqKey, uniqKey + SIZEOF(uniqKey));
+}
 
 const std::string ConfigParser::Conf::_whitespacesSet = "\t ";
 const std::string ConfigParser::Conf::_lineBreakSet = ";";
@@ -143,22 +154,24 @@ void	ConfigParser::_checkBodySize(keyValues_type &keyValues)
 /*                                 Constructor                                */
 /* -------------------------------------------------------------------------- */
 
-static void	printSet(const std::set<std::string> &set)
+template<class InputIt>
+static void	printRange(InputIt first, InputIt last)
 {
-	if (set.empty())
+	if (first == last)
 		std::cout << "(NONE)";
-	for (std::set<std::string>::const_iterator it = set.begin(); it != set.end(); it++)
-		std::cout << " " << *it;
+	while (first != last)
+		std::cout << " " << *first++;
 }
 
-static void printMap(const std::map<std::string, std::set<std::string>> &map, const std::string &indent)
+template<class T>
+static void printMap(const std::map< std::string, T > &map, const std::string &indent)
 {
 	if (map.empty())
 		std::cout << indent << "(NONE)" << std::endl;
-	for (std::map<std::string, std::set<std::string>>::const_iterator it = map.begin(); it != map.end(); it++)
+	for (typename std::map< std::string, T >::const_iterator it = map.begin(); it != map.end(); it++)
 	{
 		std::cout << indent << "[\"" << it->first << "\"] :";
-		printSet(it->second);
+		printRange(it->second.begin(), it->second.end());
 		std::cout << std::endl;
 	}
 }
@@ -178,7 +191,7 @@ void	ConfigParser::_printConfigParser(const data_type &data)
 		std::cout << indent << '{' << std::endl;
 		indent += "\t";
 		std::cout << indent << "server_name : ";
-		printSet(itServ->server_name);
+		printRange(itServ->server_name.begin(), itServ->server_name.end());
 		std::cout << std::endl << std::endl;
 		std::cout << indent << "listen" << std::endl
 				  << indent << '{' << std::endl;
@@ -214,11 +227,15 @@ void	ConfigParser::_printConfigParser(const data_type &data)
 				  	  << std::endl
 					  << std::endl;
 		}
+		indent = "";
 		std::cout << indent << '}' << std::endl << std::endl << std::endl << std::endl;
 	}
 }
 
 ConfigParser::ConfigParser(char *filename) {
+	Conf::init_data();
+	Conf::init_defaultValues();
+
 	std::ifstream				input(filename);
 	std::vector<std::string>	fullFile;
 
@@ -284,7 +301,7 @@ bool	ConfigParser::_isLocation(keyValues_type keyValues, lineRange_type &lineRan
 		return (false);
 	if (keyValues.second.size() != 1)
 		throw ParsingError("location take one param");
-	if (keyValues.second[0].front() != '/')
+	if (keyValues.second[0][0] != '/')
 		throw ParsingError("location need to start by a '/'");
 	if (*lineRangeCpy.first != '{')
 		throw ParsingError("location : can't find '{'");
@@ -323,7 +340,7 @@ void			ConfigParser::Conf::checkKeyValues(keyValues_type &keyValues, const raw &
 	}
 	if (sParams.size() != keyValues.second.size())
 		throw ParsingError("duplicated params");
-	if (sParams.size() > keyConf.maxParams && keyConf.maxParams != -1)
+	if (keyConf.maxParams && sParams.size() > keyConf.maxParams)
 		throw ParsingError("Key with too many params (max : " + to_string(keyConf.maxParams) + ")");
 	if (keyConf.func) // if a check function is provided, call it
 		keyConf.func(keyValues);
@@ -331,7 +348,7 @@ void			ConfigParser::Conf::checkKeyValues(keyValues_type &keyValues, const raw &
 
 void			ConfigParser::_insertKeyValuesInLocation(Location &location, keyValues_type &keyValues) // still need to be cleaned
 {
-	const Conf::raw	keyConf = Conf::_data.find(keyValues.first)->second;
+	Conf::raw	keyConf = Conf::_data[keyValues.first];
 	Location::uniqKey_type	&insertionPoint = (keyConf.kt == Conf::KT_UNIQ) ? location.uniqKey : location.nonUniqKey[keyValues.first];
 
 	if (keyConf.kt == Conf::KT_NON_UNIQ && !keyValues.second.empty()) // set SubKey as keyValues.first and SubKey params as keyValues.second
@@ -340,7 +357,7 @@ void			ConfigParser::_insertKeyValuesInLocation(Location &location, keyValues_ty
 		keyValues.second.erase(keyValues.second.begin());
 	}
 	Conf::checkKeyValues(keyValues, keyConf);
-	if (!insertionPoint.insert({keyValues.first, {keyValues.second.begin(), keyValues.second.end()}}).second)
+	if (!insertionPoint.insert(std::make_pair(keyValues.first, keyValues.second)).second)
 		throw ParsingError("Key already present");
 }
 

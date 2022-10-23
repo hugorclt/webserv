@@ -19,8 +19,8 @@
 
 class Response {
 	private:
-		HTTPRequest				&_req;
 		ConfigParser::Location	&_env;
+		HTTPRequest				&_req;
 		char				**_envSys;
 		std::vector<char>	_data;
 		std::string			_code;
@@ -28,8 +28,11 @@ class Response {
 		std::string			_header;
 		std::string			_types;
 
-		const static std::map<std::string, std::string>	_mimeTypes;
-		const static std::map<std::string, void(Response::*)()> _methodsFunction;
+		/*static*/ std::map<std::string, std::string>			_mimeTypes;
+		/*static*/ void											init_mimeTypes(void);
+		/*static*/ std::map<std::string, void(Response::*)()>	_methodsFunction;
+		/*static*/ void											init_methodsFunction(void);
+
 		std::string	_getDate(void);
 		std::vector<char>	_getDefaultErrorPage(void);
 		void		_setType(std::string url);

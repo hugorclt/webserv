@@ -60,5 +60,6 @@ class Servers {
 				virtual const char *what() const throw() {
 					return (_error.c_str());
 				}
+				virtual ~ServersError(void) throw() {};
 		};
 };

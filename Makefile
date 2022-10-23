@@ -43,6 +43,7 @@ fclean: clean
 	rm -f $(NAME)
 	rm -rf $(DIR_OBJ)
 
-re: fclean all
+re: fclean
+	$(MAKE) all
 
 .PHONY: all clean fclean re
