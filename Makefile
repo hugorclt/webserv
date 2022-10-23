@@ -6,7 +6,7 @@
 #    By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/09/19 10:51:56 by hrecolet          #+#    #+#              #
-#    Updated: 2022/10/20 13:29:12 by hrecolet         ###   ########.fr        #
+#    Updated: 2022/10/23 10:59:30 by hrecolet         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -47,7 +47,7 @@ OBJ			=	$(SRCS:.cpp=.o)
 all			:	$(NAME) 
 
 %.o : %.cpp
-	$(CC) $(CFLAGS) -I./Parsing -I./includes -I./HTTP -I./IO -I./Server -o $@ -c $< 
+	$(CC) $(CPPFLAGS) -I./Parsing -I./includes -I./HTTP -I./IO -I./Server -o $@ -c $< 
 
 $(NAME)		:	$(OBJ) $(INCL)
 				$(CC) $(CPPFLAGS) $(OBJ) -o $(NAME) 

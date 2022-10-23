@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/21 11:47:56 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/22 21:14:26 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/23 12:51:15 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,18 +31,20 @@ class Response {
 
 		const static std::map<std::string, std::string>	_mimeTypes;
 		const static std::map<std::string, void(Response::*)()> _methodsFunction;
-		std::string	_getDate(void);
+		std::string			_getDate(void);
 		std::vector<char>	_getDefaultErrorPage(void);
-		void		_setType(std::string url);
-		bool		_isBinaryFile(std::string filePath);
-		void		_readFile(std::ifstream &file);
-		bool		_isFileAccessible(std::string filename);
-		void		_execGet(void);
-		bool		_isCgiFile(std::string root);
-		int			_execCgi(std::string root);
-		void		_setError(std::string code);
-		bool		_checkFile(std::string filename, int isErrorFile);
-		void		_readPipe(int pipeToRead);
+		void				_setType(std::string url);
+		bool				_isBinaryFile(std::string filePath);
+		void				_readFile(std::ifstream &file);
+		bool				_isFileAccessible(std::string filename);
+		void				_execGet(void);
+		void				_execDel(void);
+		bool				_isCgiFile(std::string root);
+		int					_execCgi(std::string root);
+		void				_setError(std::string code);
+		bool				_checkFile(std::string filename, int isErrorFile);
+		void				_readPipe(int pipeToRead);
+		
 
 
 

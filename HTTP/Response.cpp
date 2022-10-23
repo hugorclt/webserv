@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/11 15:23:33 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/22 21:17:30 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/23 12:53:17 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,7 +84,7 @@ const std::map<std::string, std::string>	Response::_mimeTypes {
 const std::map<std::string, void(Response::*)()>	Response::_methodsFunction
 {
 	{"GET", &Response::_execGet}, ///REMETTRE EXECGET !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	{"POST", NULL},
+	{"POST", &Response::_execDel},
 	{"DELETE", NULL}
 };
 
@@ -108,7 +108,11 @@ Response::Response(ConfigParser::Location &env, Request &req, char **envSys) : _
 
 std::vector<char>	Response::_getDefaultErrorPage(void)
 {
-	std::string	page("<center><h2> " + _code + " " + _status + " </h2></center>");
+	std::string	page(
+	"<center>
+		<h2> " + _code + " " + _status + " </h2>
+	</center>"
+	);
 	std::vector<char>	res(page.begin(), page.end());
 	return (res);
 }
@@ -120,7 +124,7 @@ std::string	Response::_getDate(void) {
 	
 	time (&rawtime);
 	timeinfo = localtime (&rawtime);
-	strftime (buffer,80,"%a, %e %b %G %T GMT",timeinfo);
+	strftime (buffer, 80, "%a, %e %b %G %T GMT",timeinfo);
 	return (std::string(buffer));
 }
 
@@ -130,7 +134,6 @@ void	Response::_setError(std::string code)
 	_status = (*_env.nonUniqKey["return"][_code].begin());
 	if (_checkFile(*(_env.nonUniqKey["error_page"][_code].begin()), 1) == false)
 	{
-		std::cout << *(_env.nonUniqKey["error_page"][_code].begin()) << std::endl;
 		std::ifstream file(*(_env.nonUniqKey["error_page"][_code].begin()));
 		_readFile(file);
 	}
@@ -210,7 +213,31 @@ int	Response::_execCgi(std::string root)
 	return (tabPipe[0]);
 }
 
-		
+void	Response::_execDel(void)
+{
+	struct stat buf;
+	std::string root = _req.getTarget().erase(0, (*(_env.uniqKey["_rootToDel_"].begin())).length());
+	root = *(_env.uniqKey["root"].begin()) + root;
+	
+	stat(filename.c_str(), &buf);
+	if (access(filename.c_str(), F_OK) != 0)
+	{
+		_setError("404");
+		return ;
+	}
+	if (access(filename.c_str(), R_OK) != 0)
+	{
+		_setError("403");
+		return ;
+	}
+	if (S_ISDIR(buf.st_mode))
+	{
+		_setError("403");
+		return ;
+	}
+	unlink(root.c_str());
+}
+
 void	Response::_execGet(void) {
 	std::string root = _req.getTarget().erase(0, (*(_env.uniqKey["_rootToDel_"].begin())).length());
 	root = *(_env.uniqKey["root"].begin()) + root;
@@ -234,9 +261,7 @@ void	Response::_readPipe(int pipeToRead)
 {
 	char c;
 	while (read(pipeToRead, &c, 1))
-	{
 		_data.push_back(c);
-	}
 	close(pipeToRead);
 }
 
@@ -254,6 +279,7 @@ void	Response::_readFile(std::ifstream &file)
 
 void	Response::execute() {
 	std::string method = _req.getMethod();
+	
 	if (_env.uniqKey["allow_methods"].count(method))
 	{
 		(this->*(_methodsFunction.find(method)->second))();
