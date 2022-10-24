@@ -12,6 +12,8 @@
 
 #include "Servers.hpp"
 
+#include <cstdlib>
+
 void	Servers::_createNewServer(std::string ip, std::string port)
 {
 	socket_t	socketInfo;

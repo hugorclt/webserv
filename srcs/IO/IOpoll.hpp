@@ -11,8 +11,9 @@
 /* ************************************************************************** */
 
 #pragma once
-#include "Servers.hpp"
 
+# include "Servers.hpp"
+# include "webserv.hpp"
 
 class IOpoll {
 	private:

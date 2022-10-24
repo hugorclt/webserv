@@ -11,9 +11,11 @@
 /* ************************************************************************** */
 
 #pragma once
-#include "webserv.hpp"
 
-#define MAX_PORT	65535
+# include <vector>
+# include <map>
+# include <set>
+# include <string>
 
 class ConfigParser {
 	private:
