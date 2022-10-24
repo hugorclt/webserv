@@ -17,6 +17,9 @@
 # include <set>
 # include <string>
 
+//tmp
+# include <iostream>
+
 class ConfigParser {
 	private:
 		typedef std::string::iterator								lineIt_type;
@@ -134,6 +137,7 @@ class ConfigParser {
 		//test
 
 		static void	_printConfigParser(const data_type &data);
+		std::string	_color(std::string line, std::string word);
 		
 	public:
 		ConfigParser(char *params);
@@ -144,13 +148,17 @@ class ConfigParser {
 		class ParsingError: public std::exception {
 			private:
 				std::string	_error;
+				std::string	_word;
 			public:
-				ParsingError(const std::string &error)
-				: _error(error) {};
+				ParsingError(const std::string &error, const std::string &word = std::string())
+				: _error(error), _word(word) {}
 
 				virtual ~ParsingError(void) throw() {}
 
 				virtual const char *what() const throw()
 				{ return (_error.c_str()); }
+
+				std::string	word(void)
+				{ return (_word); }
 		};
 };

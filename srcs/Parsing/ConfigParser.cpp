@@ -21,6 +21,8 @@
 #define MAX_PORT	65535
 #define DEFAULT_LISTEN_INTERFACE "0.0.0.0"
 #define DEFAULT_LISTEN_PORT "8080"
+#define C_RED "\033[1;31m"
+#define C_RESET "\033[0m"
 #define SIZEOF(arr) sizeof(arr) / sizeof(*arr)
 
 // patch this shit later
@@ -41,7 +43,7 @@ void	ConfigParser::Conf::init_data(void)
 		std::make_pair("allow_methods", raw(KT_UNIQ, NULL, 3, allow_methodsVP, SIZEOF(allow_methodsVP))),
 		std::make_pair("root",          raw(KT_UNIQ, NULL, 1)),
 		std::make_pair("index",         raw(KT_UNIQ, NULL, 1)),
-		std::make_pair("auto_index",    raw(KT_UNIQ, NULL, 3, auto_indexVP, SIZEOF(auto_indexVP))),
+		std::make_pair("auto_index",    raw(KT_UNIQ, NULL, 1, auto_indexVP, SIZEOF(auto_indexVP))),
 
 		std::make_pair("cgi",           raw(KT_NON_UNIQ, &_checkCgi, 1)),
 		std::make_pair("error_page",    raw(KT_NON_UNIQ, NULL, 1, error_pageVP, SIZEOF(error_pageVP))),
@@ -99,20 +101,20 @@ static void	checkPort(std::string str) // tmp
 	int	port;
 
 	if (!isDigits(str))
-		throw ConfigParser::ParsingError("listen");
+		throw ConfigParser::ParsingError("listen, port need to be digits", str);
 	port = atoi(str.c_str());
 	if (port < 0 || port > MAX_PORT)
-		throw ConfigParser::ParsingError("listen");
+		throw ConfigParser::ParsingError("listen, port out of range", str);
 }
 
 static void checkIp(std::vector<std::string> ip) // tmp
 {
 	if (ip.size() != 4)
-		throw ConfigParser::ParsingError("listen");
+		throw ConfigParser::ParsingError("listen, ip need to be 4 numbers separated by '.'");
 	for (std::vector<std::string>::iterator it = ip.begin(); it < ip.end(); it++)
 	{
 		if (atoi(it->c_str()) < 0 || atoi(it->c_str()) > 255)
-			throw ConfigParser::ParsingError("listen");
+			throw ConfigParser::ParsingError("listen, ip numbers need to be between 0 and 255", *it);
 	}
 }
 
@@ -142,17 +144,17 @@ void	ConfigParser::formatListen(keyValues_type &keyValues)
 void	ConfigParser::_checkCgi(keyValues_type &keyValues)
 {
 	if (keyValues.first.rfind('.') != 0)
-		throw ParsingError("cgi first param should start by a point (the only one)");
+		throw ParsingError("cgi first param should start by a point (the only one)", keyValues.first);
 	if (keyValues.first.size() < 2)
-		throw ParsingError("cgi first param should have at least one char after the point");
+		throw ParsingError("cgi first param should have at least one char after the point", keyValues.first);
 }
 
 void	ConfigParser::_checkBodySize(keyValues_type &keyValues)
 {
 	if (!isDigits(keyValues.second[0]))
-		throw ParsingError("body_size should be a positive integer");
+		throw ParsingError("body_size should be a positive integer", keyValues.second[0]);
 	if (atoi(keyValues.second[0].c_str()) <= 0)
-		throw ParsingError("body_size overflow, max value : " + to_string(INT_MAX));
+		throw ParsingError("body_size overflow, max value : " + to_string(INT_MAX), keyValues.second[0]);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -267,7 +269,7 @@ ConfigParser::ConfigParser(char *filename) {
 				lineRange.first++;
 				_goToNextWordInFile(lineRange, fileRange);
 				try { _data.push_back(_createNewServer(lineRange, fileRange)); }
-				catch (ParsingError &e) { throw ParsingError("Server " + to_string(_data.size()) + " : " + e.what()); }
+				catch (ParsingError &e) { throw ParsingError("Server " + to_string(_data.size()) + " : " + e.what(), e.word()); }
 			}
 			else if (fileRange.first != fileRange.second)
 				throw ParsingError("wrong Token Global Scope");
@@ -276,11 +278,27 @@ ConfigParser::ConfigParser(char *filename) {
 	}
 	catch (ParsingError &e)
 	{
+		std::string line;
+		if (fileRange.first == fileRange.second)
+			line = *(fileRange.first - 1);
+		else
+			line = _color(std::string(fileRange.first->begin(), lineRange.first), e.word()) + std::string(lineRange.first, lineRange.second);
 		throw ParsingError(std::string(e.what()) + " :\n"
 		+ "line " + to_string(fullFile.size() - (fileRange.second - fileRange.first) + 1) + " : "
-		+ *(fileRange.first - (fileRange.first == fileRange.second)));
+		+ line);
 	}
 	_printConfigParser(_data);
+}
+
+//tmp test
+std::string	ConfigParser::_color(std::string line, std::string word)
+{
+	if (line.rfind(word) != std::string::npos)
+	{
+		line.insert(line.rfind(word), C_RED);
+		line.insert(line.rfind(word) + word.size(), C_RESET);
+	}
+	return (line);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -307,7 +325,7 @@ bool	ConfigParser::_isLocation(keyValues_type keyValues, lineRange_type &lineRan
 	if (keyValues.second.size() != 1)
 		throw ParsingError("location take one param");
 	if (keyValues.second[0][0] != '/')
-		throw ParsingError("location need to start by a '/'");
+		throw ParsingError("location need to start by a '/'", keyValues.second[0]);
 	if (*lineRangeCpy.first != '{')
 		throw ParsingError("location : can't find '{'");
 	return (true);
@@ -331,22 +349,22 @@ void			ConfigParser::Conf::checkKeyValues(keyValues_type &keyValues, const raw &
 {
 	std::set<std::string>	sParams(keyValues.second.begin(), keyValues.second.end());
 	if (keyValues.second.empty())
-		throw ParsingError("Key without enough params");
+		throw ParsingError("Key without enough params", keyValues.first);
 	if (!keyConf.validParams.empty()) // If a set of valid param is provided
 	{
 		if (keyConf.kt == KT_UNIQ) // check than all params are present in this set
 		{
 			for (std::set<std::string>::iterator it = sParams.begin(); it != sParams.end(); it++)
 				if (!keyConf.validParams.count(*it))
-					throw ParsingError("Unknown param '" + *it + "'");
+					throw ParsingError("Unknown param", *it);
 		}
 		else if (keyConf.kt == KT_NON_UNIQ && !keyConf.validParams.count(keyValues.first)) // check than SubKey is present in this set
-			throw ParsingError("Unknown param '" + keyValues.first + "'");
+			throw ParsingError("Unknown param", keyValues.first);
 	}
 	if (sParams.size() != keyValues.second.size())
 		throw ParsingError("duplicated params");
 	if (keyConf.maxParams && sParams.size() > keyConf.maxParams)
-		throw ParsingError("Key with too many params (max : " + to_string(keyConf.maxParams) + ")");
+		throw ParsingError("Key with too many params (max : " + to_string(keyConf.maxParams) + ")", keyValues.first);
 	if (keyConf.func) // if a check function is provided, call it
 		keyConf.func(keyValues);
 }
@@ -363,7 +381,7 @@ void			ConfigParser::_insertKeyValuesInLocation(Location &location, keyValues_ty
 	}
 	Conf::checkKeyValues(keyValues, keyConf);
 	if (!insertionPoint.insert(std::make_pair(keyValues.first, keyValues.second)).second)
-		throw ParsingError("Key already present");
+		throw ParsingError("Key already present", keyValues.first);
 }
 
 ConfigParser::Location	ConfigParser::_createNewLocation(lineRange_type &lineRange, fileRange_type &fileRange)
@@ -423,7 +441,7 @@ ConfigParser::Server	ConfigParser::_createNewServer(lineRange_type &lineRange, f
 			_goToNextWordInFile(lineRange, fileRange); //skip the location
 			lineRange.first++; //skip the location
 			try { res.location.insert(std::make_pair(keyValues.second[0], _createNewLocation(lineRange, fileRange))); }
-			catch (ParsingError &e) { throw ParsingError("location \"" + keyValues.second[0] + "\" : " + e.what()); }
+			catch (ParsingError &e) { throw ParsingError("location \"" + keyValues.second[0] + "\" : " + e.what(), e.word()); }
 		}
 		else
 		{
