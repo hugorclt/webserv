@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/18 12:57:12 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/25 14:23:21 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/25 14:37:59 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,17 +19,18 @@
 
 ConfigParser::Server    selectServ(std::string ip, std::string port, std::string hostName, ConfigParser::data_type vecServs)
 {
-   ConfigParser::data_type::iterator   firstOccu = vecServs.end();
-   for (ConfigParser::data_type::iterator it = vecServs.begin(); it != vecServs.end(); it++)
-   {
-	   	if (!it->listen.count(ip) || !it->listen[ip].count(port))
+   	ConfigParser::data_type::iterator   firstOccu = vecServs.end();
+	
+   	for (ConfigParser::data_type::iterator it = vecServs.begin(); it != vecServs.end(); it++)
+   	{
+		if (!it->listen.count(ip) || !it->listen[ip].count(port))
 		   continue ;
 		if (it->server_name.count(hostName) || hostName == ip)
 			return (*it);
-		else if (firstOccu != vecServs.end())
+		else if (firstOccu == vecServs.end())
 			firstOccu = it;
-   }
-   return (*firstOccu);
+   	}
+   	return (*firstOccu);
 }
 
 ConfigParser::Location	getEnvFromTarget(std::string target, ConfigParser::Server serv)
