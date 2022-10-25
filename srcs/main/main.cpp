@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/18 12:57:12 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/25 14:37:59 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/25 17:51:41 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include "Servers.hpp"
 #include "Request.hpp"
 #include "Response.hpp"
+#include <signal.h>
 
 ConfigParser::Server    selectServ(std::string ip, std::string port, std::string hostName, ConfigParser::data_type vecServs)
 {
@@ -62,7 +63,7 @@ ConfigParser::Server	findServ(Request &req, int serverFd, Servers serverList, Co
 	return (selectServ(ip, reqData["Host"][1], reqData["Host"][0], conf));
 }
 
-int main(int ac, char **av, char **envSys)
+int main(int ac, char **av)
 {	
 	(void)av;
 	if (ac > 1 && ac <= 2)
@@ -73,6 +74,7 @@ int main(int ac, char **av, char **envSys)
 			Servers serverList(configServers);
 			IOpoll	epoll(serverList);
 
+
 		/* ----------------------------- Server Creation ---------------------------- */
 			while (42) {
 				try 
@@ -82,23 +84,23 @@ int main(int ac, char **av, char **envSys)
 					if (epoll_wait(epoll.getEpollfd(), epoll.getEvents(), MAX_EVENTS, -1) != -1)
 					{
 						int	index = 0;
-						int	client_fd = epoll.getEvents()[index].data.fd;
+						int	clientFd = epoll.getEvents()[index].data.fd;
 						
 						for (index = 0; index < MAX_EVENTS; index++)
 						{
 							int	newSocket;
-							Servers::sock_type::iterator sockTarget = serverList.getSocketByFd(client_fd);
+							Servers::sock_type::iterator sockTarget = serverList.getSocketByFd(clientFd);
 							if (sockTarget != serverList.getSockIpPort().end())
 							{
 								newSocket = serverList.acceptSocket(sockTarget->second);
-								serverContacted = client_fd;
+								serverContacted = clientFd;
 								epoll.addFd(newSocket);
 								break;
 							}
 							else
 							{
 								char	buffer[1024] = { 0 };
-								int		nb_bytes = recv(client_fd, buffer, 1024, 0);
+								int		nb_bytes = recv(clientFd, buffer, 1024, 0);
 								if (nb_bytes)
 								{
 									std::string str(buffer);
@@ -106,11 +108,11 @@ int main(int ac, char **av, char **envSys)
 									Request	req(str);
 									ConfigParser::Server server = findServ(req, serverContacted, serverList, configServers.getData());
 									ConfigParser::Location	env = getEnvFromTarget(req.getTarget(), server);
-									
-									Response	res(env, req, envSys);
+
+									Response	res(env, req, serverList.getClientIp(sockTarget->second, clientFd));
 									res.execute();
 									res.constructData();
-									res.sendData(client_fd);
+									res.sendData(clientFd);
 								}
 								close(newSocket);
 								break;

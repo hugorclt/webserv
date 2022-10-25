@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/11 15:23:33 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/25 14:24:28 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/25 17:39:32 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,9 +108,11 @@ void	Response::init_methodsFunction(void)
 /*                                 constructor                                */
 /* -------------------------------------------------------------------------- */
 
-Response::Response(ConfigParser::Location &env, Request &req, char **envSys)
-: _env(env), _req(req), _envSys(envSys) 
+Response::Response(ConfigParser::Location env, Request &req, std::string clientIp)
+: _env(env), _req(req)
 {
+	_clientIp = clientIp;
+	_var = _req.getVar();
 	init_mimeTypes();
 	init_methodsFunction();
 }
@@ -194,44 +196,13 @@ bool Response::_isCgiFile(std::string root)
 	return (_env.nonUniqKey["cgi"].count(extension));
 }
 
-int	Response::_execCgi(std::string root)
+std::string	Response::_findCgiPath(std::string root)
 {
-	std::string extension = root.substr(root.find_last_of("."));
-	std::string binCgi = (*_env.nonUniqKey["cgi"][extension].begin());
-	int tabPipe[2];
-
-	pipe(tabPipe);
-	int pid = fork();
-	if (pid == 0)
-	{
-		//tmp shit just to compile, we'll figure out a better solution later
-		char **cmdArgs = new char*[3];
-
-		cmdArgs[0] = new char[binCgi.size() + 1];
-		binCgi.copy(cmdArgs[0], binCgi.size());
-		cmdArgs[0][binCgi.size()] = '\0';
-
-		cmdArgs[1] = new char[root.size() + 1];
-		root.copy(cmdArgs[1], root.size());
-		cmdArgs[1][root.size()] = '\0';
-
-		cmdArgs[2] = NULL;
-
-		dup2(tabPipe[1], STDOUT_FILENO);
-		close(tabPipe[0]);
-		close(tabPipe[1]);
-		execve(binCgi.c_str(), _var.data(), _envSys);
-		perror("exec fail");
-		exit(EXIT_FAILURE);
-		std::cout << "c" << std::endl;
-	}
-	else
-	{
-		close(tabPipe[1]);
-		wait(NULL);
-	}
-	return (tabPipe[0]);
+	std::string	extension = root.substr(root.find_last_of("."));
+	return (_env.nonUniqKey["cgi"][extension][0]);
 }
+
+
 
 void	Response::_execDel(void)
 {
@@ -268,21 +239,14 @@ void	Response::_execGet(void) {
 	std::ifstream file;
 	if (_isCgiFile(root))
 	{
-		int pipefd = _execCgi(root);
-		_readPipe(pipefd);
+		std::string cgiPath = _findCgiPath(root);
+		CgiHandler	CGI(_req, cgiPath, _types, _clientIp, _var);
+		_data = CGI.exec(root, cgiPath);
 		_types = "text/html";
 		return ;
 	}
 	file.open(root.c_str(), std::ios::binary);
 	_readFile(file);
-}
-
-void	Response::_readPipe(int pipeToRead)
-{
-	char c;
-	while (read(pipeToRead, &c, 1))
-		_data.push_back(c);
-	close(pipeToRead);
 }
 
 void	Response::_readFile(std::ifstream &file)
@@ -297,7 +261,7 @@ void	Response::_readFile(std::ifstream &file)
 }
 
 
-void	Response::execute() {
+void	Response::execute(void) {
 	std::string method = _req.getMethod();
 	// tmp shit lol
 	if (std::find(_env.uniqKey["allow_methods"].begin(), _env.uniqKey["allow_methods"].end(), method) != _env.uniqKey["allow_methods"].end())

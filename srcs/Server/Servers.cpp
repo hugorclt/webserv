@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/30 11:56:41 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/18 13:13:47 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/25 17:49:34 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ void	Servers::_createNewServer(std::string ip, std::string port)
 	socketInfo.sockfd = sockfd;
 	if (!sockfd)
 		throw ServersError("Socket creation failed");
-	
+	socketInfo.opt = 1;
 	if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &socketInfo.opt, sizeof(socketInfo.opt)) < 0) {
 	    close(sockfd);
         throw ServersError("Configuration failed");
@@ -111,4 +111,13 @@ Servers::sock_type	&Servers::getSockIpPort()
 std::string	Servers::findIpByFd(int fd)
 {
 	return (_sockIpPort[fd].ip);
+}
+
+std::string Servers::getClientIp(Servers::socket_t &sock, int clientFd)
+{
+	//WTFFFFFF ?????!!!!! CLEAN THIS SHIT NEVER
+	socklen_t len = 0;
+	if (getpeername(clientFd, (struct sockaddr *)&(sock.address), &len) == -1)
+		throw std::bad_alloc(); // tres adapte
+	return (std::string(inet_ntoa(sock.address.sin_addr)));
 }

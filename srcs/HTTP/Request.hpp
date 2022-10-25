@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/21 10:25:37 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/25 13:59:52 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/25 14:51:00 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,7 @@ class Request {
 		std::string		getMethod(void) const;
 		std::string		getTarget(void) const;
 		std::string		getVersion(void) const;
+		std::vector<char>	getBody(void) const;
 };
 
 

@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/21 11:47:56 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/25 14:04:17 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/25 17:24:34 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,12 +14,14 @@
 #include "webserv.hpp"
 #include "Request.hpp"
 #include "ConfigParser.hpp"
+#include "CgiHandler.hpp"
+
 
 #define NB_MIME 66
 
 class Response {
 	private:
-		ConfigParser::Location	&_env;
+		ConfigParser::Location	_env;
 		Request				&_req;
 		char				**_envSys;
 		std::vector<char>	_data;
@@ -27,7 +29,8 @@ class Response {
 		std::string			_status;
 		std::string			_header;
 		std::string			_types;
-		std::vector<char *> _var;
+		std::vector<std::string> _var;
+		std::string			_clientIp;
 
 		/*static*/ std::map<std::string, std::string>			_mimeTypes;
 		/*static*/ void											init_mimeTypes(void);
@@ -47,18 +50,12 @@ class Response {
 		void				_setError(std::string code);
 		bool				_checkFile(std::string filename, int isErrorFile);
 		void				_readPipe(int pipeToRead);
-		
-
-
-
-
-
-
+		std::string			_findCgiPath(std::string root);
 
 
 	public:
 	
-		Response(ConfigParser::Location &env, Request &req, char **envSys);
+		Response(ConfigParser::Location env, Request &req, std::string clientIp);
 
 
 		void	constructData(void);

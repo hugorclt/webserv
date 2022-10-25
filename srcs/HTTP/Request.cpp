@@ -126,3 +126,7 @@ std::string	Request::getMethod(void) const {
 std::string	Request::getVersion(void) const {
 	return (_version);
 }
+
+std::vector<char>	Request::getBody(void) const {
+	return (_body);
+}
