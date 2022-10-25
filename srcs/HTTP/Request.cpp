@@ -12,29 +12,18 @@
 
 #include "Request.hpp"
 
-// const std::map<std::string, void(Request::*)(std::string &)> Request::_splitTable {
-// 	{"base", &Request::_basicSplit},
-// 	{"sec-ch-ua", &Request::_secSplit},
-// 	{"User-Agent", &Request::_userSplit},
-// 	{"Accept", &Request::_acceptSplit}
-// };
-
 Request::Request(std::string &req)
 {
 	std::vector<std::string> request = split(req, "\r\n");
 
 	_parseFirstLine(request);
 	std::vector<std::string>::iterator itReq = request.begin() + 1;
-	for (itReq; itReq != request.end() && *itReq != "\r\n"; itReq++)
+	for (; itReq != request.end() && *itReq != "\r\n"; itReq++)
 	{
 		_basicSplit(*itReq);
-		// if (_splitTable.find(key) == _splitTable.end())
-		// 	(this->*(_splitTable.find("base")->second))(*itReq);
-		// else
-		// 	(this->*(_splitTable.find(key)->second))(*itReq);
 	}
 
-	for (itReq; itReq != request.end(); itReq++)
+	for (; itReq != request.end(); itReq++)
 	{
 		for (std::string::iterator itLine = itReq->begin(); itLine != itReq->end(); itLine++)
 			_body.push_back(*itLine);
@@ -97,7 +86,7 @@ void	Request::_basicSplit(std::string &line)
 	{
 		value.push_back(lineSplited[2]);
 	}
-	_header.insert({key, value});
+	_header.insert(std::make_pair(key, value));
 }
 
 // void	Request::_acceptSplit(std::string &line)

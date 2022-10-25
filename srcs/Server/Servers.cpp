@@ -12,6 +12,8 @@
 
 #include "Servers.hpp"
 
+#include <cstdlib>
+
 void	Servers::_createNewServer(std::string ip, std::string port)
 {
 	socket_t	socketInfo;
@@ -38,7 +40,7 @@ void	Servers::_createNewServer(std::string ip, std::string port)
 	    close(sockfd);
 		throw ServersError("binding socket failed");
 	}
-	_sockIpPort.insert({sockfd, socketInfo});
+	_sockIpPort.insert(std::make_pair(sockfd, socketInfo));
 }
 
 void    Servers::_listenConnection(void)

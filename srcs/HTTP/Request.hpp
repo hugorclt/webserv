@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/21 10:25:37 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/20 15:58:08 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/25 13:59:52 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 
 class Request {
 	public:
-		typedef std::map<std::string, std::vector<std::string>> request_type;
+		typedef std::map< std::string, std::vector<std::string> > request_type;
 		
 	private:
 		static const std::map<std::string, void(Request::*)(std::string &)> _splitTable;
@@ -40,11 +40,10 @@ class Request {
 		~Request();
 
 		request_type				getData(void) const;
-		std::vector<std::string>	&getVar(void) ;
+		std::vector<std::string>	&getVar(void);
 		std::string		getMethod(void) const;
 		std::string		getTarget(void) const;
 		std::string		getVersion(void) const;
-
 };
 
 

@@ -1,2 +1,7 @@
 *.o
 webserv
+.ccls-cache
+.vscode
+compile_commands.json
+.cache
+*.plist

@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/18 12:57:12 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/22 21:08:26 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/25 14:23:21 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,15 +40,15 @@ ConfigParser::Location	getEnvFromTarget(std::string target, ConfigParser::Server
 	for (std::vector<std::string>::reverse_iterator	rit = splitedTarget.rbegin(); rit != splitedTarget.rend(); rit++)
 	{
 		std::string	currLoc;
-		for (std::vector<std::string>::iterator it = splitedTarget.begin(); std::reverse_iterator(it) != rit; it++)
+		for (std::vector<std::string>::iterator it = splitedTarget.begin(); std::reverse_iterator< std::vector<std::string>::iterator >(it) != rit; it++)
 			currLoc += "/" + *it;
 		if (serv.location.count(currLoc))
 		{
-			res.uniqKey.insert({"_rootToDel_", {currLoc}});
+			res.uniqKey.insert(std::make_pair("_rootToDel_", std::vector<std::string> (1, currLoc)));
 			res.insert(serv.location[currLoc]);
 		}
 	}
-	res.uniqKey.insert({"_rootToDel_", {""}});
+	res.uniqKey.insert(std::make_pair("_rootToDel_", std::vector<std::string> (1, "")));
 	res.insert(serv.location["/"]);
 	return (res);
 }

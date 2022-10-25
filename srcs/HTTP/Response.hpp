@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/21 11:47:56 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/23 12:51:15 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/25 14:04:17 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,8 +19,8 @@
 
 class Response {
 	private:
-		Request				&_req;
 		ConfigParser::Location	&_env;
+		Request				&_req;
 		char				**_envSys;
 		std::vector<char>	_data;
 		std::string			_code;
@@ -29,9 +29,12 @@ class Response {
 		std::string			_types;
 		std::vector<char *> _var;
 
-		const static std::map<std::string, std::string>	_mimeTypes;
-		const static std::map<std::string, void(Response::*)()> _methodsFunction;
-		std::string			_getDate(void);
+		/*static*/ std::map<std::string, std::string>			_mimeTypes;
+		/*static*/ void											init_mimeTypes(void);
+		/*static*/ std::map<std::string, void(Response::*)()>	_methodsFunction;
+		/*static*/ void											init_methodsFunction(void);
+
+		std::string	_getDate(void);
 		std::vector<char>	_getDefaultErrorPage(void);
 		void				_setType(std::string url);
 		bool				_isBinaryFile(std::string filePath);

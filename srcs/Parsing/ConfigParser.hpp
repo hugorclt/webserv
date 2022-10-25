@@ -11,9 +11,14 @@
 /* ************************************************************************** */
 
 #pragma once
-#include "webserv.hpp"
 
-#define MAX_PORT	65535
+# include <vector>
+# include <map>
+# include <set>
+# include <string>
+
+//tmp
+# include <iostream>
 
 class ConfigParser {
 	private:
@@ -21,15 +26,15 @@ class ConfigParser {
 		typedef std::vector<std::string>::iterator					fileIt_type;
 		typedef std::pair<lineIt_type, lineIt_type>					lineRange_type;
 		typedef std::pair<fileIt_type, fileIt_type>					fileRange_type;
-		typedef std::pair<std::string, std::vector<std::string>>	keyValues_type;
+		typedef std::pair< std::string, std::vector<std::string> >	keyValues_type;
 
 		
 	public:
 
 		struct Location
 		{
-			typedef std::map<std::string, std::map<std::string, std::set<std::string>>>	nonUniqKey_type; // Usage Ex : Conf._data[0].locations.nonUniqKey["error_pages"]["404"] -> ./404.html
-			typedef std::map<std::string, std::set<std::string>>						uniqKey_type; // Usage Ex : Conf_data[0].location.uniqKey["root"] -> ./var/srv
+			typedef std::map< std::string, std::map< std::string, std::vector<std::string> > >	nonUniqKey_type;
+			typedef std::map< std::string, std::vector<std::string> >							uniqKey_type;
 			
 			nonUniqKey_type	nonUniqKey;
 			uniqKey_type	uniqKey;
@@ -50,7 +55,7 @@ class ConfigParser {
 
 		struct Server
 		{
-			typedef std::map<std::string, std::set<std::string>>	listen_type;
+			typedef std::map< std::string, std::set<std::string> >	listen_type;
 			typedef std::set<std::string>							server_name_type;
 			typedef std::map<std::string, Location>					location_type;
 
@@ -68,14 +73,26 @@ class ConfigParser {
 			{
 				KeyType						kt;
 				void						(*func)(keyValues_type &);
-				int							maxParams;
+				size_t						maxParams;
 				std::set<std::string>		validParams;
+
+				raw(void) {};
+
+				raw(const KeyType &kt, void (*func)(keyValues_type &), size_t maxParams, std::string validParamsTab[], size_t validParamsSize)
+				: kt(kt), func(func), maxParams(maxParams), validParams(validParamsTab, validParamsTab + validParamsSize) {};
+
+				raw(const KeyType &kt, void (*func)(keyValues_type &), size_t maxParams)
+				: kt(kt), func(func), maxParams(maxParams) {};
 			};
 
-			typedef std::map<std::string, raw>					data_type;
+			typedef std::map<std::string, raw>	data_type;
 
-			const static data_type		_data;
-			const static Location		_defaultValues;
+			static data_type	_data;
+			static void			init_data(void);
+
+			static Location		_defaultValues;
+			static void			init_defaultValues(void);
+
 			const static std::string	_whitespacesSet;
 			const static std::string	_lineBreakSet;
 			const static std::string	_commentSet;
@@ -94,7 +111,7 @@ class ConfigParser {
 	public:
 
 		typedef std::vector<Server> 						data_type;
-		typedef std::map<std::string, std::vector<std::string>>	map_type;
+		typedef std::map< std::string, std::vector<std::string> >	map_type;
 		
 	private:
 		data_type	_data;
@@ -116,14 +133,11 @@ class ConfigParser {
 		static void	_checkBodySize(keyValues_type &keyValues);
 		static void	_checkCgi(keyValues_type &keyValues);
 		static void	formatListen(keyValues_type &keyValues);
-		/*
-		static bool	_checkListen(std::vector<std::string> &vec);
-		bool		_checkIpHost(void);
-		*/
 
 		//test
 
 		static void	_printConfigParser(const data_type &data);
+		std::string	_color(std::string line, std::string word);
 		
 	public:
 		ConfigParser(char *params);
@@ -134,10 +148,17 @@ class ConfigParser {
 		class ParsingError: public std::exception {
 			private:
 				std::string	_error;
+				std::string	_word;
 			public:
-				ParsingError(std::string error) : _error(error) {};
-				virtual const char *what() const throw() {
-					return (_error.c_str());
-				}
+				ParsingError(const std::string &error, const std::string &word = std::string())
+				: _error(error), _word(word) {}
+
+				virtual ~ParsingError(void) throw() {}
+
+				virtual const char *what() const throw()
+				{ return (_error.c_str()); }
+
+				std::string	word(void)
+				{ return (_word); }
 		};
 };

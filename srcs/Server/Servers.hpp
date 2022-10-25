@@ -11,15 +11,17 @@
 /* ************************************************************************** */
 
 #pragma once
-#include <vector>
-#include <string>
-#include <iostream>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <unistd.h>
-#include <arpa/inet.h>
-#include <fcntl.h>
-#include "ConfigParser.hpp"
+
+# include "ConfigParser.hpp"
+
+# include <vector>
+# include <string>
+# include <iostream>
+# include <sys/socket.h>
+# include <netinet/in.h>
+# include <unistd.h>
+# include <arpa/inet.h>
+# include <fcntl.h>
 
 class Servers {
 	public:
@@ -60,5 +62,6 @@ class Servers {
 				virtual const char *what() const throw() {
 					return (_error.c_str());
 				}
+				virtual ~ServersError(void) throw() {};
 		};
 };
