@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/18 12:57:12 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/25 17:51:41 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/26 13:34:47 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,59 +74,69 @@ int main(int ac, char **av)
 			Servers serverList(configServers);
 			IOpoll	epoll(serverList);
 
-
+			std::map<int, int>	clientList;
 		/* ----------------------------- Server Creation ---------------------------- */
-			while (42) {
+			while (42) 
+			{
 				try 
 				{
-					int	serverContacted;
-					
-					if (epoll_wait(epoll.getEpollfd(), epoll.getEvents(), MAX_EVENTS, -1) != -1)
+					int numberFdReady = epoll_wait(epoll.getEpollfd(), epoll.getEvents(), 1, -1);
+					std::cout << numberFdReady << std::endl;
+					if (numberFdReady == -1)
+						break; //error handle
+					for (int i = 0; i < numberFdReady; i++)
 					{
-						int	index = 0;
-						int	clientFd = epoll.getEvents()[index].data.fd;
-						
-						for (index = 0; index < MAX_EVENTS; index++)
+						int	clientSocket;
+						int	fdTriggered = epoll.getEvents()[i].data.fd;
+						Servers::sock_type::iterator sockTarget = serverList.getSocketByFd(fdTriggered);
+						if (sockTarget != serverList.getSockIpPort().end())
 						{
-							int	newSocket;
-							Servers::sock_type::iterator sockTarget = serverList.getSocketByFd(clientFd);
-							if (sockTarget != serverList.getSockIpPort().end())
+							clientSocket = serverList.acceptSocket(sockTarget->second);
+							epoll.addFd(clientSocket);
+							std::cout << "new connection, client: " << clientSocket << " server: " << fdTriggered << std::endl;
+							clientList.insert(std::make_pair(clientSocket, fdTriggered));
+						}
+						else
+						{
+							std::map<int, int>::iterator pairContacted = clientList.find(fdTriggered);
+							if (pairContacted == clientList.end())
 							{
-								newSocket = serverList.acceptSocket(sockTarget->second);
-								serverContacted = clientFd;
-								epoll.addFd(newSocket);
-								break;
+								std::cerr << "error pair not found" << std::endl;
+								continue ;
 							}
-							else
+							char	buffer[1024];
+							int nb_bytes = recv(pairContacted->first, buffer, 1024, 0);
+							buffer[nb_bytes] = 0;
+							if (nb_bytes == -1)
 							{
-								char	buffer[1024] = { 0 };
-								int		nb_bytes = recv(clientFd, buffer, 1024, 0);
-								if (nb_bytes)
-								{
-									std::string str(buffer);
-									std::cout << str << std::endl;
-									Request	req(str);
-									ConfigParser::Server server = findServ(req, serverContacted, serverList, configServers.getData());
-									ConfigParser::Location	env = getEnvFromTarget(req.getTarget(), server);
+								std::cerr << "throw error here" << std::endl;
+								exit(EXIT_FAILURE);
+							}
+							else if (nb_bytes)
+							{
+								std::cout << "new request, client: " << pairContacted->first << " server: " << pairContacted->second << std::endl;
+								std::string str(buffer);
+								std::cout << str << std::endl; // display request
 
-									Response	res(env, req, serverList.getClientIp(sockTarget->second, clientFd));
-									res.execute();
-									res.constructData();
-									res.sendData(clientFd);
-								}
-								close(newSocket);
-								break;
+								Request	req(str);
+								ConfigParser::Server server = findServ(req, pairContacted->second, serverList, configServers.getData());
+								ConfigParser::Location	env = getEnvFromTarget(req.getTarget(), server);
+								Response	res(env, req, serverList.getClientIp(sockTarget->second, pairContacted->first));
+								res.execute();
+								res.constructData();
+								res.sendData(pairContacted->first);
 							}
+							close(pairContacted->first);
+							clientList.erase(pairContacted);
 						}
 					}
-				} catch (std::exception &e) {
+				} 
+				catch (std::exception &e)
+				{
 					std::clog << "error: not fatal: server is listening" << std::endl;
 					std::cerr << e.what() << std::endl;
 				}
 			}
-
-
-
 		} catch (std::exception &e) {
 			std::cerr << e.what() << std::endl;
 			return (EXIT_FAILURE);
@@ -134,3 +144,40 @@ int main(int ac, char **av)
 				
 	}
 }
+
+					// if (epoll_wait(epoll.getEpollfd(), epoll.getEvents(), 1, -1) != -1)
+					// {
+					// 	int	newSocket;
+					// 	if (sockTarget != serverList.getSockIpPort().end())
+					// 	{
+					// 		newSocket = serverList.acceptSocket(sockTarget->second);
+					// 		epoll.addFd(newSocket);
+					// 		std::cout << "new connection, client: " << newSocket << " server: " << clientFd << std::endl;
+					// 		clientList.insert(std::make_pair(newSocket, clientFd));
+					// 		break;
+					// 	}
+					// 	else
+					// 	{
+					// 		std::map<int, int>::iterator clientServer = clientList.find(clientFd);
+					// 		if (clientServer == clientList.end())
+					// 			break;
+					// 		char	buffer[1024] = { 0 };
+					// 		int		nb_bytes = recv(clientServer->first, buffer, 1024, 0);
+					// 		if (nb_bytes)
+					// 		{
+					// 			std::cout << "new request, client: " << clientServer->first << " server: " << clientServer->second << std::endl;
+					// 			std::string str(buffer);
+					// 			//std::cout << str << std::endl; // display request
+					// 			Request	req(str);
+					// 			ConfigParser::Server server = findServ(req, clientServer->second, serverList, configServers.getData());
+					// 			ConfigParser::Location	env = getEnvFromTarget(req.getTarget(), server);
+					// 			Response	res(env, req, serverList.getClientIp(sockTarget->second, clientServer->first));
+					// 			res.execute();
+					// 			res.constructData();
+					// 			res.sendData(clientServer->first);
+					// 		}
+					// 		clientList.erase(clientServer);
+					// 		close(newSocket);
+					// 		break;
+					// 	}
+					// }

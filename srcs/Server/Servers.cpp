@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/30 11:56:41 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/25 17:49:34 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/26 11:44:55 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,14 +87,12 @@ Servers::sock_type::iterator Servers::getSocketByFd(int fd)
 int	Servers::acceptSocket(Servers::socket_t sock)
 {
 	int newSocket = accept(sock.sockfd, (struct sockaddr *)&sock.address, (socklen_t *)&sock.addrLen);
-	std::cout << "new connection accepted, new socket: " << newSocket << std::endl;
 	if (newSocket < 0)
 	{
 		close(sock.sockfd);
 		throw ServersError("Accept failed");
 	}
 	int flag = fcntl(sock.sockfd, F_SETFL, O_NONBLOCK);
-	std::cout << "socket set on non-blocking" << std::endl;
 	if (flag == -1)
 	{
 		close(sock.sockfd);
