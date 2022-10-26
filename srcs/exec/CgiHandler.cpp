@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/25 14:39:45 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/25 17:48:36 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/26 15:28:20 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,8 @@ void    CgiHandler::_initEnv(Request &req, std::string path, std::string MIMEtyp
 {
     char    *buf;
     buf = getcwd(NULL, BUF_SIZE);
+    std::vector<std::string>    envVar = req.getEnvVar();
+    
     if (!buf)
         throw std::bad_alloc();
     if (path[0] == '.')
@@ -46,6 +48,8 @@ void    CgiHandler::_initEnv(Request &req, std::string path, std::string MIMEtyp
     this->_env.push_back("PATH_TRANSLATED=" + std::string(buf) + path);
     this->_env.push_back("QUERY_STRING=" + _constructQuery(req.getVar()));
     this->_env.push_back("REMOTE_ADDR=" + clientIp);
+    this->_env.push_back("CONTENT_LENGTH" + req.getBody().size());
+    this->_env.insert(_env.end(), envVar.begin(), envVar.end());    
 }
 
 std::vector<char>	CgiHandler::exec(std::string root, std::string binCgi)

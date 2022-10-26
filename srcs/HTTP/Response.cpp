@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/11 15:23:33 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/26 12:08:34 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/26 15:29:24 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,7 +99,7 @@ void	Response::init_methodsFunction(void)
 	{
 		std::make_pair("GET", &Response::_execGet),
 		std::make_pair("POST", &Response::_execGet),
-		std::make_pair("DELETE", &Response::_execGet),
+		std::make_pair("DELETE", &Response::_execDel),
 	};
 	_methodsFunction.insert(methodsFunction, methodsFunction + SIZEOF(methodsFunction));
 }
@@ -264,6 +264,7 @@ void	Response::_readFile(std::ifstream &file)
 void	Response::execute(void) {
 	std::string method = _req.getMethod();
 	// tmp shit lol
+
 	if (std::find(_env.uniqKey["allow_methods"].begin(), _env.uniqKey["allow_methods"].end(), method) != _env.uniqKey["allow_methods"].end())
 	{
 		(this->*(_methodsFunction.find(method)->second))();

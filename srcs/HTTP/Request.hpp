@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/21 10:25:37 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/25 20:49:29 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/26 15:57:11 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,15 +24,20 @@ class Request {
 		std::string					_target;
 		std::string					_version;
 		std::vector<char>			_body;
-		std::vector<std::string>	_var;
+		std::vector<std::string>	_argvVar;
+		std::vector<std::string>	_envVar;
 
 		
 		void	_basicSplit(std::string &line);
 		void	_secSplit(std::string &line);
 		void	_userSplit(std::string &line);
 		void	_acceptSplit(std::string &line);
-		void 	_parseFirstLine(std::vector<std::string> &request);
+		void 	_parseFirstLine(std::string &request);
 		void	_printValue(void);
+		void	_parseHeader(std::string &body);
+		void	_parseBody(std::string &body);
+
+
 
 
 	public:
@@ -45,6 +50,7 @@ class Request {
 		std::string		getTarget(void) const;
 		std::string		getVersion(void) const;
 		std::vector<char>	getBody(void) const;
+		std::vector<std::string>	&getEnvVar(void);
 };
 
 

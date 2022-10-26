@@ -12,22 +12,44 @@
 
 #include "Request.hpp"
 
-Request::Request(std::string &req)
+void	Request::_parseHeader(std::string &header)
 {
-	std::vector<std::string> request = split(req, "\r\n");
-
-	_parseFirstLine(request);
-	std::vector<std::string>::iterator itReq = request.begin() + 1;
-	for (; itReq != request.end() && *itReq != "\r\n"; itReq++)
+	std::vector<std::string>	vecHeader = split(header, "\r\n");
+	std::vector<std::string>::iterator itReq = vecHeader.begin();
+	for (; itReq != vecHeader.end(); itReq++)
 	{
 		_basicSplit(*itReq);
 	}
+}
 
-	for (; itReq != request.end(); itReq++)
+void	Request::_parseBody(std::string &body)
+{
+	std::vector<std::string>			vecBody = split(body, "\r\n");
+	std::vector<std::string>::iterator	itReq = vecBody.begin();
+	for (; itReq != vecBody.end(); itReq++)
 	{
 		for (std::string::iterator itLine = itReq->begin(); itLine != itReq->end(); itLine++)
+		{
 			_body.push_back(*itLine);
+		}
+		if (_header["Content-Type"][0] == "application/x-www-form-urlencoded")
+		{
+			std::vector<std::string>	tmp = split(*itReq, "&");
+			_envVar.insert(_envVar.end(), tmp.begin(), tmp.end());
+		}
 	}
+}
+
+Request::Request(std::string &req)
+{
+	std::string firstLine = req.substr(0, req.find("\r\n"));
+	std::string header = req.substr(0, req.find("\r\n\r\n"));
+	std::string body = req.substr(req.find("\r\n\r\n"), req.size() - 1);
+
+	header.erase(0, header.find("\r\n"));
+	_parseFirstLine(firstLine);
+	_parseHeader(header);
+	_parseBody(body);
 	//_printValue();
 }
 
@@ -35,9 +57,9 @@ Request::~Request(void) {
 
 }
 
-void Request::_parseFirstLine(std::vector<std::string> &request)
+void Request::_parseFirstLine(std::string &request)
 {
-	std::vector<std::string> line = split(request[0], " ");
+	std::vector<std::string> line = split(request, " ");
 	_method = line[0];
 	_version = line[2];
 	size_t pos = line[1].find_first_of("?");
@@ -47,7 +69,7 @@ void Request::_parseFirstLine(std::vector<std::string> &request)
 	if (pos == line[1].length())
 		pos--;
 	std::string var = line[1].substr(pos + 1, line[1].length());
-	_var = split(var, "&");
+	_argvVar = split(var, "&");
 }
 
 void	Request::_printValue(void)
@@ -57,7 +79,12 @@ void	Request::_printValue(void)
 		<< _target << std::endl
 		<< _version << std::endl;
 	std::cout << "----------var-----------" << std::endl;
-	for (std::vector<std::string>::iterator it = _var.begin(); it != _var.end(); it++)
+	for (std::vector<std::string>::iterator it = _argvVar.begin(); it != _argvVar.end(); it++)
+	{
+		std::cout << *it << std::endl;
+	}
+	std::cout << "----------envVar-----------" << std::endl;
+	for (std::vector<std::string>::iterator it = _envVar.begin(); it != _envVar.end(); it++)
 	{
 		std::cout << *it << std::endl;
 	}
@@ -74,6 +101,7 @@ void	Request::_printValue(void)
 	{
 		std::cout << *it;
 	}
+	std::cout << std::endl;
 }
 
 void	Request::_basicSplit(std::string &line)
@@ -89,26 +117,8 @@ void	Request::_basicSplit(std::string &line)
 	_header.insert(std::make_pair(key, value));
 }
 
-// void	Request::_acceptSplit(std::string &line)
-// {
-// 	std::vector<std::string> lineSplited = split(line, ":");
-
-// 	std::string key = lineSplited[0];
-// 	std::vector<std::string> value = split(lineSplited[1], ",");
-// 	_header.insert({key, value});
-// }
-
-// void	Request::_Split(std::string &line)
-// {
-// 	std::vector<std::string> lineSplited = split(line, ":");
-
-// 	std::string key = lineSplited[0];
-// 	std::vector<std::string> value = split(lineSplited[1], ",");
-// 	_header.insert({key, value});
-// }
-
 std::vector<std::string>	&Request::getVar(void) {
-	return (_var);
+	return (_argvVar);
 }
 
 Request::request_type	Request::getData(void) const {
@@ -129,4 +139,8 @@ std::string	Request::getVersion(void) const {
 
 std::vector<char>	Request::getBody(void) const {
 	return (_body);
+}
+
+std::vector<std::string>	&Request::getEnvVar(void) {
+	return (_envVar);
 }
