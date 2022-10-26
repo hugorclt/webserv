@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/25 14:39:45 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/26 15:28:20 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/26 16:55:44 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,7 @@ void    CgiHandler::_initEnv(Request &req, std::string path, std::string MIMEtyp
     char    *buf;
     buf = getcwd(NULL, BUF_SIZE);
     std::vector<std::string>    envVar = req.getEnvVar();
+    std::vector<char> body = req.getBody();
     
     if (!buf)
         throw std::bad_alloc();
@@ -48,8 +49,19 @@ void    CgiHandler::_initEnv(Request &req, std::string path, std::string MIMEtyp
     this->_env.push_back("PATH_TRANSLATED=" + std::string(buf) + path);
     this->_env.push_back("QUERY_STRING=" + _constructQuery(req.getVar()));
     this->_env.push_back("REMOTE_ADDR=" + clientIp);
-    this->_env.push_back("CONTENT_LENGTH" + req.getBody().size());
     this->_env.insert(_env.end(), envVar.begin(), envVar.end());    
+}
+
+void    ft_print_tab(char **env)
+{
+    int i;
+
+    i = 0;
+    while (env[i])
+    {
+        std::cerr << env[i] << std::endl;
+        i++;
+    }
 }
 
 std::vector<char>	CgiHandler::exec(std::string root, std::string binCgi)
@@ -67,7 +79,10 @@ std::vector<char>	CgiHandler::exec(std::string root, std::string binCgi)
         _var.insert(_var.begin(), root);
         _var.insert(_var.begin(), binCgi);
         char **var = _convertVecToChar(_var);
-        char **env = _convertVecToChar(_var);
+        char **env = _convertVecToChar(_env);
+        ft_print_tab(env);
+        std::cerr << "------------" << std::endl;
+        ft_print_tab(var);
 		execve(binCgi.c_str(), var, env);
 		perror("exec fail");
 		exit(EXIT_FAILURE);
