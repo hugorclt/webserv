@@ -113,6 +113,8 @@ static void checkIp(std::vector<std::string> ip) // tmp
 		throw ConfigParser::ParsingError("listen, ip need to be 4 numbers separated by '.'");
 	for (std::vector<std::string>::iterator it = ip.begin(); it < ip.end(); it++)
 	{
+		if (!isDigits(*it))
+			throw ConfigParser::ParsingError("listen, ip need to be 4 numbers separated by '.'", *it);
 		if (atoi(it->c_str()) < 0 || atoi(it->c_str()) > 255)
 			throw ConfigParser::ParsingError("listen, ip numbers need to be between 0 and 255", *it);
 	}
