@@ -109,10 +109,8 @@ void	Response::init_methodsFunction(void)
 /* -------------------------------------------------------------------------- */
 
 Response::Response(ConfigParser::Location env, Request &req, std::string clientIp)
-: _env(env), _req(req)
+: _env(env), _req(req), _var(req.getVar()), _clientIp(clientIp)
 {
-	_clientIp = clientIp;
-	_var = _req.getVar();
 	init_mimeTypes();
 	init_methodsFunction();
 }
@@ -124,8 +122,7 @@ Response::Response(ConfigParser::Location env, Request &req, std::string clientI
 std::vector<char>	Response::_getDefaultErrorPage(void)
 {
 	std::string	page("<center><h2> " + _code + " " + _status + " </h2></center>");
-	std::vector<char>	res(page.begin(), page.end());
-	return (res);
+	return (std::vector<char> (page.begin(), page.end()));
 }
 
 std::string	Response::_getDate(void) {
@@ -142,10 +139,10 @@ std::string	Response::_getDate(void) {
 void	Response::_setError(std::string code)
 {
 	_code = code;
-	_status = (*_env.nonUniqKey["return"][_code].begin());
+	_status = _env.nonUniqKey["return"][_code][0];
 	if (_env.nonUniqKey["error_page"].count(code) && _checkFile(*(_env.nonUniqKey["error_page"][_code].begin()), 1) == false)
 	{
-		std::ifstream file((*(_env.nonUniqKey["error_page"][_code].begin())).c_str());
+		std::ifstream file(_env.nonUniqKey["error_page"][_code][0].c_str());
 		_readFile(file);
 	}
 	else
@@ -172,10 +169,10 @@ bool	Response::_checkFile(std::string filename, int isErrorFile)
 	}
 	if (S_ISDIR(buf.st_mode))
 	{
-		if ((*_env.uniqKey["auto_index"].begin()) == "on")
+		if (_env.uniqKey["auto_index"][0] == "on")
 		{
 			_code = "200";
-			_status = (*_env.nonUniqKey["return"][_code].begin());
+			_status = _env.nonUniqKey["return"][_code][0];
 			_data = listingFile(filename);
 			_types = "text/html";
 		}
@@ -191,24 +188,16 @@ bool	Response::_checkFile(std::string filename, int isErrorFile)
 }
 
 bool Response::_isCgiFile(std::string root)
-{
-	std::string	extension = root.substr(root.find_last_of("."));
-	return (_env.nonUniqKey["cgi"].count(extension));
-}
+{ return (_env.nonUniqKey["cgi"].count(root.substr(root.rfind(".")))); }
 
 std::string	Response::_findCgiPath(std::string root)
-{
-	std::string	extension = root.substr(root.find_last_of("."));
-	return (_env.nonUniqKey["cgi"][extension][0]);
-}
-
-
+{ return (_env.nonUniqKey["cgi"][root.substr(root.rfind("."))][0]); }
 
 void	Response::_execDel(void)
 {
 	struct stat buf;
-	std::string filename = _req.getTarget().erase(0, (*(_env.uniqKey["_rootToDel_"].begin())).length());
-	filename = *(_env.uniqKey["root"].begin()) + filename;
+	std::string filename = _req.getTarget().erase(0, _env.uniqKey["_rootToDel_"][0].length());
+	filename = _env.uniqKey["root"][0] + filename;
 	
 	stat(filename.c_str(), &buf);
 	if (access(filename.c_str(), F_OK) != 0)
@@ -230,8 +219,8 @@ void	Response::_execDel(void)
 }
 
 void	Response::_execGet(void) {
-	std::string root = _req.getTarget().erase(0, (*(_env.uniqKey["_rootToDel_"].begin())).length());
-	root = *(_env.uniqKey["root"].begin()) + root;
+	std::string root = _req.getTarget().erase(0, _env.uniqKey["_rootToDel_"][0].length());
+	root = _env.uniqKey["root"][0] + root;
 
 	_setType(root);
 	if (_checkFile(root, 0))

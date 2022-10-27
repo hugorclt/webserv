@@ -116,6 +116,6 @@ std::string Servers::getClientIp(Servers::socket_t &sock, int clientFd)
 	//WTFFFFFF ?????!!!!! CLEAN THIS SHIT NEVER
 	socklen_t len = 0;
 	if (getpeername(clientFd, (struct sockaddr *)&(sock.address), &len) == -1)
-		throw std::bad_alloc(); // tres adapte
+		throw std::bad_alloc(); // tres adapte NON
 	return (std::string(inet_ntoa(sock.address.sin_addr)));
 }
