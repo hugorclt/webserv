@@ -43,9 +43,9 @@ void    CgiHandler::_initEnv(Request &req, std::string path, std::string MIMEtyp
         path.erase(path.begin());
     if (root[0] == '.')
         root.erase(root.begin());
-    this->_env.push_back("REDIRECT_STATUS=true");
+    this->_env.push_back("REDIRECT_STATUS=200");
     this->_env.push_back("GATEWAY_INTERFACE=CGI/1.1");
-    this->_env.push_back("HTTP_REQUEST_METHOD=" + req.getMethod());
+    this->_env.push_back("REQUEST_METHOD=" + req.getMethod());
     this->_env.push_back("CONTENT_LENGTH=" + to_string(req.getBody().size()));
 	if (header.find("Content-Type") != header.end())
     	this->_env.push_back("CONTENT_TYPE=" + header["Content-Type"][0]);
@@ -57,8 +57,8 @@ void    CgiHandler::_initEnv(Request &req, std::string path, std::string MIMEtyp
     // this->_env.push_back("PATH=" +  path);
     // this->_env.push_back("PATH_INFO=" + req.getTarget());
     // this->_env.push_back("PATH_TRANSLATED=" + std::string(buf) + path);
-    this->_env.push_back("QUERY_STRING=" + _constructQuery(req.getVar()));
-    this->_env.insert(_env.end(), envVar.begin(), envVar.end());
+    // this->_env.push_back("QUERY_STRING=" + _constructQuery(req.getVar()));
+    // this->_env.insert(_env.end(), envVar.begin(), envVar.end());
 }
 
 void    ft_print_tab(char **env)
@@ -79,8 +79,9 @@ void    CgiHandler::_writeToIn(Request &req, int pipeIn)
     
     for (std::vector<std::string>::iterator it = envVar.begin(); it != envVar.end(); it++)
     {
-        std::string toWrite(*it + " ");
-        write(pipeIn, toWrite.data(), it->size());
+		// dirty lovely ternary shit TERNARY MARRY ME !
+        std::string toWrite(*it + ((it + 1 != envVar.end()) ? "&" : ""));
+        write(pipeIn, toWrite.data(), toWrite.size());
     }
 }
 
@@ -92,6 +93,8 @@ std::vector<char>	CgiHandler::exec(Request &req, std::string root, std::string b
 
 	pipe(tabPipe);
 	pipe(tabVar);
+    _writeToIn(req, tabVar[1]);
+	close(tabVar[1]);
 	int pid = fork();
 	if (pid == 0)
 	{
@@ -100,7 +103,6 @@ std::vector<char>	CgiHandler::exec(Request &req, std::string root, std::string b
         close(tabPipe[0]);
 		close(tabPipe[1]);
 		close(tabVar[0]);
-		close(tabVar[1]);
         _var.insert(_var.begin(), root);
         _var.insert(_var.begin(), binCgi);
         char **var = _convertVecToChar(_var);
@@ -111,10 +113,8 @@ std::vector<char>	CgiHandler::exec(Request &req, std::string root, std::string b
 	}
 	else
 	{
-    	_writeToIn(req, tabVar[1]);
-		close(tabVar[0]);
-		close(tabVar[1]);
 		close(tabPipe[1]);
+		close(tabVar[0]);
 		wait(NULL);
 	}
 	return (_readPipe(tabPipe[0]));
