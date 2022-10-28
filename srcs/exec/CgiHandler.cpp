@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/25 14:39:45 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/28 13:31:49 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/28 16:58:41 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,7 @@ void    CgiHandler::_initEnv(Request &req, std::string path, std::string MIMEtyp
     char    *buf;
     buf = getcwd(NULL, BUF_SIZE);
     std::vector<std::string>    envVar = req.getEnvVar();
+	Request::request_type		header = req.getData();
     std::vector<char> body = req.getBody();
     
     if (!buf)
@@ -46,7 +47,10 @@ void    CgiHandler::_initEnv(Request &req, std::string path, std::string MIMEtyp
     this->_env.push_back("GATEWAY_INTERFACE=CGI/1.1");
     this->_env.push_back("HTTP_REQUEST_METHOD=" + req.getMethod());
     this->_env.push_back("CONTENT_LENGTH=" + to_string(req.getBody().size()));
-    this->_env.push_back("CONTENT_TYPE=application/x-www-form-urlencoded");
+	if (header.find("Content-Type") != header.end())
+    	this->_env.push_back("CONTENT_TYPE=" + header["Content-Type"][0]);
+	else
+	    this->_env.push_back("CONTENT_TYPE=" + MIMEtype);
     this->_env.push_back("SCRIPT_FILENAME=" + std::string(buf) + root);
     // this->_env.push_back("REMOTEaddr=" + clientIp);
     // this->_env.push_back("HTTP_REFERER=" + req.getTarget());
@@ -54,7 +58,7 @@ void    CgiHandler::_initEnv(Request &req, std::string path, std::string MIMEtyp
     // this->_env.push_back("PATH_INFO=" + req.getTarget());
     // this->_env.push_back("PATH_TRANSLATED=" + std::string(buf) + path);
     this->_env.push_back("QUERY_STRING=" + _constructQuery(req.getVar()));
-    // this->_env.insert(_env.end(), envVar.begin(), envVar.end());    
+    this->_env.insert(_env.end(), envVar.begin(), envVar.end());
 }
 
 void    ft_print_tab(char **env)
@@ -84,30 +88,32 @@ std::vector<char>	CgiHandler::exec(Request &req, std::string root, std::string b
 {
 	std::string extension = root.substr(root.find_last_of("."));
 	int tabPipe[2];
+	int	tabVar[2];
 
 	pipe(tabPipe);
+	pipe(tabVar);
 	int pid = fork();
 	if (pid == 0)
 	{
 		dup2(tabPipe[1], STDOUT_FILENO);
-		dup2(tabPipe[0], STDIN_FILENO);
+		dup2(tabVar[0], STDIN_FILENO);
         close(tabPipe[0]);
 		close(tabPipe[1]);
+		close(tabVar[0]);
+		close(tabVar[1]);
         _var.insert(_var.begin(), root);
         _var.insert(_var.begin(), binCgi);
         char **var = _convertVecToChar(_var);
         char **env = _convertVecToChar(_env);
-        ft_print_tab(env);
-        std::cerr << "------------" << std::endl;
-        ft_print_tab(var);
 		execve(binCgi.c_str(), var, env);
 		perror("exec fail");
 		exit(EXIT_FAILURE);
 	}
 	else
 	{
-        //if (req.getMethod() == "POST")
-        _writeToIn(req, tabPipe[1]);
+    	_writeToIn(req, tabVar[1]);
+		close(tabVar[0]);
+		close(tabVar[1]);
 		close(tabPipe[1]);
 		wait(NULL);
 	}
