@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/11 15:23:33 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/26 15:29:24 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/28 13:29:13 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -229,8 +229,8 @@ void	Response::_execGet(void) {
 	if (_isCgiFile(root))
 	{
 		std::string cgiPath = _findCgiPath(root);
-		CgiHandler	CGI(_req, cgiPath, _types, _clientIp, _var);
-		_data = CGI.exec(root, cgiPath);
+		CgiHandler	CGI(_req, cgiPath, _types, _clientIp, _var, root);
+		_data = CGI.exec(_req, root, cgiPath);
 		_types = "text/html";
 		return ;
 	}
