@@ -17,7 +17,7 @@
 #include "Request.hpp"
 #include "Response.hpp"
 #include <cstdlib>
-#include <signal.h>
+#include <csignal>
 
 ConfigParser::Server    selectServ(std::string ip, std::string port, std::string hostName, ConfigParser::data_type vecServs)
 {
