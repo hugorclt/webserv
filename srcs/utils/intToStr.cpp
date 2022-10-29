@@ -10,7 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "webserv.hpp"
+#include "utils.hpp"
+#include <sstream>
 
 std::string to_string(int nb) {
     std::ostringstream    stream;

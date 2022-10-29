@@ -16,7 +16,7 @@ NAME = webserv
 
 CXX = c++
 CXXFLAGS = -Wall -Wextra -Werror -std=c++98
-INCFLAGS = $(addprefix -I./, $(wildcard $(DIR_SRC)/*)) -I./includes
+INCFLAGS = $(addprefix -I./, $(wildcard $(DIR_SRC)/*))
 
 DIR_SRC = srcs
 DIR_OBJ = .obj

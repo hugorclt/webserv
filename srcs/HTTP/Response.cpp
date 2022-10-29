@@ -11,6 +11,12 @@
 /* ************************************************************************** */
 
 #include "Response.hpp"
+#include "utils.hpp"
+#include <fstream>
+#include <sys/stat.h>
+#include <sys/socket.h>
+#include <algorithm>
+#include <unistd.h>
 
 #define SIZEOF(arr) sizeof(arr) / sizeof(*arr)
 

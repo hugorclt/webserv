@@ -10,7 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "webserv.hpp"
+#include "utils.hpp"
+#include <sstream>
 
 std::vector<std::string> split_charset(std::string toSplit, std::string charset)
 {

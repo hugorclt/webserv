@@ -11,6 +11,8 @@
 /* ************************************************************************** */
 
 #include "IOpoll.hpp"
+#include <cstdlib>
+#include <stdio.h>
 
 IOpoll::IOpoll(Servers servers) {
 	this->ev.events = EPOLLIN;

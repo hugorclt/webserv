@@ -11,6 +11,13 @@
 /* ************************************************************************** */
 
 #include "CgiHandler.hpp"
+#include "utils.hpp"
+#include <unistd.h>
+#include <iostream>
+#include <cstdlib>
+#include <errno.h>
+#include <stdio.h>
+#include <sys/wait.h>
 
 CgiHandler::CgiHandler(Request &req, std::string path,std::string MIMEtype, std::string clientIp, std::vector<std::string> var, std::string root)
 {

@@ -11,6 +11,8 @@
 /* ************************************************************************** */
 
 #include "Request.hpp"
+#include "utils.hpp"
+#include <iostream>
 
 void	Request::_parseHeader(std::string &header)
 {

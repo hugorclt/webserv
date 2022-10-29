@@ -11,7 +11,10 @@
 /* ************************************************************************** */
 
 #pragma once
-#include "webserv.hpp"
+
+# include <map>
+# include <string>
+# include <vector>
 
 class Request {
 	public:

@@ -11,7 +11,6 @@
 /* ************************************************************************** */
 
 #pragma once
-#include "webserv.hpp"
 #include "Request.hpp"
 #include "ConfigParser.hpp"
 #include "CgiHandler.hpp"

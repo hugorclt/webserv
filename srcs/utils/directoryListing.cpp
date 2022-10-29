@@ -10,7 +10,11 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "webserv.hpp"
+#include "utils.hpp"
+#include <vector>
+#include <string>
+#include <sys/types.h>
+#include <dirent.h>
 
 std::vector<std::string>	getDir(std::string path)
 {
@@ -51,8 +55,6 @@ std::vector<char>	listingFile(std::string realPath, std::string urlPath)
 	std::vector<char>			res;
 
 	
-	std::cout << "listing file realPath : " << realPath << std::endl;
-	std::cout << "listing file urlPath : " << urlPath << std::endl;
 	d = opendir(realPath.c_str());
 	if (d)
 	{

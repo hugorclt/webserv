@@ -10,12 +10,13 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "webserv.hpp"
 #include "ConfigParser.hpp"
+#include "utils.hpp"
 #include "IOpoll.hpp"
 #include "Servers.hpp"
 #include "Request.hpp"
 #include "Response.hpp"
+#include <cstdlib>
 #include <signal.h>
 
 ConfigParser::Server    selectServ(std::string ip, std::string port, std::string hostName, ConfigParser::data_type vecServs)
