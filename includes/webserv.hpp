@@ -62,5 +62,5 @@ std::string											getDate(void);
 std::string                                     	to_string(int nb);
 void												printMap(std::map< std::string, std::vector<std::string> > map);
 bool												isDigits(std::string &digits);
-std::vector<char>                               	listingFile(std::string root);
+std::vector<char>                               	listingFile(std::string realPath, std::string urlPath);
 std::vector<std::string>                            split_charset(std::string toSplit, std::string charset);

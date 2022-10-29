@@ -173,15 +173,12 @@ bool	Response::_checkFile(std::string filename, int isErrorFile)
 		{
 			_code = "200";
 			_status = _env.nonUniqKey["return"][_code][0];
-			_data = listingFile(filename);
+			std::cout << "_checkFile filename : " << filename << std::endl;
+			_data = listingFile(filename, _req.getTarget());
 			_types = "text/html";
 		}
-		else
-		{
-
-			if (isErrorFile == 0)
+		else if (isErrorFile == 0)
 				_setError("403");
-		}
 		return (true);
 	}
 	return (false);

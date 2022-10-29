@@ -33,15 +33,17 @@ std::vector<char>	createIndexDir(std::vector<std::string> listOfFiles, std::stri
 	std::string	html;
 	html.append("<h1>Index of \"" + path + "\"</h1>");
 	html.append("<ul>");
+	if (*path.rbegin() != '/')
+		path.push_back('/');
 	for (std::vector<std::string>::iterator it = listOfFiles.begin(); it != listOfFiles.end(); it++)
-		html.append("<li><a href=\"" + *it + "\">" + *it + "</a></li>");
+		html.append("<li><a href=\"" + path + *it + "\">" + *it + "</a></li>");
 	html.append("</ul>");
 		
 	std::vector<char>	res(html.begin(), html.end());
 	return (res);
 }
 
-std::vector<char>	listingFile(std::string root)
+std::vector<char>	listingFile(std::string realPath, std::string urlPath)
 {
 	DIR							*d;
 	struct dirent				*dir;
@@ -49,7 +51,9 @@ std::vector<char>	listingFile(std::string root)
 	std::vector<char>			res;
 
 	
-	d = opendir(root.c_str());
+	std::cout << "listing file realPath : " << realPath << std::endl;
+	std::cout << "listing file urlPath : " << urlPath << std::endl;
+	d = opendir(realPath.c_str());
 	if (d)
 	{
 		while ((dir = readdir(d)) != NULL)
@@ -58,6 +62,5 @@ std::vector<char>	listingFile(std::string root)
 		}
 		closedir(d);
 	}
-	res = createIndexDir(listOfFiles, root);
-	return(res);
+	return(createIndexDir(listOfFiles, urlPath));
 }
