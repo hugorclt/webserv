@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/30 11:56:41 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/26 11:44:55 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/30 16:08:53 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,10 +92,9 @@ int	Servers::acceptSocket(Servers::socket_t sock)
 		close(sock.sockfd);
 		throw ServersError("Accept failed");
 	}
-	int flag = fcntl(sock.sockfd, F_SETFL, O_NONBLOCK);
+	int flag = fcntl(newSocket, F_SETFL, O_NONBLOCK);
 	if (flag == -1)
 	{
-		close(sock.sockfd);
 		throw ServersError("fcntl failed");
 	}
 	return (newSocket);
