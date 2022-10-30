@@ -43,6 +43,7 @@ void	ConfigParser::Conf::init_data(void)
 		std::make_pair("allow_methods", raw(KT_UNIQ, NULL, 3, allow_methodsVP, SIZEOF(allow_methodsVP))),
 		std::make_pair("root",          raw(KT_UNIQ, NULL, 1)),
 		std::make_pair("index",         raw(KT_UNIQ, NULL, 1)),
+		std::make_pair("upload",        raw(KT_UNIQ, NULL, 1)),
 		std::make_pair("auto_index",    raw(KT_UNIQ, NULL, 1, auto_indexVP, SIZEOF(auto_indexVP))),
 
 		std::make_pair("cgi",           raw(KT_NON_UNIQ, &_checkCgi, 1)),
@@ -68,6 +69,7 @@ void	ConfigParser::Conf::init_defaultValues(void)
 		std::make_pair("403", std::vector<std::string> (1, "Forbidden")),
 		std::make_pair("404", std::vector<std::string> (1, "Not Found")),
 		std::make_pair("405", std::vector<std::string> (1, "Method Not Allowed")),
+		std::make_pair("413", std::vector<std::string> (1, "Payload Too Large")),
 	};
 
 	std::pair< std::string, std::map< std::string, std::vector<std::string> > >	nonUniqKey[] =
@@ -82,6 +84,7 @@ void	ConfigParser::Conf::init_defaultValues(void)
 	std::pair< std::string, std::vector<std::string> >	uniqKey[] =
 	{
 		std::make_pair("auto_index",    std::vector<std::string> (1, "off")),
+		std::make_pair("body_size",    std::vector<std::string> (1, "2000000")),
 		std::make_pair("allow_methods", std::vector<std::string> (allow_methods, allow_methods + SIZEOF(allow_methods))),
 	};
 	_defaultValues.uniqKey.insert(uniqKey, uniqKey + SIZEOF(uniqKey));

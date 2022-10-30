@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/11 15:23:33 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/28 13:29:13 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/30 12:19:12 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -250,6 +250,8 @@ void	Response::_readFile(std::ifstream &file)
 		_data.push_back(c);
 	}
 	file.close();
+	if (static_cast<int>(_data.size()) > atoi(_env.uniqKey["body_size"][0].c_str()))
+		_setError("413");
 }
 
 
