@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/21 11:47:56 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/25 17:24:34 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/30 17:47:44 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,7 @@ class Response {
 		std::vector<std::string> _var;
 		std::string			_clientIp;
 
+
 		/*static*/ std::map<std::string, std::string>			_mimeTypes;
 		/*static*/ void											init_mimeTypes(void);
 		/*static*/ std::map<std::string, void(Response::*)()>	_methodsFunction;
@@ -50,6 +51,8 @@ class Response {
 		bool				_checkFile(std::string filename, int isErrorFile);
 		void				_readPipe(int pipeToRead);
 		std::string			_findCgiPath(std::string root);
+		void				_uploadFile(void);
+		void				_writeFile(void);
 
 
 	public:
