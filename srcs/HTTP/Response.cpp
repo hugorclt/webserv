@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/11 15:23:33 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/30 12:19:12 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/30 13:05:54 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -219,6 +219,7 @@ void	Response::_execDel(void)
 		return ;
 	}
 	remove(filename.c_str());
+	_setError("200");
 }
 
 void	Response::_execGet(void) {
