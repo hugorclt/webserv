@@ -24,10 +24,36 @@ void	Request::_parseHeader(std::string &header)
 	}
 }
 
+bool	Request::_chunkedRequest(std::vector<std::string> &vecBody)
+{
+	request_type::iterator transferType = _header.find("Transfer-Encoding");
+
+	if (transferType != _header.end() && transferType->second[0] == "chunked")
+	{
+		for (std::vector<std::string>::iterator	itReq = vecBody.begin() ; itReq != vecBody.end(); itReq++)
+		{
+			if (itReq != vecBody.end() && (itReq - vecBody.begin()) % 2 == 0)
+				itReq++;
+			if (itReq == vecBody.end())
+				break;
+			for (std::string::iterator itLine = itReq->begin(); itLine != itReq->end(); itLine++)
+			{
+				_body.push_back(*itLine);
+			}
+		}
+		return (true);
+	}
+	else
+		return (false);
+}
+
 void	Request::_parseBody(std::string &body)
 {
 	std::vector<std::string>			vecBody = split(body, "\r\n");
 	std::vector<std::string>::iterator	itReq = vecBody.begin();
+
+	if (_chunkedRequest(vecBody) == true)
+		return ;
 	for (; itReq != vecBody.end(); itReq++)
 	{
 		for (std::string::iterator itLine = itReq->begin(); itLine != itReq->end(); itLine++)

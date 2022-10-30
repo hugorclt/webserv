@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/25 14:39:45 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/28 16:58:41 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/30 11:20:28 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,9 +115,11 @@ std::vector<char>	CgiHandler::exec(Request &req, std::string root, std::string b
         char **var = _convertVecToChar(_var);
         char **env = _convertVecToChar(_env);
 		execve(binCgi.c_str(), var, env);
+        delete []var;
+        delete []env;
 		perror("exec fail");
 		exit(EXIT_FAILURE);
-	}
+    }
 	else
 	{
 		close(tabPipe[1]);

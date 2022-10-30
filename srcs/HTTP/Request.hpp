@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/21 10:25:37 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/26 15:57:11 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/30 11:32:17 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ class Request {
 		void	_printValue(void);
 		void	_parseHeader(std::string &body);
 		void	_parseBody(std::string &body);
-
+		bool	_chunkedRequest(std::vector<std::string> &vecBody);
 
 
 
