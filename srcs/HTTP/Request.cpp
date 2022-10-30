@@ -40,8 +40,9 @@ void	Request::_unchunkedRequest(std::vector<char> &body)
 void	Request::_parseFileName(std::vector<char> &body)
 {
 	std::vector<char>::iterator	fileNameIt = _vectorCharSearch(body.begin(), body.end(), "filename=\"");
-	std::string _uploadFileName (fileNameIt, _vectorCharSearch(fileNameIt, body.end(), "\""));
+	std::string test (fileNameIt, _vectorCharSearch(fileNameIt, body.end(), "\"") - 1);
 
+	_uploadFileName = test;
 	for (int i = 0; i < 3; i++)
 		body.erase(body.begin(), _vectorCharSearch(body.begin(), body.end(), "\r\n"));
 }
@@ -81,7 +82,6 @@ Request::Request(std::vector<char> &req)
 		throw std::bad_alloc();
 	_parseBody(body);
 	_printValue();
-	std::cout << _uploadFileName << std::endl;
 }
 
 Request::~Request(void) {
@@ -105,6 +105,8 @@ void Request::_parseFirstLine(std::string &request)
 
 void	Request::_printValue(void)
 {
+	std::cout << "----------nameFile----------" << std::endl;
+	std::cout << _uploadFileName << std::endl;
 	std::cout << "----------firstLine----------" << std::endl;
 	std::cout << _method << std::endl
 		<< _target << std::endl
