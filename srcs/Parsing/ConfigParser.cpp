@@ -23,6 +23,7 @@
 #define DEFAULT_LISTEN_PORT "8080"
 #define C_RED "\033[1;31m"
 #define C_RESET "\033[0m"
+#define UNLLIMITED_PARAMS 0
 #define SIZEOF(arr) sizeof(arr) / sizeof(*arr)
 
 // patch this shit later
@@ -42,7 +43,7 @@ void	ConfigParser::Conf::init_data(void)
 		std::make_pair("body_size",     raw(KT_UNIQ, &_checkBodySize, 1)),
 		std::make_pair("allow_methods", raw(KT_UNIQ, NULL, 3, allow_methodsVP, SIZEOF(allow_methodsVP))),
 		std::make_pair("root",          raw(KT_UNIQ, NULL, 1)),
-		std::make_pair("index",         raw(KT_UNIQ, NULL, 1)),
+		std::make_pair("index",         raw(KT_UNIQ, NULL, UNLLIMITED_PARAMS)),
 		std::make_pair("auto_index",    raw(KT_UNIQ, NULL, 1, auto_indexVP, SIZEOF(auto_indexVP))),
 
 		std::make_pair("cgi",           raw(KT_NON_UNIQ, &_checkCgi, 1)),
@@ -50,7 +51,7 @@ void	ConfigParser::Conf::init_data(void)
 		std::make_pair("return",        raw(KT_NON_UNIQ, NULL, 1, returnVP, SIZEOF(returnVP))),
 
 		std::make_pair("listen",        raw(KT_SERVER, &formatListen, 2)),
-		std::make_pair("server_name",   raw(KT_SERVER, NULL, 0)),
+		std::make_pair("server_name",   raw(KT_SERVER, NULL, UNLLIMITED_PARAMS)),
 	};
 	_data.insert(data, data + SIZEOF(data));
 }
