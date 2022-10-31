@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/21 10:25:37 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/26 15:57:11 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/30 14:58:29 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,8 @@ class Request {
 		std::string					_version;
 		std::vector<char>			_body;
 		std::vector<std::string>	_argvVar;
-		std::vector<std::string>	_envVar;
+		std::string					_envVar;
+		std::string					_uploadFileName;
 
 		
 		void	_basicSplit(std::string &line);
@@ -38,13 +39,20 @@ class Request {
 		void 	_parseFirstLine(std::string &request);
 		void	_printValue(void);
 		void	_parseHeader(std::string &body);
-		void	_parseBody(std::string &body);
+		void	_parseBody(std::vector<char> &body);
+		bool	_chunkedRequest(std::vector<std::string> &vecBody);
+		bool	_uploadRequest(std::string &body);
+		std::vector<char>::iterator	_vectorCharSearch(std::vector<char>::iterator first, std::vector<char>::iterator last, std::string toFind);
+		void	_unchunkedRequest(std::vector<char> &body);
+		void	_parseFileName(std::vector<char> &body);
+
+
 
 
 
 
 	public:
-		Request(std::string &req);
+		Request(std::vector<char> &req);
 		~Request();
 
 		request_type				getData(void) const;
@@ -53,7 +61,8 @@ class Request {
 		std::string		getTarget(void) const;
 		std::string		getVersion(void) const;
 		std::vector<char>	getBody(void) const;
-		std::vector<std::string>	&getEnvVar(void);
+		std::string		getEnvVar(void);
+		std::string		getUploadFileName(void);
 };
 
 

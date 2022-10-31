@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/25 14:39:45 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/28 16:58:41 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/30 15:36:37 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,6 @@ void    CgiHandler::_initEnv(Request &req, std::string path, std::string MIMEtyp
     (void)MIMEtype;
     char    *buf;
     buf = getcwd(NULL, BUF_SIZE);
-    std::vector<std::string>    envVar = req.getEnvVar();
 	Request::request_type		header = req.getData();
     std::vector<char> body = req.getBody();
     
@@ -82,14 +81,9 @@ void    ft_print_tab(char **env)
 
 void    CgiHandler::_writeToIn(Request &req, int pipeIn)
 {
-    std::vector<std::string>    envVar = req.getEnvVar();
+    std::string    toWrite = req.getEnvVar();
     
-    for (std::vector<std::string>::iterator it = envVar.begin(); it != envVar.end(); it++)
-    {
-		// dirty lovely ternary shit TERNARY MARRY ME !
-        std::string toWrite(*it + ((it + 1 != envVar.end()) ? "&" : ""));
-        write(pipeIn, toWrite.data(), toWrite.size());
-    }
+    write(pipeIn, toWrite.data(), toWrite.size());
 }
 
 std::vector<char>	CgiHandler::exec(Request &req, std::string root, std::string binCgi)
@@ -115,9 +109,11 @@ std::vector<char>	CgiHandler::exec(Request &req, std::string root, std::string b
         char **var = _convertVecToChar(_var);
         char **env = _convertVecToChar(_env);
 		execve(binCgi.c_str(), var, env);
+        delete []var;
+        delete []env;
 		perror("exec fail");
 		exit(EXIT_FAILURE);
-	}
+    }
 	else
 	{
 		close(tabPipe[1]);

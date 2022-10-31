@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/18 12:57:12 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/26 15:29:50 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/30 16:35:35 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,7 +82,6 @@ int main(int ac, char **av)
 				try 
 				{
 					int numberFdReady = epoll_wait(epoll.getEpollfd(), epoll.getEvents(), 1, -1);
-					std::cout << numberFdReady << std::endl;
 					if (numberFdReady == -1)
 						break; //error handle
 					for (int i = 0; i < numberFdReady; i++)
@@ -94,7 +93,6 @@ int main(int ac, char **av)
 						{
 							clientSocket = serverList.acceptSocket(sockTarget->second);
 							epoll.addFd(clientSocket);
-							std::cout << "new connection, client: " << clientSocket << " server: " << fdTriggered << std::endl;
 							clientList.insert(std::make_pair(clientSocket, fdTriggered));
 						}
 						else
@@ -106,27 +104,23 @@ int main(int ac, char **av)
 								continue ;
 							}
 							char	buffer[1024];
-							int nb_bytes = recv(pairContacted->first, buffer, 1024, 0);
-							buffer[nb_bytes] = 0;
-							if (nb_bytes == -1)
+							std::vector<char>	request;
+							int nb_bytes = 1;
+							while (nb_bytes != -1)
 							{
-								std::cerr << "throw error here" << std::endl;
-								exit(EXIT_FAILURE);
+								nb_bytes = recv(pairContacted->first, buffer, 1024, 0);
+								if (nb_bytes > 0)
+									request.insert(request.end(), &buffer[0], &buffer[nb_bytes]);
 							}
-							else if (nb_bytes)
-							{
-								std::cout << "new request, client: " << pairContacted->first << " server: " << pairContacted->second << std::endl;
-								std::string str(buffer);
-								std::cout << str << std::endl; // display request
-
-								Request	req(str);
-								ConfigParser::Server server = findServ(req, pairContacted->second, serverList, configServers.getData());
-								ConfigParser::Location	env = getEnvFromTarget(req.getTarget(), server);
-								Response	res(env, req, serverList.getClientIp(sockTarget->second, pairContacted->first));
-								res.execute();
-								res.constructData();
-								res.sendData(pairContacted->first);
-							}
+							if (request.empty())
+								throw std::bad_alloc();
+							Request	req(request);
+							ConfigParser::Server server = findServ(req, pairContacted->second, serverList, configServers.getData());
+							ConfigParser::Location	env = getEnvFromTarget(req.getTarget(), server);
+							Response	res(env, req, serverList.getClientIp(sockTarget->second, pairContacted->first));
+							res.execute();
+							res.constructData();
+							res.sendData(pairContacted->first);
 							close(pairContacted->first);
 							clientList.erase(pairContacted);
 						}
