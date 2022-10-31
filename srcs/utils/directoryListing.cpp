@@ -16,22 +16,6 @@
 #include <sys/types.h>
 #include <dirent.h>
 
-std::vector<std::string>	getDir(std::string path)
-{
-	DIR							*dpdf;
-	struct dirent 				*epdf;
-	std::vector<std::string>	res;
-
-	dpdf = opendir(path.c_str());
-	if (dpdf)
-	{
-		while ((epdf = readdir(dpdf)))
-			res.push_back(epdf->d_name);
-	}
-	closedir(dpdf);
-	return (res);
-}
-
 std::vector<char>	createIndexDir(std::vector<std::string> listOfFiles, std::string path)
 {
 	std::string	html;
