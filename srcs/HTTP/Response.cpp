@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/11 15:23:33 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/31 10:42:51 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/31 15:40:42 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,8 +115,8 @@ void	Response::init_methodsFunction(void)
 /*                                 constructor                                */
 /* -------------------------------------------------------------------------- */
 
-Response::Response(ConfigParser::Location env, Request &req, std::string clientIp)
-: _env(env), _req(req), _var(req.getVar()), _clientIp(clientIp)
+Response::Response(ConfigParser::Location env, Request &req, std::string clientIp, char **sysEnv)
+: _env(env), _req(req), _var(req.getVar()), _clientIp(clientIp), _sysEnv(sysEnv)
 {
 	init_mimeTypes();
 	init_methodsFunction();
@@ -233,8 +233,8 @@ void	Response::_execGet(void) {
 	if (_isCgiFile(root))
 	{
 		std::string cgiPath = _findCgiPath(root);
-		CgiHandler	CGI(_req, cgiPath, _types, _clientIp, _var, root);
-		_data = CGI.exec(_req, root, cgiPath);
+		CgiHandler	CGI(_env, _req, _types, _clientIp, _sysEnv);
+		_data = CGI.exec();
 		_types = "text/html";
 		return ;
 	}

@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/25 14:39:47 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/28 13:30:12 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/31 15:40:21 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,23 +15,46 @@
 #include <string>
 #include <vector>
 #include "Request.hpp"
+#include "ConfigParser.hpp"
+
+int	ft_strncmp(const char *s1, const char *s2, size_t n);
+
 #define BUF_SIZE 64
 
 class CgiHandler {
     private:
+		ConfigParser::Location		_server;
+		Request						&_req;
+		std::string					_cgiPath;
+		std::string					_target;
+		std::string					_pathToFile;
+		std::string					_root;
+		std::string					_type;
+		std::string					_clientIp;
         std::vector<std::string>    _env;
         std::vector<std::string>    _var;
+		char						**_sysEnv;
 
-        char    **_convertVecToChar(std::vector<std::string> &vec);
-        void    _initEnv(Request &req, std::string path, std::string MIMEtype, std::string clientIp, std::string root);
-        std::string _constructQuery(std::vector<std::string> var);
+
+        char    			**_convertVecToChar(std::vector<std::string> &vec);
+        void    			_initEnv(void);
+        std::string 		_constructQuery(std::vector<std::string> var);
         std::vector<char> 	_readPipe(int pipeToRead);
         void                _writeToIn(Request &req, int pipeIn);
+		void				_setCgiPath(void);
+		void				_setPathToFile(void);
+		void 				_setRoot(void);
+		void				_setTarget(void);
+		std::string			_findDirectory(std::string path);
+		std::string			_getSysPath(void);
+
+
+
 
 
       
         
     public:
-        CgiHandler(Request &req, std::string path, std::string MIMEtype, std::string clientIp, std::vector<std::string> var, std::string root);
-        std::vector<char>   exec(Request &req, std::string root, std::string binCgi);
+        CgiHandler(ConfigParser::Location &server, Request &req, std::string MIMEtype, std::string clientIp, char **env);
+        std::vector<char>   exec(void);
 };

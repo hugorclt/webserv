@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/30 11:56:41 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/31 11:25:42 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/31 11:51:30 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,6 +106,6 @@ std::string Servers::getClientIp(Servers::socket_t &sock, int clientFd)
 {
 	socklen_t len = 0;
 	if (getpeername(clientFd, (struct sockaddr *)&(sock.address), &len) == -1)
-		throw std::bad_alloc(); // tres adapte NON
+		throw ServersError("can't retrieve the ip of the client (getpeername failed)");
 	return (std::string(inet_ntoa(sock.address.sin_addr)));
 }

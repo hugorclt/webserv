@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/21 11:47:56 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/30 17:47:44 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/31 15:25:12 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,14 +22,15 @@ class Response {
 	private:
 		ConfigParser::Location	_env;
 		Request				&_req;
-		char				**_envSys;
+		std::vector<std::string> _var;
+		std::string			_clientIp;
+		char				**_sysEnv;
 		std::vector<char>	_data;
 		std::string			_code;
 		std::string			_status;
 		std::string			_header;
 		std::string			_types;
-		std::vector<std::string> _var;
-		std::string			_clientIp;
+		
 
 
 		/*static*/ std::map<std::string, std::string>			_mimeTypes;
@@ -57,7 +58,7 @@ class Response {
 
 	public:
 	
-		Response(ConfigParser::Location env, Request &req, std::string clientIp);
+		Response(ConfigParser::Location env, Request &req, std::string clientIp, char **sysEnv);
 
 
 		void	constructData(void);
