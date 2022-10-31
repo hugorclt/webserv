@@ -19,11 +19,8 @@
 void	Request::_parseHeader(std::string &header)
 {
 	std::vector<std::string>	vecHeader = split(header, "\r\n");
-	std::vector<std::string>::iterator itReq = vecHeader.begin();
-	for (; itReq != vecHeader.end(); itReq++)
-	{
+	for (std::vector<std::string>::iterator itReq = vecHeader.begin(); itReq != vecHeader.end(); itReq++)
 		_basicSplit(*itReq);
-	}
 }
 
 void	Request::_unchunkedRequest(std::vector<char> &body)
@@ -40,10 +37,25 @@ void	Request::_unchunkedRequest(std::vector<char> &body)
 void	Request::_parseFileName(std::vector<char> &body)
 {
 	std::vector<char>::iterator	fileNameIt = _vectorCharSearch(body.begin(), body.end(), "filename=\"");
-	std::string _uploadFileName (fileNameIt, _vectorCharSearch(fileNameIt, body.end(), "\""));
+	std::string test (fileNameIt, _vectorCharSearch(fileNameIt, body.end(), "\"") - 1);
 
-	for (int i = 0; i < 3; i++)
+	_uploadFileName = test;
+	for (int i = 0; i < 4; i++)
 		body.erase(body.begin(), _vectorCharSearch(body.begin(), body.end(), "\r\n"));
+	body.erase(_searchLastLine(body), body.end());
+}
+
+std::vector<char>::iterator	Request::_searchLastLine(std::vector<char> &body)
+{
+	std::vector<char>::iterator ite = body.end();
+
+	ite -= 2;
+	while (*ite != '\n')
+	{
+		ite--;
+	}
+	ite--;
+	return (ite);
 }
 
 void	Request::_parseBody(std::vector<char> &body)
@@ -70,18 +82,14 @@ Request::Request(std::vector<char> &req)
 {
 	std::string 		firstLine(req.begin(), _vectorCharSearch(req.begin(), req.end(), "\r\n"));
 	std::string		 	header(_vectorCharSearch(req.begin(), req.end(), "\r\n"), _vectorCharSearch(req.begin(), req.end(), "\r\n\r\n"));
-	std::vector<char>	body( _vectorCharSearch(req.begin(), req.end(), "\r\n\r\n"), req.end());
-
-	std::cout << firstLine << std::endl;
-	std::cout << header << std::endl;
+	std::vector<char>	body(_vectorCharSearch(req.begin(), req.end(), "\r\n\r\n"), req.end());
 
 	_parseFirstLine(firstLine);
 	_parseHeader(header);
 	if (_header.count("Content-Length") && !_header["Content-Length"].empty() && atoi(_header["Content-Length"][0].c_str()) != static_cast<int>(body.size()))
-		throw std::bad_alloc();
+		throw RequestError("Content-Lenght not the same as the body size");
 	_parseBody(body);
-	_printValue();
-	std::cout << _uploadFileName << std::endl;
+	//_printValue();
 }
 
 Request::~Request(void) {
@@ -105,6 +113,8 @@ void Request::_parseFirstLine(std::string &request)
 
 void	Request::_printValue(void)
 {
+	std::cout << "----------nameFile----------" << std::endl;
+	std::cout << _uploadFileName << std::endl;
 	std::cout << "----------firstLine----------" << std::endl;
 	std::cout << _method << std::endl
 		<< _target << std::endl
@@ -135,12 +145,21 @@ void	Request::_printValue(void)
 void	Request::_basicSplit(std::string &line)
 {
 	std::vector<std::string> lineSplited = split(line, ":");
-
 	std::string key = lineSplited[0];
-	std::vector<std::string> value = split_charset(lineSplited[1], ", ;");
-	if (key == "Host")
+	std::vector<std::string> value;
+
+	if (key == "Content-Type")
+		value = split_charset(lineSplited[1], ", ;");
+	else if (key == "Host")
 	{
+		value.push_back(lineSplited[1]);
 		value.push_back(lineSplited[2]);
+		value[0].erase(value[0].begin());
+	}
+	else
+	{
+		value.push_back(lineSplited[1]);
+		value[0].erase(value[0].begin());
 	}
 	_header.insert(std::make_pair(key, value));
 }

@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/30 11:56:41 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/30 16:08:53 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/31 11:51:30 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,17 +86,9 @@ Servers::sock_type::iterator Servers::getSocketByFd(int fd)
 
 int	Servers::acceptSocket(Servers::socket_t sock)
 {
-	int newSocket = accept(sock.sockfd, (struct sockaddr *)&sock.address, (socklen_t *)&sock.addrLen);
+	int newSocket = accept4(sock.sockfd, (struct sockaddr *)&sock.address, (socklen_t *)&sock.addrLen, SOCK_NONBLOCK);
 	if (newSocket < 0)
-	{
-		close(sock.sockfd);
 		throw ServersError("Accept failed");
-	}
-	int flag = fcntl(newSocket, F_SETFL, O_NONBLOCK);
-	if (flag == -1)
-	{
-		throw ServersError("fcntl failed");
-	}
 	return (newSocket);
 }
 
@@ -112,9 +104,8 @@ std::string	Servers::findIpByFd(int fd)
 
 std::string Servers::getClientIp(Servers::socket_t &sock, int clientFd)
 {
-	//WTFFFFFF ?????!!!!! CLEAN THIS SHIT NEVER
 	socklen_t len = 0;
 	if (getpeername(clientFd, (struct sockaddr *)&(sock.address), &len) == -1)
-		throw std::bad_alloc(); // tres adapte NON
+		throw ServersError("can't retrieve the ip of the client (getpeername failed)");
 	return (std::string(inet_ntoa(sock.address.sin_addr)));
 }

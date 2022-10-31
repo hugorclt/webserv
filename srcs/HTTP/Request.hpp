@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/21 10:25:37 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/30 14:58:29 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/31 11:49:36 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,8 @@ class Request {
 		std::vector<char>::iterator	_vectorCharSearch(std::vector<char>::iterator first, std::vector<char>::iterator last, std::string toFind);
 		void	_unchunkedRequest(std::vector<char> &body);
 		void	_parseFileName(std::vector<char> &body);
+		std::vector<char>::iterator	_searchLastLine(std::vector<char> &body);
+
 
 
 
@@ -63,6 +65,20 @@ class Request {
 		std::vector<char>	getBody(void) const;
 		std::string		getEnvVar(void);
 		std::string		getUploadFileName(void);
+
+
+		class RequestError: public std::exception {
+			private:
+				std::string	_error;
+			public:
+				RequestError(const std::string &error)
+				: _error(error) {}
+
+				virtual ~RequestError(void) throw() {}
+
+				virtual const char *what() const throw()
+				{ return (_error.c_str()); }
+		};
 };
 
 

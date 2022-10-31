@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/18 12:57:12 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/30 16:35:35 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/31 15:14:45 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 #include "Response.hpp"
 #include <cstdlib>
 #include <csignal>
+#include <cstring>
 
 ConfigParser::Server    selectServ(std::string ip, std::string port, std::string hostName, ConfigParser::data_type vecServs)
 {
@@ -64,7 +65,7 @@ ConfigParser::Server	findServ(Request &req, int serverFd, Servers serverList, Co
 	return (selectServ(ip, reqData["Host"][1], reqData["Host"][0], conf));
 }
 
-int main(int ac, char **av)
+int main(int ac, char **av, char **sysEnv)
 {	
 	(void)av;
 	if (ac > 1 && ac <= 2)
@@ -108,16 +109,20 @@ int main(int ac, char **av)
 							int nb_bytes = 1;
 							while (nb_bytes != -1)
 							{
+								memset(buffer, 0, sizeof(buffer));
 								nb_bytes = recv(pairContacted->first, buffer, 1024, 0);
 								if (nb_bytes > 0)
 									request.insert(request.end(), &buffer[0], &buffer[nb_bytes]);
+								usleep(100);
 							}
 							if (request.empty())
+							{
 								throw std::bad_alloc();
+							}
 							Request	req(request);
 							ConfigParser::Server server = findServ(req, pairContacted->second, serverList, configServers.getData());
 							ConfigParser::Location	env = getEnvFromTarget(req.getTarget(), server);
-							Response	res(env, req, serverList.getClientIp(sockTarget->second, pairContacted->first));
+							Response	res(env, req, serverList.getClientIp(sockTarget->second, pairContacted->first), sysEnv);
 							res.execute();
 							res.constructData();
 							res.sendData(pairContacted->first);

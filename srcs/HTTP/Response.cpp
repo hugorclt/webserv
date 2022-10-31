@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/11 15:23:33 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/30 13:25:04 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/31 15:40:42 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include <sys/socket.h>
 #include <algorithm>
 #include <unistd.h>
+#include <iostream>
 
 #define SIZEOF(arr) sizeof(arr) / sizeof(*arr)
 
@@ -113,8 +114,8 @@ void	Response::init_methodsFunction(void)
 /*                                 constructor                                */
 /* -------------------------------------------------------------------------- */
 
-Response::Response(ConfigParser::Location env, Request &req, std::string clientIp)
-: _env(env), _req(req), _var(req.getVar()), _clientIp(clientIp)
+Response::Response(ConfigParser::Location env, Request &req, std::string clientIp, char **sysEnv)
+: _env(env), _req(req), _var(req.getVar()), _clientIp(clientIp), _sysEnv(sysEnv)
 {
 	init_mimeTypes();
 	init_methodsFunction();
@@ -241,8 +242,8 @@ void	Response::_execGet(void) {
 	if (_isCgiFile(root))
 	{
 		std::string cgiPath = _findCgiPath(root);
-		CgiHandler	CGI(_req, cgiPath, _types, _clientIp, _var, root);
-		_data = CGI.exec(_req, root, cgiPath);
+		CgiHandler	CGI(_env, _req, _types, _clientIp, _sysEnv);
+		_data = CGI.exec();
 		_types = "text/html";
 		return ;
 	}
@@ -262,10 +263,54 @@ void	Response::_readFile(std::ifstream &file)
 		_setError("413");
 }
 
+void	Response::_writeFile(void)
+{
+	std::string filename = _env.uniqKey["upload"][0] + _req.getUploadFileName();
+	std::vector<char> body = _req.getBody();
+
+	std::ofstream	file(filename.c_str());
+	for (std::vector<char>::iterator it = body.begin(); it != body.end(); it++)
+		file << *it;
+	return ;
+}
+
+void	Response::_uploadFile(void)
+{
+	struct stat buf;
+	std::string filename = _env.uniqKey["upload"][0];
+	stat(filename.c_str(), &buf);
+	
+	if (!_env.uniqKey.count("upload"))
+	{
+		_setError("404");
+		return ;
+	}
+	if (access(filename.c_str(), F_OK) != 0)
+	{
+		_setError("404");
+		return ;
+	}
+	if (access(filename.c_str(), R_OK) != 0)
+	{
+		_setError("403");
+		return ;
+	}
+	if (S_ISDIR(buf.st_mode))
+	{
+		_writeFile();
+		_setError("200");
+		return ;
+	}
+	_setError("403");
+}
+
 void	Response::execute(void) {
 	std::string method = _req.getMethod();
+	Request::request_type	header = _req.getData();
 	// tmp shit lol
 
+	if (method == "POST" && header["Content-Type"][0] == "multipart/form-data")
+		_uploadFile();
 	if (std::find(_env.uniqKey["allow_methods"].begin(), _env.uniqKey["allow_methods"].end(), method) != _env.uniqKey["allow_methods"].end())
 	{
 		(this->*(_methodsFunction.find(method)->second))();
