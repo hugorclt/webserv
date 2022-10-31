@@ -12,7 +12,6 @@
 
 #include "Response.hpp"
 #include "utils.hpp"
-#include <fstream>
 #include <sys/stat.h>
 #include <sys/socket.h>
 #include <algorithm>
@@ -175,18 +174,30 @@ bool	Response::_checkFile(std::string filename, int isErrorFile)
 	}
 	if (S_ISDIR(buf.st_mode))
 	{
+		std::vector<std::string>		listOfFiles = listingFile(filename);
+		if (_env.uniqKey.count("index"))
+		{
+			std::pair<std::string, bool>	index = getIndex(listOfFiles, _env.uniqKey["index"]);
+			if (index.second)
+			{
+				std::cout << "test : " << filename + "/" + index.first << std::endl;
+				return (_checkFile(filename + "/" + index.first, isErrorFile));
+			}
+		}
 		if (_env.uniqKey["auto_index"][0] == "on")
 		{
 			_code = "200";
 			_status = _env.nonUniqKey["return"][_code][0];
-			std::cout << "_checkFile filename : " << filename << std::endl;
-			_data = listingFile(filename, _req.getTarget());
+			_data = createIndexDir(listOfFiles, _req.getTarget());
+			getIndex(listOfFiles, _env.uniqKey["index"]);
 			_types = "text/html";
 		}
 		else if (isErrorFile == 0)
 				_setError("403");
 		return (true);
 	}
+	_setType(filename);
+	_file.open(filename.c_str(), std::ios::binary);
 	return (false);
 }
 
@@ -219,17 +230,14 @@ void	Response::_execDel(void)
 		return ;
 	}
 	remove(filename.c_str());
-	_setError("200");
 }
 
 void	Response::_execGet(void) {
 	std::string root = _req.getTarget().erase(0, _env.uniqKey["_rootToDel_"][0].length());
 	root = _env.uniqKey["root"][0] + root;
 
-	_setType(root);
 	if (_checkFile(root, 0))
 		return ;
-	std::ifstream file;
 	if (_isCgiFile(root))
 	{
 		std::string cgiPath = _findCgiPath(root);
@@ -238,8 +246,7 @@ void	Response::_execGet(void) {
 		_types = "text/html";
 		return ;
 	}
-	file.open(root.c_str(), std::ios::binary);
-	_readFile(file);
+	_readFile(_file);
 }
 
 void	Response::_readFile(std::ifstream &file)

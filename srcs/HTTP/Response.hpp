@@ -14,7 +14,7 @@
 #include "Request.hpp"
 #include "ConfigParser.hpp"
 #include "CgiHandler.hpp"
-
+#include <fstream>
 
 #define NB_MIME 66
 
@@ -30,6 +30,7 @@ class Response {
 		std::string			_types;
 		std::vector<std::string> _var;
 		std::string			_clientIp;
+		std::ifstream		_file;
 
 		/*static*/ std::map<std::string, std::string>			_mimeTypes;
 		/*static*/ void											init_mimeTypes(void);

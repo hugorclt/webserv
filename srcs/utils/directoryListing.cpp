@@ -15,6 +15,8 @@
 #include <string>
 #include <sys/types.h>
 #include <dirent.h>
+#include <algorithm>
+#include <iostream>
 
 std::vector<char>	createIndexDir(std::vector<std::string> listOfFiles, std::string path)
 {
@@ -26,27 +28,36 @@ std::vector<char>	createIndexDir(std::vector<std::string> listOfFiles, std::stri
 	for (std::vector<std::string>::iterator it = listOfFiles.begin(); it != listOfFiles.end(); it++)
 		html.append("<li><a href=\"" + path + *it + "\">" + *it + "</a></li>");
 	html.append("</ul>");
-		
-	std::vector<char>	res(html.begin(), html.end());
-	return (res);
+	return (std::vector<char> (html.begin(), html.end()));
 }
 
-std::vector<char>	listingFile(std::string realPath, std::string urlPath)
+std::pair<std::string, bool>	getIndex(std::vector<std::string> listOfFiles, std::vector<std::string>	listOfIndex)
+{
+	for (std::vector<std::string>::iterator it = listOfIndex.begin(); it != listOfIndex.end(); it++)
+	{
+		std::vector<std::string>::iterator findRes = std::find(listOfFiles.begin(), listOfFiles.end(), *it);
+		if (findRes != listOfFiles.end())
+		{
+			std::cout << "getIndex test : " << std::endl;
+			std::cout << *findRes << std::endl;
+			return (std::make_pair(*findRes, true));
+		}
+	}
+	return (std::make_pair("", false));
+}
+
+std::vector<std::string>	listingFile(std::string realPath)
 {
 	DIR							*d;
 	struct dirent				*dir;
 	std::vector<std::string>	listOfFiles;
-	std::vector<char>			res;
-
 	
 	d = opendir(realPath.c_str());
 	if (d)
 	{
 		while ((dir = readdir(d)) != NULL)
-		{
 			listOfFiles.push_back(dir->d_name);
-		}
 		closedir(d);
 	}
-	return(createIndexDir(listOfFiles, urlPath));
+	return (listOfFiles);
 }
