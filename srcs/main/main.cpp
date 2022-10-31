@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/18 12:57:12 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/30 16:35:35 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/31 10:45:04 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 #include "Response.hpp"
 #include <cstdlib>
 #include <csignal>
+#include <cstring>
 
 ConfigParser::Server    selectServ(std::string ip, std::string port, std::string hostName, ConfigParser::data_type vecServs)
 {
@@ -108,12 +109,19 @@ int main(int ac, char **av)
 							int nb_bytes = 1;
 							while (nb_bytes != -1)
 							{
+								memset(buffer, 0, sizeof(buffer));
 								nb_bytes = recv(pairContacted->first, buffer, 1024, 0);
 								if (nb_bytes > 0)
+								{
+									// std::cout << buffer << std::endl;
 									request.insert(request.end(), &buffer[0], &buffer[nb_bytes]);
+								}
+								usleep(100);
 							}
 							if (request.empty())
+							{
 								throw std::bad_alloc();
+							}
 							Request	req(request);
 							ConfigParser::Server server = findServ(req, pairContacted->second, serverList, configServers.getData());
 							ConfigParser::Location	env = getEnvFromTarget(req.getTarget(), server);

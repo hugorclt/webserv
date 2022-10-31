@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/30 11:56:41 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/30 16:08:53 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/31 10:33:09 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -112,7 +112,6 @@ std::string	Servers::findIpByFd(int fd)
 
 std::string Servers::getClientIp(Servers::socket_t &sock, int clientFd)
 {
-	//WTFFFFFF ?????!!!!! CLEAN THIS SHIT NEVER
 	socklen_t len = 0;
 	if (getpeername(clientFd, (struct sockaddr *)&(sock.address), &len) == -1)
 		throw std::bad_alloc(); // tres adapte NON

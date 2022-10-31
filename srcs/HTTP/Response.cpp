@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/11 15:23:33 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/30 17:54:18 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/10/31 10:42:51 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -262,7 +262,7 @@ void	Response::_writeFile(void)
 
 	std::ofstream	file(filename.c_str());
 	for (std::vector<char>::iterator it = body.begin(); it != body.end(); it++)
-		file << *it << std::endl;
+		file << *it;
 	return ;
 }
 

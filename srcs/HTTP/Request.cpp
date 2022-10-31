@@ -43,8 +43,22 @@ void	Request::_parseFileName(std::vector<char> &body)
 	std::string test (fileNameIt, _vectorCharSearch(fileNameIt, body.end(), "\"") - 1);
 
 	_uploadFileName = test;
-	for (int i = 0; i < 3; i++)
+	for (int i = 0; i < 4; i++)
 		body.erase(body.begin(), _vectorCharSearch(body.begin(), body.end(), "\r\n"));
+	body.erase(_searchLastLine(body), body.end());
+}
+
+std::vector<char>::iterator	Request::_searchLastLine(std::vector<char> &body)
+{
+	std::vector<char>::iterator ite = body.end();
+
+	ite -= 2;
+	while (*ite != '\n')
+	{
+		ite--;
+	}
+	ite--;
+	return (ite);
 }
 
 void	Request::_parseBody(std::vector<char> &body)
@@ -71,17 +85,14 @@ Request::Request(std::vector<char> &req)
 {
 	std::string 		firstLine(req.begin(), _vectorCharSearch(req.begin(), req.end(), "\r\n"));
 	std::string		 	header(_vectorCharSearch(req.begin(), req.end(), "\r\n"), _vectorCharSearch(req.begin(), req.end(), "\r\n\r\n"));
-	std::vector<char>	body( _vectorCharSearch(req.begin(), req.end(), "\r\n\r\n"), req.end());
-
-	std::cout << firstLine << std::endl;
-	std::cout << header << std::endl;
+	std::vector<char>	body(_vectorCharSearch(req.begin(), req.end(), "\r\n\r\n"), req.end());
 
 	_parseFirstLine(firstLine);
 	_parseHeader(header);
 	if (_header.count("Content-Length") && !_header["Content-Length"].empty() && atoi(_header["Content-Length"][0].c_str()) != static_cast<int>(body.size()))
 		throw std::bad_alloc();
 	_parseBody(body);
-	_printValue();
+	//_printValue();
 }
 
 Request::~Request(void) {
