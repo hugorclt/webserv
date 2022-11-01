@@ -19,6 +19,9 @@
 #include <iostream>
 
 #define SIZEOF(arr) sizeof(arr) / sizeof(*arr)
+#define C_RED "\033[1;31m"
+#define C_GREEN "\033[1;32m"
+#define C_RESET "\033[0m"
 
 void	Response::init_mimeTypes(void)
 {
@@ -197,6 +200,8 @@ bool	Response::_checkFile(std::string filename, int isErrorFile)
 				_setError("403");
 		return (true);
 	}
+	_code = "200";
+	_status = _env.nonUniqKey["return"][_code][0];
 	_setType(filename);
 	_file.open(filename.c_str(), std::ios::binary);
 	return (false);
@@ -324,6 +329,13 @@ void	Response::sendData(int clientFd)
 {
 	if (send(clientFd, _data.data(), _data.size(), 0) == -1)
         perror("send error:");
+	else
+	{
+		std::clog << ((_code != "200") ? C_RED : C_GREEN)
+				  << '[' << _code << ": " << _status << ']' << C_RESET
+				  << " client(" << _clientIp << ")"
+				  << " target(" << _req.getTarget() << ')' << std::endl;
+	}
 }
 
 bool	Response::_isBinaryFile(std::string filePath)

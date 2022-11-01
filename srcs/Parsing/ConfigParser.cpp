@@ -22,9 +22,16 @@
 #define DEFAULT_LISTEN_INTERFACE "0.0.0.0"
 #define DEFAULT_LISTEN_PORT "8080"
 #define C_RED "\033[1;31m"
+#define C_PURPLE "\033[1;35m"
 #define C_RESET "\033[0m"
 #define UNLLIMITED_PARAMS 0
 #define SIZEOF(arr) sizeof(arr) / sizeof(*arr)
+
+void	ConfigParser::_konamiCode(keyValues_type &keyValues)
+{
+	(void)keyValues;
+	std::cout << C_PURPLE << "KONAMI CODE DETECTED, SETTING LIFE NUMBER TO 30..." << C_RESET << std::endl;
+}
 
 // patch this shit later
 ConfigParser::Conf::data_type	ConfigParser::Conf::_data = ConfigParser::Conf::data_type ();
@@ -37,6 +44,7 @@ void	ConfigParser::Conf::init_data(void)
 	std::string auto_indexVP[] = {"on", "off"};
 	std::string error_pageVP[] = {"404", "403", "405"};
 	std::string returnVP[] = {"200", "404", "403", "405"};
+	std::string konamiCodeVP[] = {"start"};
 
 	std::pair<std::string, raw>	data[] =
 	{
@@ -45,6 +53,7 @@ void	ConfigParser::Conf::init_data(void)
 		std::make_pair("root",          raw(KT_UNIQ, NULL, 1)),
 		std::make_pair("index",         raw(KT_UNIQ, NULL, UNLLIMITED_PARAMS)),
 		std::make_pair("upload",        raw(KT_UNIQ, NULL, 1)),
+		std::make_pair("↑↑↓↓←→←→BA",    raw(KT_UNIQ, &_konamiCode, 1, konamiCodeVP, SIZEOF(konamiCodeVP))),
 
 		std::make_pair("auto_index",    raw(KT_UNIQ, NULL, 1, auto_indexVP, SIZEOF(auto_indexVP))),
 
@@ -294,7 +303,7 @@ ConfigParser::ConfigParser(char *filename) {
 		+ "line " + to_string(fullFile.size() - (fileRange.second - fileRange.first) + 1) + " : "
 		+ line);
 	}
-	_printConfigParser(_data);
+	//_printConfigParser(_data);
 }
 
 //tmp test

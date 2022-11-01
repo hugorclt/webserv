@@ -130,6 +130,7 @@ class ConfigParser {
 		void			_insertKeyValuesInServer(Server &res, keyValues_type &keyValues);
 
 		//Check Functions
+		static void	_konamiCode(keyValues_type &keyValues);
 		static void	_checkBodySize(keyValues_type &keyValues);
 		static void	_checkCgi(keyValues_type &keyValues);
 		static void	formatListen(keyValues_type &keyValues);

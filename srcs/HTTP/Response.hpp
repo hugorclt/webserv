@@ -20,17 +20,17 @@
 
 class Response {
 	private:
-		ConfigParser::Location	_env;
-		Request				&_req;
-		std::vector<std::string> _var;
-		std::string			_clientIp;
-		char				**_sysEnv;
-		std::vector<char>	_data;
-		std::string			_code;
-		std::string			_status;
-		std::string			_header;
-		std::string			_types;
-		std::ifstream		_file;
+		ConfigParser::Location		_env;
+		Request						&_req;
+		std::vector<std::string>	_var;
+		std::string					_clientIp;
+		char						**_sysEnv;
+		std::vector<char>			_data;
+		std::string					_code;
+		std::string					_status;
+		std::string					_header;
+		std::string					_types;
+		std::ifstream				_file;
 
 		/*static*/ std::map<std::string, std::string>			_mimeTypes;
 		/*static*/ void											init_mimeTypes(void);
