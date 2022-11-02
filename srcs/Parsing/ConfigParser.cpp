@@ -295,10 +295,10 @@ ConfigParser::ConfigParser(char *filename) {
 	catch (ParsingError &e)
 	{
 		std::string line;
-		if (fileRange.first == fileRange.second)
-			line = *(fileRange.first - 1);
-		else
-			line = _color(std::string(fileRange.first->begin(), lineRange.first), e.word()) + std::string(lineRange.first, lineRange.second);
+		
+		line = (fileRange.first == fileRange.second) ? *(fileRange.first - 1) : *fileRange.first;
+		//if (fileRange.first != fileRange.second)
+		//	_color(lineRange.first - (*(fileRange.first)).begin(), e.word(), line);
 		throw ParsingError(std::string(e.what()) + " :\n"
 		+ "line " + to_string(fullFile.size() - (fileRange.second - fileRange.first) + 1) + " : "
 		+ line);
@@ -306,19 +306,46 @@ ConfigParser::ConfigParser(char *filename) {
 	//_printConfigParser(_data);
 }
 
-//tmp test
-std::string	ConfigParser::_color(std::string line, std::string word)
+void	ConfigParser::_colorSkipFirstWordInRange(std::pair<std::string::iterator, std::string::iterator> &lineRange, const std::string &word, std::string &line)
 {
-	if (line.rfind(word) != std::string::npos)
-	{
-		line.insert(line.rfind(word), C_RED);
-		line.insert(line.rfind(word) + word.size(), C_RESET);
-	}
-	return (line);
+	std::string red(C_RED);
+	std::string reset(C_RESET);
+	lineRange.first += line.find(word, lineRange.first - line.begin());
+	line.insert(lineRange.first, red.begin(), red.end());
+	lineRange.first += word.size();
+	line.insert(lineRange.first, reset.begin(), reset.end());
+	lineRange.first += reset.size();
 }
 
+//tmp test
+/*
+void	ConfigParser::_color(size_t last, std::string word, std::string &line)
+{
+	std::cout << "word : " << word << std::endl;
+	std::cout << "last : " << last << std::endl;
+	if (line.empty())
+		return ;
+	size_t	first = last - (last != line.size() && line[last] == ';');
+	while (first && line[first] != ';')
+		first--;
+	std::cout << "first init : " << first << std::endl;
+	first = line.find(word, first);
+	std::cout << "first first find : " << first << std::endl;
+	while (first != std::string::npos && first < last)
+	{
+		std::cout << "while" << std::endl;
+		line.insert(first, C_RED);
+		first += std::string(C_RED).size() + word.size();
+		line.insert(first, C_RESET);
+		first += std::string(C_RESET).size();
+		first = line.find(word, first);
+		last += std::string(C_RED).size() + std::string(C_RESET).size();
+	}
+}
+*/
+
 /* -------------------------------------------------------------------------- */
-/*                               ConfigParserFunction                              */
+/*                               ConfigParserFunction                         */
 /* -------------------------------------------------------------------------- */
 
 bool	ConfigParser::_isServer(keyValues_type keyValues, lineRange_type &lineRange, fileRange_type &fileRange)
@@ -385,7 +412,7 @@ void			ConfigParser::Conf::checkKeyValues(keyValues_type &keyValues, const raw &
 		keyConf.func(keyValues);
 }
 
-void			ConfigParser::_insertKeyValuesInLocation(Location &location, keyValues_type &keyValues) // still need to be cleaned
+void			ConfigParser::_insertKeyValuesInLocation(Location &location, keyValues_type &keyValues, lineRange_type lastLineRange, std::string &line) // still need to be cleaned
 {
 	Conf::raw	keyConf = Conf::_data[keyValues.first];
 	Location::uniqKey_type	&insertionPoint = (keyConf.kt == Conf::KT_UNIQ) ? location.uniqKey : location.nonUniqKey[keyValues.first];
@@ -397,7 +424,10 @@ void			ConfigParser::_insertKeyValuesInLocation(Location &location, keyValues_ty
 	}
 	Conf::checkKeyValues(keyValues, keyConf);
 	if (!insertionPoint.insert(std::make_pair(keyValues.first, keyValues.second)).second)
+	{
+		_colorSkipFirstWordInRange(lastLineRange, keyValues.first, line);
 		throw ParsingError("Key already present", keyValues.first);
+	}
 }
 
 ConfigParser::Location	ConfigParser::_createNewLocation(lineRange_type &lineRange, fileRange_type &fileRange)
@@ -405,16 +435,18 @@ ConfigParser::Location	ConfigParser::_createNewLocation(lineRange_type &lineRang
 	Location	res;
 
 	_goToNextWordInFile(lineRange, fileRange);
+	lineRange_type	lastLineRange = lineRange;
 	keyValues_type	keyValues = _getKeyValues(lineRange);
 	while (fileRange.first != fileRange.second && !keyValues.first.empty())
 	{
 		if (Conf::getKeyType(keyValues.first) == Conf::KT_UNIQ || Conf::getKeyType(keyValues.first) == Conf::KT_NON_UNIQ)
-			_insertKeyValuesInLocation(res, keyValues);
+			_insertKeyValuesInLocation(res, keyValues, lastLineRange, *fileRange.first);
 		else if (Conf::getKeyType(keyValues.first) == Conf::KT_SERVER)
 			throw ParsingError("Key '" + keyValues.first + "' is a Server Key");
 		else
 			throw ParsingError("Unknown Key '" + keyValues.first + "'");
 		_goToNextWordInFile(lineRange, fileRange);
+		lastLineRange = lineRange;
 		keyValues = _getKeyValues(lineRange);
 	}
 	if (*lineRange.first == '{')
@@ -447,6 +479,7 @@ ConfigParser::Server	ConfigParser::_createNewServer(lineRange_type &lineRange, f
 	Location	serverLocationConf;
 	
 	_goToNextWordInFile(lineRange, fileRange);
+	lineRange_type	lastLineRange = lineRange;
 	keyValues_type	keyValues = _getKeyValues(lineRange);
 	while (fileRange.first != fileRange.second && !keyValues.first.empty())
 	{
@@ -462,13 +495,14 @@ ConfigParser::Server	ConfigParser::_createNewServer(lineRange_type &lineRange, f
 		else
 		{
 			if (Conf::getKeyType(keyValues.first) == Conf::KT_UNIQ || Conf::getKeyType(keyValues.first) == Conf::KT_NON_UNIQ)
-				_insertKeyValuesInLocation(serverLocationConf, keyValues);
+				_insertKeyValuesInLocation(serverLocationConf, keyValues, lastLineRange, *fileRange.first);
 			else if (Conf::getKeyType(keyValues.first) == Conf::KT_SERVER)
 				_insertKeyValuesInServer(res, keyValues);
 			else
-				throw ParsingError("Unknown Key '" + keyValues.first + "'");
+				throw ParsingError("Unknown Key '" + keyValues.first + "'", keyValues.first);
 		}
 		_goToNextWordInFile(lineRange, fileRange);
+		lastLineRange = lineRange;
 		keyValues = _getKeyValues(lineRange);
 	}
 	if (*lineRange.first == '{')

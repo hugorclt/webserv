@@ -126,7 +126,8 @@ class ConfigParser {
 		Server			_createNewServer(lineRange_type &strIt, fileRange_type &fileIt);
 		Location		_createNewLocation(lineRange_type &strIt, fileRange_type &fileIt);
 		keyValues_type	_getKeyValues(lineRange_type &strIt);
-		void			_insertKeyValuesInLocation(Location &location, keyValues_type &keyValues);
+	//	void			_insertKeyValuesInLocation(Location &location, keyValues_type &keyValues);
+		void			_insertKeyValuesInLocation(Location &location, keyValues_type &keyValues, lineRange_type lastLineRange, std::string &line);
 		void			_insertKeyValuesInServer(Server &res, keyValues_type &keyValues);
 
 		//Check Functions
@@ -138,7 +139,8 @@ class ConfigParser {
 		//test
 
 		static void	_printConfigParser(const data_type &data);
-		std::string	_color(std::string line, std::string word);
+		//void		_color(size_t last, std::string word, std::string &line);
+		void		_colorSkipFirstWordInRange(std::pair<std::string::iterator, std::string::iterator> &lineRange, const std::string &word, std::string &line);
 		
 	public:
 		ConfigParser(char *params);
