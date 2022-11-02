@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/25 14:39:45 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/11/02 11:54:16 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/02 17:33:21 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,37 +100,37 @@ void    CgiHandler::_initEnv(void)
 	
     _env.push_back("REDIRECT_STATUS=200");
     _env.push_back("GATEWAY_INTERFACE=CGI/1.1");
-	// _env.push_back("CONTEXT_DOCUMENT_ROOT=" + cwdPath + _cgiPath.substr(0, _cgiPath.find_last_of('/') + 1));
-	// _env.push_back("CONTEXT_PREFIX=" + _findDirectory(_cgiPath));
+	_env.push_back("CONTEXT_DOCUMENT_ROOT=" + cwdPath + _cgiPath.substr(0, _cgiPath.find_last_of('/') + 1));
+	_env.push_back("CONTEXT_PREFIX=" + _findDirectory(_cgiPath));
 	//DOCUMENT ROOT ?
-	// _env.push_back("HTTP_ACCEPT=" + header["Accept"][0]);
-	// _env.push_back("HTTP_ACCEPT_ENCODING=" + header["Accept-Encoding"][0]);
-	// _env.push_back("HTTP_ACCEPT_LANGUAGE=" + header["Accept-Language"][0]);
-	// _env.push_back("HTTP_CONNECTION=" + header["Connection"][0]);
-	// _env.push_back("HTTP_HOST=" + header["Host"][0] + ":" + header["Host"][1]);
+	_env.push_back("HTTP_ACCEPT=" + header["Accept"][0]);
+	_env.push_back("HTTP_ACCEPT_ENCODING=" + header["Accept-Encoding"][0]);
+	_env.push_back("HTTP_ACCEPT_LANGUAGE=" + header["Accept-Language"][0]);
+	_env.push_back("HTTP_CONNECTION=" + header["Connection"][0]);
+	_env.push_back("HTTP_HOST=" + header["Host"][0] + ":" + header["Host"][1]);
 	//HTTP_IF_MODFIED_SINCE ?
 	//HTTP_IF_NONE_MATCH ?
-	// _env.push_back("HTTP_SEC_FETCH_DEST=" + header["Sec-Fetch-Dest"][0]);
-	// _env.push_back("HTTP_SEC_FETCH_SITE=" + header["Sec-Fetch-Site"][0]);
-	// _env.push_back("HTTP_SEC_FETCH_MODE=" + header["Sec-Fetch-Mode"][0]);
-	// _env.push_back("HTTP_SEC_FETCH_USER=" + header["Sec-Fetch-User"][0]);
-	// _env.push_back("HTTP_USER_AGENT=" + header["User-Agent"][0]);
+	_env.push_back("HTTP_SEC_FETCH_DEST=" + header["Sec-Fetch-Dest"][0]);
+	_env.push_back("HTTP_SEC_FETCH_SITE=" + header["Sec-Fetch-Site"][0]);
+	_env.push_back("HTTP_SEC_FETCH_MODE=" + header["Sec-Fetch-Mode"][0]);
+	_env.push_back("HTTP_SEC_FETCH_USER=" + header["Sec-Fetch-User"][0]);
+	_env.push_back("HTTP_USER_AGENT=" + header["User-Agent"][0]);
     _env.push_back("CONTENT_LENGTH=" + to_string(_req.getEnvVar().size()));
-	// _env.push_back("PATH=" + _getSysPath());
-   	// _env.push_back("QUERY_STRING=" + _constructQuery(_req.getVar()));
-    // _env.push_back("REMOTE_ADDR=" + _clientIp);
+	_env.push_back("PATH=" + _getSysPath());
+   	_env.push_back("QUERY_STRING=" + _constructQuery(_req.getVar()));
+    _env.push_back("REMOTE_ADDR=" + _clientIp);
 	// // REMOTE_PORT ?
     _env.push_back("REQUEST_METHOD=" + _req.getMethod());
-	// _env.push_back("REQUEST_SCHEME=http");
-	// _env.push_back("REQUEST_URI=" + _cgiPath);
-    // _env.push_back("SCRIPT_FILENAME=" + cwdPath + _pathToFile);
-	// _env.push_back("SCRIPT_NAME=" + _cgiPath);
+	_env.push_back("REQUEST_SCHEME=http");
+	_env.push_back("REQUEST_URI=" + _cgiPath);
+    _env.push_back("SCRIPT_FILENAME=" + cwdPath + _pathToFile);
+	_env.push_back("SCRIPT_NAME=" + _cgiPath);
 	// SERVER_ADDR
-	// _env.push_back("SERVER_NAME=" + header["Host"][0]);
-	// _env.push_back("SERVER_PORT=" + header["Host"][1]);
-	// _env.push_back("SERVER_PORT=" + _req.getVersion());
-	// _env.push_back("SERVER_SIGNATURE=\"\"");
-	// _env.push_back("SERVER_SOFTWARE=catzGang Web Server");
+	_env.push_back("SERVER_NAME=" + header["Host"][0]);
+	_env.push_back("SERVER_PORT=" + header["Host"][1]);
+	_env.push_back("SERVER_PORT=" + _req.getVersion());
+	_env.push_back("SERVER_SIGNATURE=\"\"");
+	_env.push_back("SERVER_SOFTWARE=catzGang Web Server");
 	if (header.find("Content-Type") != header.end())
     	_env.push_back("CONTENT_TYPE=" + header["Content-Type"][0]);
 	else
@@ -154,7 +154,6 @@ void    CgiHandler::_writeToIn(int pipeIn)
 {
     std::string    toWrite = _req.getEnvVar();
     
-	std::cerr << toWrite << std::endl;
     write(pipeIn, toWrite.data(), toWrite.size());
 }
 
@@ -165,8 +164,6 @@ std::vector<char>	CgiHandler::exec(void)
 
 	pipe(tabPipe);
 	pipe(tabVar);
-    _writeToIn(tabVar[1]);
-	close(tabVar[1]);
 	int pid = fork();
 	if (pid == 0)
 	{
@@ -177,26 +174,20 @@ std::vector<char>	CgiHandler::exec(void)
 		close(tabVar[0]);
 		_pathToFile.erase(_pathToFile.begin());
 		_cgiPath.erase(_cgiPath.begin());
-        _var.insert(_var.begin(), _pathToFile);
-        _var.insert(_var.begin(), _cgiPath);
-        char **var = _convertVecToChar(_var);
         char **env = _convertVecToChar(_env);
 		ft_print_tab(env);
-		std::cerr << "------argv-----" << std::endl;
-		ft_print_tab(var);
-		execve(_cgiPath.c_str(), var, env);
-        delete []var;
+		char **nll = NULL;
+		execve(_cgiPath.c_str(), nll, env);
         delete []env;
 		perror("exec fail");
 		exit(EXIT_FAILURE);
     }
 	else
 	{
+		_writeToIn(tabVar[1]);
+		close(tabVar[1]);
 		close(tabPipe[1]);
 		close(tabVar[0]);
-		std::cout << "oui je boucvle inf" << std::endl;
-		wait(NULL);
-		std::cout << "no boucle inf" << std::endl;
 	}
 	return (_readPipe(tabPipe[0]));
 }
@@ -221,5 +212,6 @@ std::vector<char> 	CgiHandler::_readPipe(int pipeToRead)
 	while (read(pipeToRead, &c, 1))
 		res.push_back(c);
 	close(pipeToRead);
+	wait(NULL);
     return (res);
 }

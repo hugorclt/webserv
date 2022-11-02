@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/11 15:23:33 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/31 15:40:42 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/02 18:07:49 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -128,9 +128,44 @@ Response::Response(ConfigParser::Location env, Request &req, std::string clientI
 /*                                   methods                                  */
 /* -------------------------------------------------------------------------- */
 
+
+
+//<center><h2> " + _code + " " + _status + " </h2></center>
+
+const std::string Response::_css("\
+			<style>\
+				body{\
+					font-family: 'Calistoga', cursive;\
+					background-color:#282a39;\
+					color:#bd93f9;\
+				}\
+				a {\
+					text-decoration: none;\
+				}\
+			</style>"\
+		);
+
 std::vector<char>	Response::_getDefaultErrorPage(void)
 {
-	std::string	page("<center><h2> " + _code + " " + _status + " </h2></center>");
+	std::string	page("\
+		<!DOCTYPE html>\
+		<html>\
+		<title>Online HTML Editor</title>\
+		<head>\
+		<link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">\
+		<link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin>\
+		<link href=\"https://fonts.googleapis.com/css2?family=Calistoga&display=swap\" rel=\"stylesheet\">\
+		" + _css + "\
+		</head>\
+		<body>\
+			<center>\
+				<h2>" + _code + "</h2>\
+				<p>" + _status + "</p>\
+				<IMG SRC=\"https://media.tenor.com/Fmoc_-YxLWIAAAAC/shoes-cat.gif\">\
+			</center>\
+		</body>\
+		</html>"\
+	);
 	return (std::vector<char> (page.begin(), page.end()));
 }
 

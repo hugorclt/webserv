@@ -1,0 +1,295 @@
+Content-type: text/html; charset=UTF-8
+
+
+<h2>Environment</h2>
+<table>
+<tr class="h"><th>Variable</th><th>Value</th></tr>
+<tr><td class="e">GJS_DEBUG_TOPICS </td><td class="v">JS ERROR;JS LOG </td></tr>
+<tr><td class="e">USER </td><td class="v">hrecolet </td></tr>
+<tr><td class="e">XDG_SESSION_TYPE </td><td class="v">x11 </td></tr>
+<tr><td class="e">SHLVL </td><td class="v">2 </td></tr>
+<tr><td class="e">HOME </td><td class="v">/mnt/nfs/homes/hrecolet </td></tr>
+<tr><td class="e">DESKTOP_SESSION </td><td class="v">unity </td></tr>
+<tr><td class="e">GIO_LAUNCHED_DESKTOP_FILE </td><td class="v">/usr/share/applications/code.desktop </td></tr>
+<tr><td class="e">GTK_MODULES </td><td class="v">gail:atk-bridge </td></tr>
+<tr><td class="e">XDG_SEAT_PATH </td><td class="v">/org/freedesktop/DisplayManager/Seat0 </td></tr>
+<tr><td class="e">MANAGERPID </td><td class="v">244813 </td></tr>
+<tr><td class="e">SYSTEMD_EXEC_PID </td><td class="v">245409 </td></tr>
+<tr><td class="e">DBUS_SESSION_BUS_ADDRESS </td><td class="v">unix:path=/run/user/40354/bus </td></tr>
+<tr><td class="e">LIBVIRT_DEFAULT_URI </td><td class="v">qemu:///system </td></tr>
+<tr><td class="e">GIO_LAUNCHED_DESKTOP_FILE_PID </td><td class="v">245815 </td></tr>
+<tr><td class="e">MANDATORY_PATH </td><td class="v">/usr/share/gconf/unity.mandatory.path </td></tr>
+<tr><td class="e">LOGNAME </td><td class="v">hrecolet </td></tr>
+<tr><td class="e">JOURNAL_STREAM </td><td class="v">8:1233579 </td></tr>
+<tr><td class="e">DEFAULTS_PATH </td><td class="v">/usr/share/gconf/unity.default.path </td></tr>
+<tr><td class="e">XDG_SESSION_CLASS </td><td class="v">user </td></tr>
+<tr><td class="e">GNOME_DESKTOP_SESSION_ID </td><td class="v">this-is-deprecated </td></tr>
+<tr><td class="e">PATH </td><td class="v">/mnt/nfs/homes/hrecolet/bin:/mnt/nfs/homes/hrecolet/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin </td></tr>
+<tr><td class="e">GTK3_MODULES </td><td class="v">xapp-gtk3-module </td></tr>
+<tr><td class="e">SESSION_MANAGER </td><td class="v">local/e2r5p4.clusters.42paris.fr:@/tmp/.ICE-unix/245391,unix/e2r5p4.clusters.42paris.fr:/tmp/.ICE-unix/245391 </td></tr>
+<tr><td class="e">INVOCATION_ID </td><td class="v">f876e1dc9bdd45c6ac46f8fbc1eaf5d6 </td></tr>
+<tr><td class="e">XDG_RUNTIME_DIR </td><td class="v">/run/user/40354 </td></tr>
+<tr><td class="e">XDG_MENU_PREFIX </td><td class="v">gnome- </td></tr>
+<tr><td class="e">XDG_SESSION_PATH </td><td class="v">/org/freedesktop/DisplayManager/Session5 </td></tr>
+<tr><td class="e">DISPLAY </td><td class="v">:0 </td></tr>
+<tr><td class="e">LANG </td><td class="v">en_US.UTF-8 </td></tr>
+<tr><td class="e">XDG_CURRENT_DESKTOP </td><td class="v">Unity </td></tr>
+<tr><td class="e">XAUTHORITY </td><td class="v">/mnt/nfs/homes/hrecolet/.Xauthority </td></tr>
+<tr><td class="e">XDG_SESSION_DESKTOP </td><td class="v">unity </td></tr>
+<tr><td class="e">XMODIFIERS </td><td class="v">@im=ibus </td></tr>
+<tr><td class="e">SSH_AGENT_LAUNCHER </td><td class="v">gnome-keyring </td></tr>
+<tr><td class="e">SSH_AUTH_SOCK </td><td class="v">/run/user/40354/keyring/ssh </td></tr>
+<tr><td class="e">XDG_GREETER_DATA_DIR </td><td class="v">/var/lib/lightdm-data/hrecolet </td></tr>
+<tr><td class="e">SHELL </td><td class="v">/bin/zsh </td></tr>
+<tr><td class="e">KRB5CCNAME </td><td class="v">FILE:/tmp/krb5cc_40354_badPs9 </td></tr>
+<tr><td class="e">QT_ACCESSIBILITY </td><td class="v">1 </td></tr>
+<tr><td class="e">GDMSESSION </td><td class="v">unity </td></tr>
+<tr><td class="e">DOCKER_HOST </td><td class="v">unix:///run/user/40354/docker.sock </td></tr>
+<tr><td class="e">GPG_AGENT_INFO </td><td class="v">/run/user/40354/gnupg/S.gpg-agent:0:1 </td></tr>
+<tr><td class="e">GJS_DEBUG_OUTPUT </td><td class="v">stderr </td></tr>
+<tr><td class="e">QT_IM_MODULE </td><td class="v">ibus </td></tr>
+<tr><td class="e">PWD </td><td class="v">/mnt/nfs/homes/hrecolet/Documents/42cursus/Cercle5/webserv </td></tr>
+<tr><td class="e">XDG_DATA_DIRS </td><td class="v">/usr/share/unity:/usr/share/gnome:/mnt/nfs/homes/hrecolet/.local/share/flatpak/exports/share:/var/lib/flatpak/exports/share:/usr/local/share:/usr/share:/var/lib/snapd/desktop </td></tr>
+<tr><td class="e">XDG_CONFIG_DIRS </td><td class="v">/etc/xdg/xdg-unity:/etc/xdg </td></tr>
+<tr><td class="e">CHROME_DESKTOP </td><td class="v">code-url-handler.desktop </td></tr>
+<tr><td class="e">ORIGINAL_XDG_CURRENT_DESKTOP </td><td class="v">ubuntu:GNOME </td></tr>
+<tr><td class="e">GDK_BACKEND </td><td class="v">x11 </td></tr>
+<tr><td class="e">OLDPWD </td><td class="v">/mnt/nfs/homes/hrecolet/Documents/42cursus/Cercle5 </td></tr>
+<tr><td class="e">ZSH </td><td class="v">/mnt/nfs/homes/hrecolet/.oh-my-zsh </td></tr>
+<tr><td class="e">PAGER </td><td class="v">less </td></tr>
+<tr><td class="e">LESS </td><td class="v">-R </td></tr>
+<tr><td class="e">LSCOLORS </td><td class="v">Gxfxcxdxbxegedabagacad </td></tr>
+<tr><td class="e">_ </td><td class="v">/mnt/nfs/homes/hrecolet/Documents/42cursus/Cercle5/webserv/./cgi/php-cgi </td></tr>
+<tr><td class="e">TERM_PROGRAM </td><td class="v">vscode </td></tr>
+<tr><td class="e">TERM_PROGRAM_VERSION </td><td class="v">1.72.2 </td></tr>
+<tr><td class="e">COLORTERM </td><td class="v">truecolor </td></tr>
+<tr><td class="e">GIT_ASKPASS </td><td class="v">/usr/share/code/resources/app/extensions/git/dist/askpass.sh </td></tr>
+<tr><td class="e">VSCODE_GIT_ASKPASS_NODE </td><td class="v">/usr/share/code/code </td></tr>
+<tr><td class="e">VSCODE_GIT_ASKPASS_EXTRA_ARGS </td><td class="v">--ms-enable-electron-run-as-node </td></tr>
+<tr><td class="e">VSCODE_GIT_ASKPASS_MAIN </td><td class="v">/usr/share/code/resources/app/extensions/git/dist/askpass-main.js </td></tr>
+<tr><td class="e">VSCODE_GIT_IPC_HANDLE </td><td class="v">/run/user/40354/vscode-git-f7ee967846.sock </td></tr>
+<tr><td class="e">VSCODE_INJECTION </td><td class="v">1 </td></tr>
+<tr><td class="e">ZDOTDIR </td><td class="v">/mnt/nfs/homes/hrecolet </td></tr>
+<tr><td class="e">USER_ZDOTDIR </td><td class="v">/mnt/nfs/homes/hrecolet </td></tr>
+<tr><td class="e">TERM </td><td class="v">xterm-256color </td></tr>
+<tr><td class="e">LS_COLORS </td><td class="v">rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36: </td></tr>
+</table>
+<h2>PHP Variables</h2>
+<table>
+<tr class="h"><th>Variable</th><th>Value</th></tr>
+<tr><td class="e">$_REQUEST['root/www/example/test_php']</td><td class="v"><i>no value</i></td></tr>
+<tr><td class="e">$_GET['root/www/example/test_php']</td><td class="v"><i>no value</i></td></tr>
+<tr><td class="e">$_SERVER['GJS_DEBUG_TOPICS']</td><td class="v">JS ERROR;JS LOG</td></tr>
+<tr><td class="e">$_SERVER['USER']</td><td class="v">hrecolet</td></tr>
+<tr><td class="e">$_SERVER['XDG_SESSION_TYPE']</td><td class="v">x11</td></tr>
+<tr><td class="e">$_SERVER['SHLVL']</td><td class="v">2</td></tr>
+<tr><td class="e">$_SERVER['HOME']</td><td class="v">/mnt/nfs/homes/hrecolet</td></tr>
+<tr><td class="e">$_SERVER['DESKTOP_SESSION']</td><td class="v">unity</td></tr>
+<tr><td class="e">$_SERVER['GIO_LAUNCHED_DESKTOP_FILE']</td><td class="v">/usr/share/applications/code.desktop</td></tr>
+<tr><td class="e">$_SERVER['GTK_MODULES']</td><td class="v">gail:atk-bridge</td></tr>
+<tr><td class="e">$_SERVER['XDG_SEAT_PATH']</td><td class="v">/org/freedesktop/DisplayManager/Seat0</td></tr>
+<tr><td class="e">$_SERVER['MANAGERPID']</td><td class="v">244813</td></tr>
+<tr><td class="e">$_SERVER['SYSTEMD_EXEC_PID']</td><td class="v">245409</td></tr>
+<tr><td class="e">$_SERVER['DBUS_SESSION_BUS_ADDRESS']</td><td class="v">unix:path=/run/user/40354/bus</td></tr>
+<tr><td class="e">$_SERVER['LIBVIRT_DEFAULT_URI']</td><td class="v">qemu:///system</td></tr>
+<tr><td class="e">$_SERVER['GIO_LAUNCHED_DESKTOP_FILE_PID']</td><td class="v">245815</td></tr>
+<tr><td class="e">$_SERVER['MANDATORY_PATH']</td><td class="v">/usr/share/gconf/unity.mandatory.path</td></tr>
+<tr><td class="e">$_SERVER['LOGNAME']</td><td class="v">hrecolet</td></tr>
+<tr><td class="e">$_SERVER['JOURNAL_STREAM']</td><td class="v">8:1233579</td></tr>
+<tr><td class="e">$_SERVER['DEFAULTS_PATH']</td><td class="v">/usr/share/gconf/unity.default.path</td></tr>
+<tr><td class="e">$_SERVER['XDG_SESSION_CLASS']</td><td class="v">user</td></tr>
+<tr><td class="e">$_SERVER['GNOME_DESKTOP_SESSION_ID']</td><td class="v">this-is-deprecated</td></tr>
+<tr><td class="e">$_SERVER['PATH']</td><td class="v">/mnt/nfs/homes/hrecolet/bin:/mnt/nfs/homes/hrecolet/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin</td></tr>
+<tr><td class="e">$_SERVER['GTK3_MODULES']</td><td class="v">xapp-gtk3-module</td></tr>
+<tr><td class="e">$_SERVER['SESSION_MANAGER']</td><td class="v">local/e2r5p4.clusters.42paris.fr:@/tmp/.ICE-unix/245391,unix/e2r5p4.clusters.42paris.fr:/tmp/.ICE-unix/245391</td></tr>
+<tr><td class="e">$_SERVER['INVOCATION_ID']</td><td class="v">f876e1dc9bdd45c6ac46f8fbc1eaf5d6</td></tr>
+<tr><td class="e">$_SERVER['XDG_RUNTIME_DIR']</td><td class="v">/run/user/40354</td></tr>
+<tr><td class="e">$_SERVER['XDG_MENU_PREFIX']</td><td class="v">gnome-</td></tr>
+<tr><td class="e">$_SERVER['XDG_SESSION_PATH']</td><td class="v">/org/freedesktop/DisplayManager/Session5</td></tr>
+<tr><td class="e">$_SERVER['DISPLAY']</td><td class="v">:0</td></tr>
+<tr><td class="e">$_SERVER['LANG']</td><td class="v">en_US.UTF-8</td></tr>
+<tr><td class="e">$_SERVER['XDG_CURRENT_DESKTOP']</td><td class="v">Unity</td></tr>
+<tr><td class="e">$_SERVER['XAUTHORITY']</td><td class="v">/mnt/nfs/homes/hrecolet/.Xauthority</td></tr>
+<tr><td class="e">$_SERVER['XDG_SESSION_DESKTOP']</td><td class="v">unity</td></tr>
+<tr><td class="e">$_SERVER['XMODIFIERS']</td><td class="v">@im=ibus</td></tr>
+<tr><td class="e">$_SERVER['SSH_AGENT_LAUNCHER']</td><td class="v">gnome-keyring</td></tr>
+<tr><td class="e">$_SERVER['SSH_AUTH_SOCK']</td><td class="v">/run/user/40354/keyring/ssh</td></tr>
+<tr><td class="e">$_SERVER['XDG_GREETER_DATA_DIR']</td><td class="v">/var/lib/lightdm-data/hrecolet</td></tr>
+<tr><td class="e">$_SERVER['SHELL']</td><td class="v">/bin/zsh</td></tr>
+<tr><td class="e">$_SERVER['KRB5CCNAME']</td><td class="v">FILE:/tmp/krb5cc_40354_badPs9</td></tr>
+<tr><td class="e">$_SERVER['QT_ACCESSIBILITY']</td><td class="v">1</td></tr>
+<tr><td class="e">$_SERVER['GDMSESSION']</td><td class="v">unity</td></tr>
+<tr><td class="e">$_SERVER['DOCKER_HOST']</td><td class="v">unix:///run/user/40354/docker.sock</td></tr>
+<tr><td class="e">$_SERVER['GPG_AGENT_INFO']</td><td class="v">/run/user/40354/gnupg/S.gpg-agent:0:1</td></tr>
+<tr><td class="e">$_SERVER['GJS_DEBUG_OUTPUT']</td><td class="v">stderr</td></tr>
+<tr><td class="e">$_SERVER['QT_IM_MODULE']</td><td class="v">ibus</td></tr>
+<tr><td class="e">$_SERVER['PWD']</td><td class="v">/mnt/nfs/homes/hrecolet/Documents/42cursus/Cercle5/webserv</td></tr>
+<tr><td class="e">$_SERVER['XDG_DATA_DIRS']</td><td class="v">/usr/share/unity:/usr/share/gnome:/mnt/nfs/homes/hrecolet/.local/share/flatpak/exports/share:/var/lib/flatpak/exports/share:/usr/local/share:/usr/share:/var/lib/snapd/desktop</td></tr>
+<tr><td class="e">$_SERVER['XDG_CONFIG_DIRS']</td><td class="v">/etc/xdg/xdg-unity:/etc/xdg</td></tr>
+<tr><td class="e">$_SERVER['CHROME_DESKTOP']</td><td class="v">code-url-handler.desktop</td></tr>
+<tr><td class="e">$_SERVER['ORIGINAL_XDG_CURRENT_DESKTOP']</td><td class="v">ubuntu:GNOME</td></tr>
+<tr><td class="e">$_SERVER['GDK_BACKEND']</td><td class="v">x11</td></tr>
+<tr><td class="e">$_SERVER['OLDPWD']</td><td class="v">/mnt/nfs/homes/hrecolet/Documents/42cursus/Cercle5</td></tr>
+<tr><td class="e">$_SERVER['ZSH']</td><td class="v">/mnt/nfs/homes/hrecolet/.oh-my-zsh</td></tr>
+<tr><td class="e">$_SERVER['PAGER']</td><td class="v">less</td></tr>
+<tr><td class="e">$_SERVER['LESS']</td><td class="v">-R</td></tr>
+<tr><td class="e">$_SERVER['LSCOLORS']</td><td class="v">Gxfxcxdxbxegedabagacad</td></tr>
+<tr><td class="e">$_SERVER['_']</td><td class="v">/mnt/nfs/homes/hrecolet/Documents/42cursus/Cercle5/webserv/./cgi/php-cgi</td></tr>
+<tr><td class="e">$_SERVER['TERM_PROGRAM']</td><td class="v">vscode</td></tr>
+<tr><td class="e">$_SERVER['TERM_PROGRAM_VERSION']</td><td class="v">1.72.2</td></tr>
+<tr><td class="e">$_SERVER['COLORTERM']</td><td class="v">truecolor</td></tr>
+<tr><td class="e">$_SERVER['GIT_ASKPASS']</td><td class="v">/usr/share/code/resources/app/extensions/git/dist/askpass.sh</td></tr>
+<tr><td class="e">$_SERVER['VSCODE_GIT_ASKPASS_NODE']</td><td class="v">/usr/share/code/code</td></tr>
+<tr><td class="e">$_SERVER['VSCODE_GIT_ASKPASS_EXTRA_ARGS']</td><td class="v">--ms-enable-electron-run-as-node</td></tr>
+<tr><td class="e">$_SERVER['VSCODE_GIT_ASKPASS_MAIN']</td><td class="v">/usr/share/code/resources/app/extensions/git/dist/askpass-main.js</td></tr>
+<tr><td class="e">$_SERVER['VSCODE_GIT_IPC_HANDLE']</td><td class="v">/run/user/40354/vscode-git-f7ee967846.sock</td></tr>
+<tr><td class="e">$_SERVER['VSCODE_INJECTION']</td><td class="v">1</td></tr>
+<tr><td class="e">$_SERVER['ZDOTDIR']</td><td class="v">/mnt/nfs/homes/hrecolet</td></tr>
+<tr><td class="e">$_SERVER['USER_ZDOTDIR']</td><td class="v">/mnt/nfs/homes/hrecolet</td></tr>
+<tr><td class="e">$_SERVER['TERM']</td><td class="v">xterm-256color</td></tr>
+<tr><td class="e">$_SERVER['LS_COLORS']</td><td class="v">rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:</td></tr>
+<tr><td class="e">$_SERVER['PHP_SELF']</td><td class="v"><i>no value</i></td></tr>
+<tr><td class="e">$_SERVER['REQUEST_TIME_FLOAT']</td><td class="v">1667405658.7619</td></tr>
+<tr><td class="e">$_SERVER['REQUEST_TIME']</td><td class="v">1667405658</td></tr>
+</table>
+<hr />
+<h1>PHP Credits</h1>
+<table>
+<tr class="h"><th>PHP Group</th></tr>
+<tr><td class="e">Thies C. Arntzen, Stig Bakken, Shane Caraveo, Andi Gutmans, Rasmus Lerdorf, Sam Ruby, Sascha Schumann, Zeev Suraski, Jim Winstead, Andrei Zmievski </td></tr>
+</table>
+<table>
+<tr class="h"><th>Language Design &amp; Concept</th></tr>
+<tr><td class="e">Andi Gutmans, Rasmus Lerdorf, Zeev Suraski, Marcus Boerger </td></tr>
+</table>
+<table>
+<tr class="h"><th colspan="2">PHP Authors</th></tr>
+<tr class="h"><th>Contribution</th><th>Authors</th></tr>
+<tr><td class="e">Zend Scripting Language Engine </td><td class="v">Andi Gutmans, Zeev Suraski, Stanislav Malyshev, Marcus Boerger, Dmitry Stogov, Xinchen Hui, Nikita Popov </td></tr>
+<tr><td class="e">Extension Module API </td><td class="v">Andi Gutmans, Zeev Suraski, Andrei Zmievski </td></tr>
+<tr><td class="e">UNIX Build and Modularization </td><td class="v">Stig Bakken, Sascha Schumann, Jani Taskinen, Peter Kokot </td></tr>
+<tr><td class="e">Windows Support </td><td class="v">Shane Caraveo, Zeev Suraski, Wez Furlong, Pierre-Alain Joye, Anatol Belski, Kalle Sommer Nielsen </td></tr>
+<tr><td class="e">Server API (SAPI) Abstraction Layer </td><td class="v">Andi Gutmans, Shane Caraveo, Zeev Suraski </td></tr>
+<tr><td class="e">Streams Abstraction Layer </td><td class="v">Wez Furlong, Sara Golemon </td></tr>
+<tr><td class="e">PHP Data Objects Layer </td><td class="v">Wez Furlong, Marcus Boerger, Sterling Hughes, George Schlossnagle, Ilia Alshanetsky </td></tr>
+<tr><td class="e">Output Handler </td><td class="v">Zeev Suraski, Thies C. Arntzen, Marcus Boerger, Michael Wallner </td></tr>
+<tr><td class="e">Consistent 64 bit support </td><td class="v">Anthony Ferrara, Anatol Belski </td></tr>
+</table>
+<table>
+<tr class="h"><th colspan="2">SAPI Modules</th></tr>
+<tr class="h"><th>Contribution</th><th>Authors</th></tr>
+<tr><td class="e">Apache 2.0 Handler </td><td class="v">Ian Holsman, Justin Erenkrantz (based on Apache 2.0 Filter code) </td></tr>
+<tr><td class="e">CGI / FastCGI </td><td class="v">Rasmus Lerdorf, Stig Bakken, Shane Caraveo, Dmitry Stogov </td></tr>
+<tr><td class="e">CLI </td><td class="v">Edin Kadribasic, Marcus Boerger, Johannes Schlueter, Moriyoshi Koizumi, Xinchen Hui </td></tr>
+<tr><td class="e">Embed </td><td class="v">Edin Kadribasic </td></tr>
+<tr><td class="e">FastCGI Process Manager </td><td class="v">Andrei Nigmatulin, dreamcat4, Antony Dovgal, Jerome Loyet </td></tr>
+<tr><td class="e">litespeed </td><td class="v">George Wang </td></tr>
+<tr><td class="e">phpdbg </td><td class="v">Felipe Pena, Joe Watkins, Bob Weinand </td></tr>
+</table>
+<table>
+<tr class="h"><th colspan="2">Module Authors</th></tr>
+<tr class="h"><th>Module</th><th>Authors</th></tr>
+<tr><td class="e">BC Math </td><td class="v">Andi Gutmans </td></tr>
+<tr><td class="e">Bzip2 </td><td class="v">Sterling Hughes </td></tr>
+<tr><td class="e">Calendar </td><td class="v">Shane Caraveo, Colin Viebrock, Hartmut Holzgraefe, Wez Furlong </td></tr>
+<tr><td class="e">COM and .Net </td><td class="v">Wez Furlong </td></tr>
+<tr><td class="e">ctype </td><td class="v">Hartmut Holzgraefe </td></tr>
+<tr><td class="e">cURL </td><td class="v">Sterling Hughes </td></tr>
+<tr><td class="e">Date/Time Support </td><td class="v">Derick Rethans </td></tr>
+<tr><td class="e">DB-LIB (MS SQL, Sybase) </td><td class="v">Wez Furlong, Frank M. Kromann, Adam Baratz </td></tr>
+<tr><td class="e">DBA </td><td class="v">Sascha Schumann, Marcus Boerger </td></tr>
+<tr><td class="e">DOM </td><td class="v">Christian Stocker, Rob Richards, Marcus Boerger </td></tr>
+<tr><td class="e">enchant </td><td class="v">Pierre-Alain Joye, Ilia Alshanetsky </td></tr>
+<tr><td class="e">EXIF </td><td class="v">Rasmus Lerdorf, Marcus Boerger </td></tr>
+<tr><td class="e">FFI </td><td class="v">Dmitry Stogov </td></tr>
+<tr><td class="e">fileinfo </td><td class="v">Ilia Alshanetsky, Pierre Alain Joye, Scott MacVicar, Derick Rethans, Anatol Belski </td></tr>
+<tr><td class="e">Firebird driver for PDO </td><td class="v">Ard Biesheuvel </td></tr>
+<tr><td class="e">FTP </td><td class="v">Stefan Esser, Andrew Skalski </td></tr>
+<tr><td class="e">GD imaging </td><td class="v">Rasmus Lerdorf, Stig Bakken, Jim Winstead, Jouni Ahto, Ilia Alshanetsky, Pierre-Alain Joye, Marcus Boerger, Mark Randall </td></tr>
+<tr><td class="e">GetText </td><td class="v">Alex Plotnick </td></tr>
+<tr><td class="e">GNU GMP support </td><td class="v">Stanislav Malyshev </td></tr>
+<tr><td class="e">Iconv </td><td class="v">Rui Hirokawa, Stig Bakken, Moriyoshi Koizumi </td></tr>
+<tr><td class="e">IMAP </td><td class="v">Rex Logan, Mark Musone, Brian Wang, Kaj-Michael Lang, Antoni Pamies Olive, Rasmus Lerdorf, Andrew Skalski, Chuck Hagenbuch, Daniel R Kalowsky </td></tr>
+<tr><td class="e">Input Filter </td><td class="v">Rasmus Lerdorf, Derick Rethans, Pierre-Alain Joye, Ilia Alshanetsky </td></tr>
+<tr><td class="e">Internationalization </td><td class="v">Ed Batutis, Vladimir Iordanov, Dmitry Lakhtyuk, Stanislav Malyshev, Vadim Savchuk, Kirti Velankar </td></tr>
+<tr><td class="e">JSON </td><td class="v">Jakub Zelenka, Omar Kilani, Scott MacVicar </td></tr>
+<tr><td class="e">LDAP </td><td class="v">Amitay Isaacs, Eric Warnke, Rasmus Lerdorf, Gerrit Thomson, Stig Venaas </td></tr>
+<tr><td class="e">LIBXML </td><td class="v">Christian Stocker, Rob Richards, Marcus Boerger, Wez Furlong, Shane Caraveo </td></tr>
+<tr><td class="e">Multibyte String Functions </td><td class="v">Tsukada Takuya, Rui Hirokawa </td></tr>
+<tr><td class="e">MySQL driver for PDO </td><td class="v">George Schlossnagle, Wez Furlong, Ilia Alshanetsky, Johannes Schlueter </td></tr>
+<tr><td class="e">MySQLi </td><td class="v">Zak Greant, Georg Richter, Andrey Hristov, Ulf Wendel </td></tr>
+<tr><td class="e">MySQLnd </td><td class="v">Andrey Hristov, Ulf Wendel, Georg Richter, Johannes Schlüter </td></tr>
+<tr><td class="e">OCI8 </td><td class="v">Stig Bakken, Thies C. Arntzen, Andy Sautins, David Benson, Maxim Maletsky, Harald Radi, Antony Dovgal, Andi Gutmans, Wez Furlong, Christopher Jones, Oracle Corporation </td></tr>
+<tr><td class="e">ODBC driver for PDO </td><td class="v">Wez Furlong </td></tr>
+<tr><td class="e">ODBC </td><td class="v">Stig Bakken, Andreas Karajannis, Frank M. Kromann, Daniel R. Kalowsky </td></tr>
+<tr><td class="e">Opcache </td><td class="v">Andi Gutmans, Zeev Suraski, Stanislav Malyshev, Dmitry Stogov, Xinchen Hui </td></tr>
+<tr><td class="e">OpenSSL </td><td class="v">Stig Venaas, Wez Furlong, Sascha Kettler, Scott MacVicar, Eliot Lear </td></tr>
+<tr><td class="e">Oracle (OCI) driver for PDO </td><td class="v">Wez Furlong </td></tr>
+<tr><td class="e">pcntl </td><td class="v">Jason Greene, Arnaud Le Blanc </td></tr>
+<tr><td class="e">Perl Compatible Regexps </td><td class="v">Andrei Zmievski </td></tr>
+<tr><td class="e">PHP Archive </td><td class="v">Gregory Beaver, Marcus Boerger </td></tr>
+<tr><td class="e">PHP Data Objects </td><td class="v">Wez Furlong, Marcus Boerger, Sterling Hughes, George Schlossnagle, Ilia Alshanetsky </td></tr>
+<tr><td class="e">PHP hash </td><td class="v">Sara Golemon, Rasmus Lerdorf, Stefan Esser, Michael Wallner, Scott MacVicar </td></tr>
+<tr><td class="e">Posix </td><td class="v">Kristian Koehntopp </td></tr>
+<tr><td class="e">PostgreSQL driver for PDO </td><td class="v">Edin Kadribasic, Ilia Alshanetsky </td></tr>
+<tr><td class="e">PostgreSQL </td><td class="v">Jouni Ahto, Zeev Suraski, Yasuo Ohgaki, Chris Kings-Lynne </td></tr>
+<tr><td class="e">Pspell </td><td class="v">Vlad Krupin </td></tr>
+<tr><td class="e">Readline </td><td class="v">Thies C. Arntzen </td></tr>
+<tr><td class="e">Reflection </td><td class="v">Marcus Boerger, Timm Friebe, George Schlossnagle, Andrei Zmievski, Johannes Schlueter </td></tr>
+<tr><td class="e">Sessions </td><td class="v">Sascha Schumann, Andrei Zmievski </td></tr>
+<tr><td class="e">Shared Memory Operations </td><td class="v">Slava Poliakov, Ilia Alshanetsky </td></tr>
+<tr><td class="e">SimpleXML </td><td class="v">Sterling Hughes, Marcus Boerger, Rob Richards </td></tr>
+<tr><td class="e">SNMP </td><td class="v">Rasmus Lerdorf, Harrie Hazewinkel, Mike Jackson, Steven Lawrance, Johann Hanne, Boris Lytochkin </td></tr>
+<tr><td class="e">SOAP </td><td class="v">Brad Lafountain, Shane Caraveo, Dmitry Stogov </td></tr>
+<tr><td class="e">Sockets </td><td class="v">Chris Vandomelen, Sterling Hughes, Daniel Beulshausen, Jason Greene </td></tr>
+<tr><td class="e">Sodium </td><td class="v">Frank Denis </td></tr>
+<tr><td class="e">SPL </td><td class="v">Marcus Boerger, Etienne Kneuss </td></tr>
+<tr><td class="e">SQLite 3.x driver for PDO </td><td class="v">Wez Furlong </td></tr>
+<tr><td class="e">SQLite3 </td><td class="v">Scott MacVicar, Ilia Alshanetsky, Brad Dewar </td></tr>
+<tr><td class="e">System V Message based IPC </td><td class="v">Wez Furlong </td></tr>
+<tr><td class="e">System V Semaphores </td><td class="v">Tom May </td></tr>
+<tr><td class="e">System V Shared Memory </td><td class="v">Christian Cartus </td></tr>
+<tr><td class="e">tidy </td><td class="v">John Coggeshall, Ilia Alshanetsky </td></tr>
+<tr><td class="e">tokenizer </td><td class="v">Andrei Zmievski, Johannes Schlueter </td></tr>
+<tr><td class="e">XML </td><td class="v">Stig Bakken, Thies C. Arntzen, Sterling Hughes </td></tr>
+<tr><td class="e">XMLReader </td><td class="v">Rob Richards </td></tr>
+<tr><td class="e">XMLWriter </td><td class="v">Rob Richards, Pierre-Alain Joye </td></tr>
+<tr><td class="e">XSL </td><td class="v">Christian Stocker, Rob Richards </td></tr>
+<tr><td class="e">Zip </td><td class="v">Pierre-Alain Joye, Remi Collet </td></tr>
+<tr><td class="e">Zlib </td><td class="v">Rasmus Lerdorf, Stefan Roehrich, Zeev Suraski, Jade Nicoletti, Michael Wallner </td></tr>
+</table>
+<table>
+<tr class="h"><th colspan="2">PHP Documentation</th></tr>
+<tr><td class="e">Authors </td><td class="v">Mehdi Achour, Friedhelm Betz, Antony Dovgal, Nuno Lopes, Hannes Magnusson, Philip Olson, Georg Richter, Damien Seguy, Jakub Vrana, Adam Harvey </td></tr>
+<tr><td class="e">Editor </td><td class="v">Peter Cowburn </td></tr>
+<tr><td class="e">User Note Maintainers </td><td class="v">Daniel P. Brown, Thiago Henrique Pojda </td></tr>
+<tr><td class="e">Other Contributors </td><td class="v">Previously active authors, editors and other contributors are listed in the manual. </td></tr>
+</table>
+<table>
+<tr class="h"><th>PHP Quality Assurance Team</th></tr>
+<tr><td class="e">Ilia Alshanetsky, Joerg Behrens, Antony Dovgal, Stefan Esser, Moriyoshi Koizumi, Magnus Maatta, Sebastian Nohn, Derick Rethans, Melvyn Sopacua, Pierre-Alain Joye, Dmitry Stogov, Felipe Pena, David Soria Parra, Stanislav Malyshev, Julien Pauli, Stephen Zarkos, Anatol Belski, Remi Collet, Ferenc Kovacs </td></tr>
+</table>
+<table>
+<tr class="h"><th colspan="2">Websites and Infrastructure team</th></tr>
+<tr><td class="e">PHP Websites Team </td><td class="v">Rasmus Lerdorf, Hannes Magnusson, Philip Olson, Lukas Kahwe Smith, Pierre-Alain Joye, Kalle Sommer Nielsen, Peter Cowburn, Adam Harvey, Ferenc Kovacs, Levi Morrison </td></tr>
+<tr><td class="e">Event Maintainers </td><td class="v">Damien Seguy, Daniel P. Brown </td></tr>
+<tr><td class="e">Network Infrastructure </td><td class="v">Daniel P. Brown </td></tr>
+<tr><td class="e">Windows Infrastructure </td><td class="v">Alex Schoenmaker </td></tr>
+</table>
+<table>
+<tr class="h"><th colspan="1">Debian Packaging</th></tr>
+<tr><td class="e">Ondřej Surý </td></tr>
+</table>
+<h2>PHP License</h2>
+<table>
+<tr class="v"><td>
+<p>
+This program is free software; you can redistribute it and/or modify it under the terms of the PHP License as published by the PHP Group and included in the distribution in the file:  LICENSE
+</p>
+<p>This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+</p>
+<p>If you did not receive a copy of the PHP license, or have any questions about PHP licensing, please contact license@php.net.
+</p>
+</td></tr>
+</table>
+</div></body></html>

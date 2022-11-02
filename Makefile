@@ -6,7 +6,7 @@
 #    By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/09/19 10:51:56 by hrecolet          #+#    #+#              #
-#    Updated: 2022/10/25 14:02:00 by hrecolet         ###   ########.fr        #
+#    Updated: 2022/11/02 17:35:13 by hrecolet         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -15,7 +15,7 @@
 NAME = webserv
 
 CXX = c++
-CXXFLAGS = -Wall -Wextra -Werror -std=c++98
+CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -g3
 INCFLAGS = $(addprefix -I./, $(wildcard $(DIR_SRC)/*))
 
 DIR_SRC = srcs

@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/25 14:39:47 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/11/02 11:39:49 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/02 17:50:21 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,13 +47,7 @@ class CgiHandler {
 		void				_setTarget(void);
 		std::string			_findDirectory(std::string path);
 		std::string			_getSysPath(void);
-
-
-
-
-
       
-        
     public:
         CgiHandler(ConfigParser::Location &server, Request &req, std::string MIMEtype, std::string clientIp, char **env);
         std::vector<char>   exec(void);
