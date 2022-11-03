@@ -14,7 +14,7 @@
 
 NAME = webserv
 
-CXX = c++
+CXX ?= c++
 CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -g3
 INCFLAGS = $(addprefix -I./, $(wildcard $(DIR_SRC)/*))
 

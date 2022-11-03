@@ -12,6 +12,7 @@
 
 #include "CgiHandler.hpp"
 #include "utils.hpp"
+#include "main.hpp"
 #include <unistd.h>
 #include <iostream>
 #include <cstdlib>
@@ -84,8 +85,7 @@ std::string	CgiHandler::_getSysPath(void)
 		if (ft_strncmp(_sysEnv[i], "PATH", 4) == 0)
 			break;
 	}
-	std::string res(_sysEnv[i]);
-	return (res.substr(5, res.size() - 5));
+	return ((_sysEnv[i]) ? std::string(_sysEnv[i]).substr(5) : "");
 }
 
 void    CgiHandler::_initEnv(void)
@@ -103,13 +103,11 @@ void    CgiHandler::_initEnv(void)
 	_env.push_back("HTTP_ACCEPT_LANGUAGE=" + header["Accept-Language"][0]);
 	_env.push_back("HTTP_CONNECTION=" + header["Connection"][0]);
 	_env.push_back("HTTP_HOST=" + header["Host"][0] + ":" + header["Host"][1]);
-	_env.push_back("HTTP_SEC_FETCH_DEST=" + header["Sec-Fetch-Dest"][0]);
-	_env.push_back("HTTP_SEC_FETCH_SITE=" + header["Sec-Fetch-Site"][0]);
-	_env.push_back("HTTP_SEC_FETCH_MODE=" + header["Sec-Fetch-Mode"][0]);
-	_env.push_back("HTTP_SEC_FETCH_USER=" + header["Sec-Fetch-User"][0]);
 	_env.push_back("HTTP_USER_AGENT=" + header["User-Agent"][0]);
     _env.push_back("CONTENT_LENGTH=" + to_string(_req.getEnvVar().size()));
+	std::cout << "bite" << std::endl;
 	_env.push_back("PATH=" + _getSysPath());
+	std::cout << "bite 2" << std::endl;
    	_env.push_back("QUERY_STRING=" + _constructQuery(_req.getVar()));
     _env.push_back("REMOTE_ADDR=" + _clientIp);
     _env.push_back("REQUEST_METHOD=" + _req.getMethod());
@@ -140,12 +138,12 @@ std::string	CgiHandler::_setCwd(void)
 			break;
 		if (errno != ERANGE)
 			throw CgiHandler::CgiHandlerError("getcwd failure");
-		delete buf;
+		delete [] buf;
 		buf = NULL;
 		i++;
 	}
 	std::string res(buf);
-	delete buf;
+	delete [] buf;
 	return (res);
 }
 
@@ -179,11 +177,11 @@ std::vector<char>	CgiHandler::exec(void)
 		_pathToFile.erase(_pathToFile.begin());
 		_cgiPath.erase(_cgiPath.begin());
         char **env = _convertVecToChar(_env);
-		char **nll = NULL;
-		execve(_cgiPath.c_str(), nll, env);
-        delete []env;
-		perror("exec fail");
-		exit(EXIT_FAILURE);
+		std::vector<std::string> tmp(1, _cgiPath);
+		char **nnll = _convertVecToChar(tmp);
+		execve(_cgiPath.c_str(), nnll, env);
+		g_exit = 1;
+		throw CgiHandlerError("fork crashed");
     }
 	else
 	{
@@ -201,9 +199,7 @@ char    **CgiHandler::_convertVecToChar(std::vector<std::string> &vec)
     res = new char *[vec.size() + 1]; // reflechir plus tard
     
     for (std::vector<std::string>::iterator it = vec.begin(); it != vec.end(); it++)
-    {
         res[it - vec.begin()] = &(*it)[0];
-    }
     res[vec.size()] = NULL;
     return (res);
 }

@@ -16,11 +16,12 @@
 #include "Servers.hpp"
 #include "Request.hpp"
 #include "Response.hpp"
+#include "main.hpp"
 #include <cstdlib>
 #include <csignal>
 #include <cstring>
 
-int g_exit = 0;
+bool g_exit = false;
 
 ConfigParser::Server    selectServ(std::string ip, std::string port, std::string hostName, ConfigParser::data_type vecServs)
 {
@@ -62,7 +63,7 @@ ConfigParser::Location	getEnvFromTarget(std::string target, ConfigParser::Server
 void	handle_sig(int sig)
 {
 	if (sig == SIGINT)
-		g_exit = 1;
+		g_exit = true;
 }
 
 ConfigParser::Server	findServ(Request &req, int serverFd, Servers serverList, ConfigParser::data_type conf)
@@ -88,12 +89,10 @@ int main(int ac, char **av, char **sysEnv)
 
 			std::map<int, int>	clientList;
 		/* ----------------------------- Server loop ---------------------------- */
-			while (42) 
+			while (!g_exit) 
 			{
 				try 
 				{
-					if (g_exit == 1)
-						break;
 					int numberFdReady = epoll_wait(epoll.getEpollfd(), epoll.getEvents(), 1, -1);
 					if (numberFdReady == -1)
 						break; //error handle
