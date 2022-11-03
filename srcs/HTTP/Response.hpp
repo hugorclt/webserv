@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/21 11:47:56 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/31 15:25:12 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/02 17:50:30 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,7 @@ class Response {
 
 
 	public:
-	
+		const static std::string	_css;
 		Response(ConfigParser::Location env, Request &req, std::string clientIp, char **sysEnv);
 
 

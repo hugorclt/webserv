@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/11 22:46:12 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/19 12:40:54 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/02 18:12:24 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,17 +17,29 @@
 #include <dirent.h>
 #include <algorithm>
 #include <iostream>
+#include "Response.hpp"
 
 std::vector<char>	createIndexDir(std::vector<std::string> listOfFiles, std::string path)
 {
 	std::string	html;
-	html.append("<h1>Index of \"" + path + "\"</h1>");
+	html.append(Response::_css);
+	html.append("<style>\
+		a { font-size: 3em;\
+			color:bd93f9;\
+		}\
+		li {list-style-type:none;}\
+		h1 {font-size:3em;\
+			text-decoration: underline;\
+		}\
+	</style>");
+	html.append("<center><h1>Index of \"" + path + "\" : </h1></center>");
 	html.append("<ul>");
 	if (*path.rbegin() != '/')
 		path.push_back('/');
 	for (std::vector<std::string>::iterator it = listOfFiles.begin(); it != listOfFiles.end(); it++)
-		html.append("<li><a href=\"" + path + *it + "\">" + *it + "</a></li>");
+		html.append("<center><li><a class=\"link\" href=\"" + path + *it + "\">" + *it + "</a></li></center>");
 	html.append("</ul>");
+	html.append("<!-- made with <3 by catzGang --!>");
 	return (std::vector<char> (html.begin(), html.end()));
 }
 

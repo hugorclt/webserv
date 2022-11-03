@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/25 14:39:47 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/31 15:40:21 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/02 17:50:21 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,20 +40,14 @@ class CgiHandler {
         void    			_initEnv(void);
         std::string 		_constructQuery(std::vector<std::string> var);
         std::vector<char> 	_readPipe(int pipeToRead);
-        void                _writeToIn(Request &req, int pipeIn);
+        void                _writeToIn(int pipeIn);
 		void				_setCgiPath(void);
 		void				_setPathToFile(void);
 		void 				_setRoot(void);
 		void				_setTarget(void);
 		std::string			_findDirectory(std::string path);
 		std::string			_getSysPath(void);
-
-
-
-
-
       
-        
     public:
         CgiHandler(ConfigParser::Location &server, Request &req, std::string MIMEtype, std::string clientIp, char **env);
         std::vector<char>   exec(void);

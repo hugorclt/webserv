@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/25 14:39:45 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/31 15:47:44 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/02 17:33:21 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,15 +115,15 @@ void    CgiHandler::_initEnv(void)
 	_env.push_back("HTTP_SEC_FETCH_MODE=" + header["Sec-Fetch-Mode"][0]);
 	_env.push_back("HTTP_SEC_FETCH_USER=" + header["Sec-Fetch-User"][0]);
 	_env.push_back("HTTP_USER_AGENT=" + header["User-Agent"][0]);
-    _env.push_back("CONTENT_LENGTH=" + to_string(body.size()));
+    _env.push_back("CONTENT_LENGTH=" + to_string(_req.getEnvVar().size()));
 	_env.push_back("PATH=" + _getSysPath());
    	_env.push_back("QUERY_STRING=" + _constructQuery(_req.getVar()));
     _env.push_back("REMOTE_ADDR=" + _clientIp);
-	// REMOTE_PORT ?
+	// // REMOTE_PORT ?
     _env.push_back("REQUEST_METHOD=" + _req.getMethod());
 	_env.push_back("REQUEST_SCHEME=http");
 	_env.push_back("REQUEST_URI=" + _cgiPath);
-    _env.push_back("SCRIPT_FILENAME=" + cwdPath + _cgiPath);
+    _env.push_back("SCRIPT_FILENAME=" + cwdPath + _pathToFile);
 	_env.push_back("SCRIPT_NAME=" + _cgiPath);
 	// SERVER_ADDR
 	_env.push_back("SERVER_NAME=" + header["Host"][0]);
@@ -150,11 +150,10 @@ void    ft_print_tab(char **env)
     }
 }
 
-void    CgiHandler::_writeToIn(Request &req, int pipeIn)
+void    CgiHandler::_writeToIn(int pipeIn)
 {
-    std::string    toWrite = req.getEnvVar();
+    std::string    toWrite = _req.getEnvVar();
     
-	std::cerr << toWrite << std::endl;
     write(pipeIn, toWrite.data(), toWrite.size());
 }
 
@@ -165,8 +164,6 @@ std::vector<char>	CgiHandler::exec(void)
 
 	pipe(tabPipe);
 	pipe(tabVar);
-    _writeToIn(_req, tabVar[1]);
-	close(tabVar[1]);
 	int pid = fork();
 	if (pid == 0)
 	{
@@ -177,22 +174,20 @@ std::vector<char>	CgiHandler::exec(void)
 		close(tabVar[0]);
 		_pathToFile.erase(_pathToFile.begin());
 		_cgiPath.erase(_cgiPath.begin());
-        _var.insert(_var.begin(), _pathToFile);
-        _var.insert(_var.begin(), _cgiPath);
-        char **var = _convertVecToChar(_var);
         char **env = _convertVecToChar(_env);
 		ft_print_tab(env);
-		execve(_cgiPath.c_str(), var, env);
-        delete []var;
+		char **nll = NULL;
+		execve(_cgiPath.c_str(), nll, env);
         delete []env;
 		perror("exec fail");
 		exit(EXIT_FAILURE);
     }
 	else
 	{
+		_writeToIn(tabVar[1]);
+		close(tabVar[1]);
 		close(tabPipe[1]);
 		close(tabVar[0]);
-		wait(NULL);
 	}
 	return (_readPipe(tabPipe[0]));
 }
@@ -217,5 +212,6 @@ std::vector<char> 	CgiHandler::_readPipe(int pipeToRead)
 	while (read(pipeToRead, &c, 1))
 		res.push_back(c);
 	close(pipeToRead);
+	wait(NULL);
     return (res);
 }
