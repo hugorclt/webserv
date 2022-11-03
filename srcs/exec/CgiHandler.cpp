@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/25 14:39:45 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/11/03 16:35:28 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/03 16:51:26 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -136,7 +136,7 @@ std::string	CgiHandler::_setCwd(void)
 	while (i)
 	{
 		buf = new char[i];
-		if (getcwd(buf, i));
+		if (getcwd(buf, i))
 			break;
 		if (errno != ERANGE)
 			throw CgiHandler::CgiHandlerError("getcwd failure");

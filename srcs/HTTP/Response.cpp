@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/11 15:23:33 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/11/03 16:50:40 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/03 16:54:28 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -202,7 +202,7 @@ bool	Response::_checkFile(std::string filename, int isErrorFile)
 	struct stat buf;
 	
 	if (stat(filename.c_str(), &buf) == -1)
-		throw ResponseError("Response error: stat() failed");
+		throw ResponseError("Response error: stat() 3failed");
 	if (access(filename.c_str(), F_OK) != 0)
 	{
 		if (isErrorFile == 0)
@@ -259,7 +259,7 @@ void	Response::_execDel(void)
 	filename = _env.uniqKey["root"][0] + filename;
 	
 	if (stat(filename.c_str(), &buf) == -1)
-		throw ResponseError("Response Error: stat() failed");
+		throw ResponseError("Response Error: stat2() failed");
 	if (access(filename.c_str(), F_OK) != 0)
 	{
 		_setError("404");
@@ -331,7 +331,7 @@ void	Response::_uploadFile(void)
 	struct stat buf;
 	std::string filename = _env.uniqKey["upload"][0];
 	if (stat(filename.c_str(), &buf) == -1)
-		throw ResponseError("Response error: stat() failed");
+		throw ResponseError("Response error: stat() 1failed");
 	if (!_env.uniqKey.count("upload"))
 	{
 		_setError("404");
