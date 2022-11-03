@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/25 14:39:45 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/11/03 11:51:09 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/03 16:35:28 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 #include <errno.h>
 #include <stdio.h>
 #include <sys/wait.h>
+#include <errno.h>
 
 CgiHandler::CgiHandler(ConfigParser::Location &server, Request &req, std::string MIMEtype, std::string clientIp, char **env)
 : _server(server), _req(req), _type(MIMEtype), _clientIp(clientIp), _sysEnv(env)
@@ -89,27 +90,19 @@ std::string	CgiHandler::_getSysPath(void)
 
 void    CgiHandler::_initEnv(void)
 {
-    char    				*buf;
 	Request::request_type	header = _req.getData();
     std::vector<char> 		body = _req.getBody();
-    
-    buf = getcwd(NULL, BUF_SIZE);
-    if (!buf)
-		throw std::bad_alloc();
-	std::string cwdPath(buf);
+	std::string cwdPath = _setCwd();
 	
     _env.push_back("REDIRECT_STATUS=200");
     _env.push_back("GATEWAY_INTERFACE=CGI/1.1");
 	_env.push_back("CONTEXT_DOCUMENT_ROOT=" + cwdPath + _cgiPath.substr(0, _cgiPath.find_last_of('/') + 1));
 	_env.push_back("CONTEXT_PREFIX=" + _findDirectory(_cgiPath));
-	//DOCUMENT ROOT ?
 	_env.push_back("HTTP_ACCEPT=" + header["Accept"][0]);
 	_env.push_back("HTTP_ACCEPT_ENCODING=" + header["Accept-Encoding"][0]);
 	_env.push_back("HTTP_ACCEPT_LANGUAGE=" + header["Accept-Language"][0]);
 	_env.push_back("HTTP_CONNECTION=" + header["Connection"][0]);
 	_env.push_back("HTTP_HOST=" + header["Host"][0] + ":" + header["Host"][1]);
-	//HTTP_IF_MODFIED_SINCE ?
-	//HTTP_IF_NONE_MATCH ?
 	_env.push_back("HTTP_SEC_FETCH_DEST=" + header["Sec-Fetch-Dest"][0]);
 	_env.push_back("HTTP_SEC_FETCH_SITE=" + header["Sec-Fetch-Site"][0]);
 	_env.push_back("HTTP_SEC_FETCH_MODE=" + header["Sec-Fetch-Mode"][0]);
@@ -119,13 +112,11 @@ void    CgiHandler::_initEnv(void)
 	_env.push_back("PATH=" + _getSysPath());
    	_env.push_back("QUERY_STRING=" + _constructQuery(_req.getVar()));
     _env.push_back("REMOTE_ADDR=" + _clientIp);
-	// // REMOTE_PORT ?
     _env.push_back("REQUEST_METHOD=" + _req.getMethod());
 	_env.push_back("REQUEST_SCHEME=http");
 	_env.push_back("REQUEST_URI=" + _cgiPath);
     _env.push_back("SCRIPT_FILENAME=" + cwdPath + _pathToFile);
 	_env.push_back("SCRIPT_NAME=" + _cgiPath);
-	// SERVER_ADDR
 	_env.push_back("SERVER_NAME=" + header["Host"][0]);
 	_env.push_back("SERVER_PORT=" + header["Host"][1]);
 	_env.push_back("SERVER_PORT=" + _req.getVersion());
@@ -135,20 +126,27 @@ void    CgiHandler::_initEnv(void)
     	_env.push_back("CONTENT_TYPE=" + header["Content-Type"][0]);
 	else
 	    _env.push_back("CONTENT_TYPE=" + _type);
-	delete buf;
 }
 
-
-void    ft_print_tab(char **env)
+std::string	CgiHandler::_setCwd(void)
 {
-    int i;
+	int		i = 1;
+	char	*buf;
 
-    i = 0;
-    while (env[i])
-    {
-        std::cerr << env[i] << std::endl;
-        i++;
-    }
+	while (i)
+	{
+		buf = new char[i];
+		if (getcwd(buf, i));
+			break;
+		if (errno != ERANGE)
+			throw CgiHandler::CgiHandlerError("getcwd failure");
+		delete buf;
+		buf = NULL;
+		i++;
+	}
+	std::string res(buf);
+	delete buf;
+	return (res);
 }
 
 void    CgiHandler::_writeToIn(int pipeIn)
@@ -181,7 +179,6 @@ std::vector<char>	CgiHandler::exec(void)
 		_pathToFile.erase(_pathToFile.begin());
 		_cgiPath.erase(_cgiPath.begin());
         char **env = _convertVecToChar(_env);
-		ft_print_tab(env);
 		char **nll = NULL;
 		execve(_cgiPath.c_str(), nll, env);
         delete []env;
