@@ -98,14 +98,8 @@ class ConfigParser {
 			const static std::string	_commentSet;
 			const static std::string	_scopeSet;
 
-			static void		checkKeyValues(keyValues_type &keyValues, const raw &keyConf);
 			static KeyType	getKeyType(const std::string &key)
-			{
-				if (_data.find(key) != _data.end())
-					return (_data.find(key)->second.kt);
-				else
-					return (KT_NONE);
-			}
+			{ return ((_data.count(key)) ? _data[key].kt : KT_NONE); }
 		};
 
 	public:
@@ -122,13 +116,16 @@ class ConfigParser {
 		std::string		_getWord(lineRange_type &strIt);
 		void			_goToNextWordInFile(lineRange_type &strIt, fileRange_type &fileIt);
 		bool			_isServer(keyValues_type keyValues, lineRange_type &lineRange, fileRange_type &fileRange);
-		bool			_isLocation(keyValues_type pair, lineRange_type &strIt, fileRange_type &fileIt);
+		bool			_isLocation(keyValues_type pair, lineRange_type &strIt, fileRange_type &fileIt, size_t startLastLine);
 		Server			_createNewServer(lineRange_type &strIt, fileRange_type &fileIt);
-		Location		_createNewLocation(lineRange_type &strIt, fileRange_type &fileIt);
+		Location		_createNewLocation(lineRange_type &lineRange, fileRange_type &fileRange);
 		keyValues_type	_getKeyValues(lineRange_type &strIt);
-	//	void			_insertKeyValuesInLocation(Location &location, keyValues_type &keyValues);
-		void			_insertKeyValuesInLocation(Location &location, keyValues_type &keyValues, lineRange_type lastLineRange, std::string &line);
-		void			_insertKeyValuesInServer(Server &res, keyValues_type &keyValues);
+		void			_insertKeyValuesInLocation(Location &location, keyValues_type &keyValues, size_t &startLastLine, std::string &line);
+		void			_insertKeyValuesInServer(Server &res, keyValues_type &keyValues, size_t &startLastLine, std::string &line);
+
+		bool			checkDuplicatedParams(std::vector<std::string> params, size_t &startLastLine, std::string &line);
+		bool			checkValidParams(std::vector<std::string> params, std::set<std::string> validParams, size_t &startLastLine, std::string &line);
+		void			checkKeyValues(keyValues_type &keyValues, const Conf::raw &keyConf, size_t startLastLine, std::string &line);
 
 		//Check Functions
 		static void	_konamiCode(keyValues_type &keyValues);
@@ -140,7 +137,7 @@ class ConfigParser {
 
 		static void	_printConfigParser(const data_type &data);
 		//void		_color(size_t last, std::string word, std::string &line);
-		void		_colorSkipFirstWordInRange(std::pair<std::string::iterator, std::string::iterator> &lineRange, const std::string &word, std::string &line);
+		void		_colorSkipFirstWordInRange(size_t &first, const std::string &word, std::string &line, const std::string &color);
 		
 	public:
 		ConfigParser(char *params);
