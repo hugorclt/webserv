@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/11 15:23:33 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/11/02 18:07:49 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/03 16:54:28 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -175,8 +175,11 @@ std::string	Response::_getDate(void) {
 	char buffer [80];
 	
 	time (&rawtime);
+	if (rawtime == (time_t)-1)
+		throw ResponseError("Response error: time() failed");
 	timeinfo = localtime (&rawtime);
-	strftime (buffer, 80, "%a, %e %b %G %T GMT",timeinfo);
+	if (strftime (buffer, 80, "%a, %e %b %G %T GMT",timeinfo) == 0)
+		throw ResponseError("Response error: strftime() failed");
 	return (std::string(buffer));
 }
 
@@ -198,7 +201,8 @@ bool	Response::_checkFile(std::string filename, int isErrorFile)
 {
 	struct stat buf;
 	
-	stat(filename.c_str(), &buf);
+	if (stat(filename.c_str(), &buf) == -1)
+		throw ResponseError("Response error: stat() 3failed");
 	if (access(filename.c_str(), F_OK) != 0)
 	{
 		if (isErrorFile == 0)
@@ -254,7 +258,8 @@ void	Response::_execDel(void)
 	std::string filename = _req.getTarget().erase(0, _env.uniqKey["_rootToDel_"][0].length());
 	filename = _env.uniqKey["root"][0] + filename;
 	
-	stat(filename.c_str(), &buf);
+	if (stat(filename.c_str(), &buf) == -1)
+		throw ResponseError("Response Error: stat2() failed");
 	if (access(filename.c_str(), F_OK) != 0)
 	{
 		_setError("404");
@@ -271,6 +276,8 @@ void	Response::_execDel(void)
 		return ;
 	}
 	remove(filename.c_str());
+	if (errno == ENOENT || errno == EACCES || errno == EINVAL)
+		throw ResponseError("Response error: remove() failed");
 }
 
 void	Response::_execGet(void) {
@@ -284,6 +291,11 @@ void	Response::_execGet(void) {
 		std::string cgiPath = _findCgiPath(root);
 		CgiHandler	CGI(_env, _req, _types, _clientIp, _sysEnv);
 		_data = CGI.exec();
+		if (_data.empty())
+		{
+			_setError("500");
+			return ;
+		}
 		_types = "text/html";
 		return ;
 	}
@@ -318,8 +330,8 @@ void	Response::_uploadFile(void)
 {
 	struct stat buf;
 	std::string filename = _env.uniqKey["upload"][0];
-	stat(filename.c_str(), &buf);
-	
+	if (stat(filename.c_str(), &buf) == -1)
+		throw ResponseError("Response error: stat() 1failed");
 	if (!_env.uniqKey.count("upload"))
 	{
 		_setError("404");
@@ -363,7 +375,7 @@ void	Response::execute(void) {
 void	Response::sendData(int clientFd)
 {
 	if (send(clientFd, _data.data(), _data.size(), 0) == -1)
-        perror("send error:");
+		throw ResponseError("Response error: send() failed");
 	else
 	{
 		std::clog << ((_code != "200") ? C_RED : C_GREEN)

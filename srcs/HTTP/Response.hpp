@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/21 11:47:56 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/11/02 17:50:30 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/03 16:37:43 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,6 +63,19 @@ class Response {
 		void	constructData(void);
 		void	execute(void);
 		void	sendData(int clientFd);
+
+		class ResponseError: public std::exception {
+			private:
+				std::string	_error;
+			public:
+				ResponseError(const std::string &error)
+				: _error(error) {}
+
+				virtual ~ResponseError(void) throw() {}
+
+				virtual const char *what() const throw()
+				{ return (_error.c_str()); }
+		};
 };
 
 
