@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/25 14:39:45 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/11/02 17:33:21 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/03 11:51:09 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -135,6 +135,7 @@ void    CgiHandler::_initEnv(void)
     	_env.push_back("CONTENT_TYPE=" + header["Content-Type"][0]);
 	else
 	    _env.push_back("CONTENT_TYPE=" + _type);
+	delete buf;
 }
 
 
@@ -165,6 +166,11 @@ std::vector<char>	CgiHandler::exec(void)
 	pipe(tabPipe);
 	pipe(tabVar);
 	int pid = fork();
+	if (pid == -1)
+	{
+		std::vector<char> res;
+		return (res);
+	}
 	if (pid == 0)
 	{
 		dup2(tabPipe[1], STDOUT_FILENO);

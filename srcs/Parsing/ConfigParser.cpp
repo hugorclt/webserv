@@ -81,6 +81,7 @@ void	ConfigParser::Conf::init_defaultValues(void)
 		std::make_pair("404", std::vector<std::string> (1, "Not Found")),
 		std::make_pair("405", std::vector<std::string> (1, "Method Not Allowed")),
 		std::make_pair("413", std::vector<std::string> (1, "Payload Too Large")),
+		std::make_pair("500", std::vector<std::string> (1, "Internal Server Error")),
 	};
 
 	std::pair< std::string, std::map< std::string, std::vector<std::string> > >	nonUniqKey[] =

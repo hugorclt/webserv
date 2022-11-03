@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/18 12:57:12 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/31 15:14:45 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/03 11:47:04 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,8 @@
 #include <cstdlib>
 #include <csignal>
 #include <cstring>
+
+int g_exit = 0;
 
 ConfigParser::Server    selectServ(std::string ip, std::string port, std::string hostName, ConfigParser::data_type vecServs)
 {
@@ -57,6 +59,12 @@ ConfigParser::Location	getEnvFromTarget(std::string target, ConfigParser::Server
 	return (res);
 }
 
+void	handle_sig(int sig)
+{
+	if (sig == SIGINT)
+		g_exit = 1;
+}
+
 ConfigParser::Server	findServ(Request &req, int serverFd, Servers serverList, ConfigParser::data_type conf)
 {
 	Request::request_type reqData = req.getData();
@@ -76,12 +84,16 @@ int main(int ac, char **av, char **sysEnv)
 			Servers serverList(configServers);
 			IOpoll	epoll(serverList);
 
+			signal(SIGINT, handle_sig);
+
 			std::map<int, int>	clientList;
-		/* ----------------------------- Server Creation ---------------------------- */
+		/* ----------------------------- Server loop ---------------------------- */
 			while (42) 
 			{
 				try 
 				{
+					if (g_exit == 1)
+						break;
 					int numberFdReady = epoll_wait(epoll.getEpollfd(), epoll.getEvents(), 1, -1);
 					if (numberFdReady == -1)
 						break; //error handle
