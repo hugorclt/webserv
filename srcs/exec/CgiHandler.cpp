@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/25 14:39:45 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/11/04 13:13:05 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/04 13:23:52 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,8 +99,10 @@ void    CgiHandler::_initEnv(void)
 	_env.push_back("CONTEXT_DOCUMENT_ROOT=" + cwdPath + _cgiPath.substr(0, _cgiPath.find_last_of('/') + 1));
 	_env.push_back("CONTEXT_PREFIX=" + _findDirectory(_cgiPath));
 	_env.push_back("HTTP_ACCEPT=" + header["Accept"][0]);
-	_env.push_back("HTTP_ACCEPT_ENCODING=" + header["Accept-Encoding"][0]);
-	_env.push_back("HTTP_ACCEPT_LANGUAGE=" + header["Accept-Language"][0]);
+	if (header.count("Accept-Encoding") && !header["Accept-Encoding"].empty())
+		_env.push_back("HTTP_ACCEPT_ENCODING=" + header["Accept-Encoding"][0]);
+	if (header.count("Accept-Language") && !header["Accept-Language"].empty())
+		_env.push_back("HTTP_ACCEPT_LANGUAGE=" + header["Accept-Language"][0]);
 	_env.push_back("HTTP_CONNECTION=" + header["Connection"][0]);
 	_env.push_back("HTTP_HOST=" + header["Host"][0] + ":" + header["Host"][1]);
 	_env.push_back("HTTP_USER_AGENT=" + header["User-Agent"][0]);

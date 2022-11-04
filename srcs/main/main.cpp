@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/18 12:57:12 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/11/04 13:06:30 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/04 13:18:56 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -124,6 +124,7 @@ int main(int ac, char **av, char **sysEnv)
 								nb_bytes = recv(pairContacted->first, buffer, 1024, 0);
 								if (nb_bytes > 0)
 									request.insert(request.end(), &buffer[0], &buffer[nb_bytes]);
+								std::cout << buffer << std::endl;
 								usleep(100);
 							}
 							if (request.empty())
