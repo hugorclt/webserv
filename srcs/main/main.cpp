@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/18 12:57:12 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/11/04 13:18:56 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/04 15:42:38 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,8 +94,10 @@ int main(int ac, char **av, char **sysEnv)
 				try 
 				{
 					int numberFdReady = epoll_wait(epoll.getEpollfd(), epoll.getEvents(), 1, -1);
+					if (g_exit)
+						break;
 					if (numberFdReady == -1)
-						break; //error handle
+						throw std::bad_alloc();
 					for (int i = 0; i < numberFdReady; i++)
 					{
 						int	clientSocket;

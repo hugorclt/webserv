@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/25 14:39:45 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/11/04 13:23:52 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/04 18:56:30 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -117,7 +117,7 @@ void    CgiHandler::_initEnv(void)
 	_env.push_back("SCRIPT_NAME=" + _cgiPath);
 	_env.push_back("SERVER_NAME=" + header["Host"][0]);
 	_env.push_back("SERVER_PORT=" + header["Host"][1]);
-	_env.push_back("SERVER_PORT=" + _req.getVersion());
+	_env.push_back("SERVER_PORT=" + _req.getVersion()); //bizarre
 	_env.push_back("SERVER_SIGNATURE=\"\"");
 	_env.push_back("SERVER_SOFTWARE=catzGang Web Server");
 	if (header.find("Content-Type") != header.end())
