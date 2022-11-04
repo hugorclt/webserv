@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/25 14:39:47 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/11/03 16:35:15 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/04 11:54:27 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,9 +15,12 @@
 #include <string>
 #include <vector>
 #include "Request.hpp"
+#include "Response.hpp"
 #include "ConfigParser.hpp"
 
 int	ft_strncmp(const char *s1, const char *s2, size_t n);
+
+class Response;
 
 #define BUF_SIZE 64
 
@@ -34,6 +37,7 @@ class CgiHandler {
         std::vector<std::string>    _env;
         std::vector<std::string>    _var;
 		char						**_sysEnv;
+		Response					&_res;
 
 
         char    			**_convertVecToChar(std::vector<std::string> &vec);
@@ -51,9 +55,9 @@ class CgiHandler {
 
       
     public:
-        CgiHandler(ConfigParser::Location &server, Request &req, std::string MIMEtype, std::string clientIp, char **env);
+        CgiHandler(ConfigParser::Location &server, Request &req, std::string MIMEtype, std::string clientIp, char **env, Response &res);
        
-	    std::vector<char>   exec(void);
+	    int	exec(void);
 		
 		class CgiHandlerError: public std::exception {
 			private:

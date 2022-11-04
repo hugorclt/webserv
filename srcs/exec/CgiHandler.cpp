@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/25 14:39:45 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/11/03 16:51:26 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/04 11:47:58 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,8 +21,8 @@
 #include <sys/wait.h>
 #include <errno.h>
 
-CgiHandler::CgiHandler(ConfigParser::Location &server, Request &req, std::string MIMEtype, std::string clientIp, char **env)
-: _server(server), _req(req), _type(MIMEtype), _clientIp(clientIp), _sysEnv(env)
+CgiHandler::CgiHandler(ConfigParser::Location &server, Request &req, std::string MIMEtype, std::string clientIp, char **env, Response &res)
+: _server(server), _req(req), _type(MIMEtype), _clientIp(clientIp), _sysEnv(env), _res(res)
 {
 	_setTarget();
 	_setRoot();
@@ -105,9 +105,7 @@ void    CgiHandler::_initEnv(void)
 	_env.push_back("HTTP_HOST=" + header["Host"][0] + ":" + header["Host"][1]);
 	_env.push_back("HTTP_USER_AGENT=" + header["User-Agent"][0]);
     _env.push_back("CONTENT_LENGTH=" + to_string(_req.getEnvVar().size()));
-	std::cout << "bite" << std::endl;
 	_env.push_back("PATH=" + _getSysPath());
-	std::cout << "bite 2" << std::endl;
    	_env.push_back("QUERY_STRING=" + _constructQuery(_req.getVar()));
     _env.push_back("REMOTE_ADDR=" + _clientIp);
     _env.push_back("REQUEST_METHOD=" + _req.getMethod());
@@ -154,7 +152,7 @@ void    CgiHandler::_writeToIn(int pipeIn)
     write(pipeIn, toWrite.data(), toWrite.size());
 }
 
-std::vector<char>	CgiHandler::exec(void)
+int	CgiHandler::exec(void)
 {
 	int tabPipe[2];
 	int	tabVar[2];
@@ -163,10 +161,7 @@ std::vector<char>	CgiHandler::exec(void)
 	pipe(tabVar);
 	int pid = fork();
 	if (pid == -1)
-	{
-		std::vector<char> res;
-		return (res);
-	}
+		return (-1);
 	if (pid == 0)
 	{
 		dup2(tabPipe[1], STDOUT_FILENO);
@@ -190,7 +185,8 @@ std::vector<char>	CgiHandler::exec(void)
 		close(tabPipe[1]);
 		close(tabVar[0]);
 	}
-	return (_readPipe(tabPipe[0]));
+	_res.setData(_readPipe(tabPipe[0]));
+	return (0);
 }
 
 char    **CgiHandler::_convertVecToChar(std::vector<std::string> &vec)

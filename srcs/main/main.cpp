@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/18 12:57:12 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/11/03 11:47:04 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/04 11:56:55 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -120,6 +120,7 @@ int main(int ac, char **av, char **sysEnv)
 							int nb_bytes = 1;
 							while (nb_bytes != -1)
 							{
+								std::cout << "test" << std::endl;
 								memset(buffer, 0, sizeof(buffer));
 								nb_bytes = recv(pairContacted->first, buffer, 1024, 0);
 								if (nb_bytes > 0)
@@ -130,10 +131,18 @@ int main(int ac, char **av, char **sysEnv)
 							{
 								throw std::bad_alloc();
 							}
+															std::cout << "test1" << std::endl;
+
 							Request	req(request);
 							ConfigParser::Server server = findServ(req, pairContacted->second, serverList, configServers.getData());
+															std::cout << "test2" << std::endl;
+
 							ConfigParser::Location	env = getEnvFromTarget(req.getTarget(), server);
+															std::cout << "test3" << std::endl;
+
 							Response	res(env, req, serverList.getClientIp(sockTarget->second, pairContacted->first), sysEnv);
+															std::cout << "test4" << std::endl;
+
 							res.execute();
 							res.constructData();
 							res.sendData(pairContacted->first);
