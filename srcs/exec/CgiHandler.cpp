@@ -205,10 +205,13 @@ char    **CgiHandler::_convertVecToChar(std::vector<std::string> &vec)
 std::vector<char> 	CgiHandler::_readPipe(int pipeToRead)
 {
     std::vector<char>   res;
-	char c;
-	while (read(pipeToRead, &c, 1))
-		res.push_back(c);
+	int readState = 1;
+	char buffer[4048];
+	while ((readState = read(pipeToRead, buffer, 4048)) > 0)
+		res.insert(res.end(), buffer, buffer + readState);
 	close(pipeToRead);
+	if (readState == -1)
+		throw CgiHandlerError("read error zboubi");
 	wait(NULL);
     return (res);
 }

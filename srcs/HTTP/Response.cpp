@@ -303,9 +303,9 @@ void	Response::_readFile(std::ifstream &file)
 {
 	while (file) 
 	{
-		char c;
-		file.get(c);
-		_data.push_back(c);
+		char buffer[4096];
+		file.read(buffer, 4096);
+		_data.insert(_data.end(), buffer, buffer + file.gcount());
 	}
 	file.close();
 	if (static_cast<int>(_data.size()) > atoi(_env.uniqKey["body_size"][0].c_str()))
