@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/30 11:56:41 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/31 11:51:30 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/05 12:24:37 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@ void	Servers::_createNewServer(std::string ip, std::string port)
 	socketInfo.port = port;
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
 	socketInfo.sockfd = sockfd;
+	std::cout << "ip: " + ip << " port: " << port << " socket: " << sockfd << std::endl;
 	if (!sockfd)
 		throw ServersError("Socket creation failed");
 	socketInfo.opt = 1;

@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/18 12:57:12 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/11/04 13:18:56 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/05 13:28:54 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,12 +94,14 @@ int main(int ac, char **av, char **sysEnv)
 				try 
 				{
 					int numberFdReady = epoll_wait(epoll.getEpollfd(), epoll.getEvents(), 1, -1);
+					std::cout << numberFdReady << std::endl;
 					if (numberFdReady == -1)
 						break; //error handle
 					for (int i = 0; i < numberFdReady; i++)
 					{
 						int	clientSocket;
 						int	fdTriggered = epoll.getEvents()[i].data.fd;
+						std::cout << fdTriggered << std::endl;
 						Servers::sock_type::iterator sockTarget = serverList.getSocketByFd(fdTriggered);
 						if (sockTarget != serverList.getSockIpPort().end())
 						{
@@ -115,6 +117,7 @@ int main(int ac, char **av, char **sysEnv)
 								std::cerr << "error pair not found" << std::endl;
 								continue ;
 							}
+							std::cout << pairContacted->first << " " << pairContacted->second << std::endl;
 							char	buffer[1024];
 							std::vector<char>	request;
 							int nb_bytes = 1;
@@ -122,13 +125,18 @@ int main(int ac, char **av, char **sysEnv)
 							{
 								memset(buffer, 0, sizeof(buffer));
 								nb_bytes = recv(pairContacted->first, buffer, 1024, 0);
+								std::cout << nb_bytes << std::endl;
 								if (nb_bytes > 0)
 									request.insert(request.end(), &buffer[0], &buffer[nb_bytes]);
 								std::cout << buffer << std::endl;
-								usleep(100);
+								usleep(100000);
 							}
 							if (request.empty())
+							{
+								close(pairContacted->first);
+								clientList.erase(pairContacted);
 								throw std::bad_alloc();
+							}
 							Request	req(request);
 							ConfigParser::Server server = findServ(req, pairContacted->second, serverList, configServers.getData());
 							ConfigParser::Location	env = getEnvFromTarget(req.getTarget(), server);
