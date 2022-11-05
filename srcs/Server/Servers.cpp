@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/30 11:56:41 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/11/05 15:38:04 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/05 12:24:37 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@ void	Servers::_createNewServer(std::string ip, std::string port)
 	socketInfo.port = port;
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
 	socketInfo.sockfd = sockfd;
+	std::cout << "ip: " + ip << " port: " << port << " socket: " << sockfd << std::endl;
 	if (!sockfd)
 		throw ServersError("Socket creation failed");
 	socketInfo.opt = 1;
@@ -59,13 +60,20 @@ Go through all the server config file to create new server for each pair host/po
 */
 Servers::Servers(ConfigParser &confFile) {
 	ConfigParser::data_type conf = confFile.getData();
+
+	std::set< std::pair<std::string, std::string> >	bindedSocketList;
+
 	for (ConfigParser::data_type::iterator itconf = conf.begin(); itconf != conf.end(); itconf++)
 	{
 		for (ConfigParser::Server::listen_type::iterator itListen = itconf->listen.begin(); itListen != itconf->listen.end(); itListen++)
 		{
 			for (std::set<std::string>::iterator itSet = itListen->second.begin(); itSet != itListen->second.end(); itSet++)
 			{
-				_createNewServer(itListen->first, *itSet);
+				if (!bindedSocketList.count(std::make_pair(itListen->first, *itSet)))
+				{
+					_createNewServer(itListen->first, *itSet);
+					bindedSocketList.insert(std::make_pair(itListen->first, *itSet));
+				}
 			}
 		}
 	}
