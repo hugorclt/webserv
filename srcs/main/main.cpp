@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/18 12:57:12 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/11/05 13:28:54 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/05 15:37:26 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -117,7 +117,6 @@ int main(int ac, char **av, char **sysEnv)
 								std::cerr << "error pair not found" << std::endl;
 								continue ;
 							}
-							std::cout << pairContacted->first << " " << pairContacted->second << std::endl;
 							char	buffer[1024];
 							std::vector<char>	request;
 							int nb_bytes = 1;
@@ -125,10 +124,8 @@ int main(int ac, char **av, char **sysEnv)
 							{
 								memset(buffer, 0, sizeof(buffer));
 								nb_bytes = recv(pairContacted->first, buffer, 1024, 0);
-								std::cout << nb_bytes << std::endl;
 								if (nb_bytes > 0)
 									request.insert(request.end(), &buffer[0], &buffer[nb_bytes]);
-								std::cout << buffer << std::endl;
 								usleep(100000);
 							}
 							if (request.empty())

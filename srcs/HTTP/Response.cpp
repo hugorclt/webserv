@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/11 15:23:33 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/11/04 13:41:55 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/05 16:25:52 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -221,10 +221,7 @@ bool	Response::_checkFile(std::string filename, int isErrorFile)
 		{
 			std::pair<std::string, bool>	index = getIndex(listOfFiles, _env.uniqKey["index"]);
 			if (index.second)
-			{
-				std::cout << "test : " << filename + "/" + index.first << std::endl;
 				return (_checkFile(filename + "/" + index.first, isErrorFile));
-			}
 		}
 		if (_env.uniqKey["auto_index"][0] == "on")
 		{
@@ -279,6 +276,11 @@ void	Response::_execDel(void)
 }
 
 void	Response::_execGet(void) {
+	if (!_env.uniqKey.count("root") || _env.uniqKey["root"].empty())
+	{
+		_setError("404");
+		return ;
+	}
 	std::string root = _req.getTarget().erase(0, _env.uniqKey["_rootToDel_"][0].length());
 	root = _env.uniqKey["root"][0] + root;
 
@@ -346,7 +348,9 @@ void	Response::_uploadFile(void)
 	if (S_ISDIR(buf.st_mode))
 	{
 		_writeFile();
-		_setError("200");
+		_code = "200";
+		_status = "OK";
+		_types = "text/html";
 		return ;
 	}
 	_setError("403");
