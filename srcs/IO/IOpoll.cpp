@@ -14,7 +14,7 @@
 #include <cstdlib>
 #include <stdio.h>
 
-IOpoll::IOpoll(Servers servers) {
+IOpoll::IOpoll(Servers &servers) {
 	this->ev.events = EPOLLIN;
 	this->events = new epoll_event[1];
 	this->epollfd = epoll_create1(0);
@@ -34,6 +34,7 @@ IOpoll::IOpoll(Servers servers) {
 }
 
 IOpoll::~IOpoll(void) {
+	close(this->epollfd);
 	delete []events;
 }
 

@@ -22,7 +22,7 @@ class IOpoll {
 		struct epoll_event *events;
 		
 	public:
-		IOpoll(Servers servers);
+		IOpoll(Servers &servers);
 		~IOpoll();
 
 		int	getEpollfd(void) const;

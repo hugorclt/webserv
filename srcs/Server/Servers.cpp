@@ -74,14 +74,20 @@ Servers::Servers(ConfigParser &confFile) {
 					_createNewServer(itListen->first, *itSet);
 					bindedSocketList.insert(std::make_pair(itListen->first, *itSet));
 				}
-				//std::cout << "\rServer " << "0" << " listening on " << itListen->first << ":" << *itSet << " ...        ";
-				//std::cout.flush();
-				//usleep(150000);
+				std::cout << "\rServer " << "0" << " listening on " << itListen->first << ":" << *itSet << " ...        ";
+				std::cout.flush();
+				usleep(150000);
 			}
 		}
-		//std::cout << "\rServer " << itconf - conf.begin() << C_GREEN << " UP                                       " << C_RESET << std::endl;
+		std::cout << "\rServer " << itconf - conf.begin() << C_GREEN << " UP                                       " << C_RESET << std::endl;
 	}
 	_listenConnection();
+}
+
+Servers::~Servers(void)
+{
+	for (Servers::sock_type::iterator it = _sockIpPort.begin(); it != _sockIpPort.end(); it++)
+		close(it->first);
 }
 
 Servers::sock_type::iterator Servers::getSocketByFd(int fd)

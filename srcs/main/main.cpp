@@ -66,96 +66,94 @@ void	handle_sig(int sig)
 		g_exit = true;
 }
 
-ConfigParser::Server	findServ(Request &req, int serverFd, Servers serverList, ConfigParser::data_type conf)
+ConfigParser::Server	findServ(Request &req, std::string ip, ConfigParser::data_type conf)
 {
 	Request::request_type reqData = req.getData();
-	std::string ip = serverList.findIpByFd(serverFd);
-
 	return (selectServ(ip, reqData["Host"][1], reqData["Host"][0], conf));
 }
 
 int main(int ac, char **av, char **sysEnv)
 {	
-	(void)av;
-	if (ac > 1 && ac <= 2)
-	{		
-		try {	
-		/* --------------------------------- Parsing -------------------------------- */
-			ConfigParser	configServers(av[1]);
-			Servers serverList(configServers);
-			IOpoll	epoll(serverList);
+	if (ac != 2)
+	{
+		std::cerr << "Invalid number of arguments for WebServ" << std::endl;
+		exit (EXIT_FAILURE);
+	}
+	try {	
+	/* --------------------------------- Parsing -------------------------------- */
+		ConfigParser	configServers(av[1]);
+		Servers 		serverList(configServers);
+		IOpoll			epoll(serverList);
 
-			signal(SIGINT, handle_sig);
+		signal(SIGINT, handle_sig);
 
-			std::map<int, int>	clientList;
-			std::vector<char>	request;
+		std::map<int, int>	clientList;
+		std::vector<char>	request;
 
-		/* ----------------------------- Server loop ---------------------------- */
-			while (!g_exit) 
+	/* ----------------------------- Server loop ---------------------------- */
+		while (!g_exit) 
+		{
+			try 
 			{
-				try 
+				int numberFdReady = epoll_wait(epoll.getEpollfd(), epoll.getEvents(), 1, -1);
+				if (g_exit)
+					return (0);
+				if (numberFdReady == -1)
 				{
-					int numberFdReady = epoll_wait(epoll.getEpollfd(), epoll.getEvents(), 1, -1);
-					if (g_exit)
-						return (0);
-					if (numberFdReady == -1)
-						throw std::bad_alloc();
-					int	clientSocket;
-					int	fdTriggered = epoll.getEvents()[0].data.fd;
-					Servers::sock_type::iterator sockTarget = serverList.getSocketByFd(fdTriggered);
-					if (sockTarget != serverList.getSockIpPort().end())
+					std::cerr << "wrong epoll_wait fd ready number" << std::endl;
+					continue ;
+				}
+				int	clientSocket;
+				int	fdTriggered = epoll.getEvents()[0].data.fd;
+				Servers::sock_type::iterator sockTarget = serverList.getSocketByFd(fdTriggered);
+				if (sockTarget != serverList.getSockIpPort().end())
+				{
+					clientSocket = serverList.acceptSocket(sockTarget->second);
+					epoll.addFd(clientSocket);
+					clientList.insert(std::make_pair(clientSocket, fdTriggered));
+				}
+				else
+				{
+					std::map<int, int>::iterator pairContacted = clientList.find(fdTriggered);
+					if (pairContacted == clientList.end())
 					{
-						clientSocket = serverList.acceptSocket(sockTarget->second);
-						epoll.addFd(clientSocket);
-						clientList.insert(std::make_pair(clientSocket, fdTriggered));
+						std::cerr << "Unregistered client" << std::endl;
+						continue ;
 					}
-					else
+					char	buffer[4096];
+					int nb_bytes = 1;
+					while (nb_bytes > 0)
 					{
-						std::map<int, int>::iterator pairContacted = clientList.find(fdTriggered);
-						if (pairContacted == clientList.end())
-						{
-							std::cerr << "error pair not found" << std::endl;
-							continue ;
-						}
-						char	buffer[4096];
-						int nb_bytes = 1;
-						while (nb_bytes > 0)
-						{
-							nb_bytes = recv(pairContacted->first, &buffer, 4096, 0);
-							if (nb_bytes > 0)
-								request.insert(request.end(), buffer, buffer + nb_bytes);
-						}
-						for (std::vector<char>::size_type i = 0; i < request.size(); i++)
-							std::cout << request[i];
-						std::cout << std::endl;
-						if (request.empty())
-						{
-							close(pairContacted->first);
-							clientList.erase(pairContacted);
-							continue ;
-						}
-						Request	req(request);
-						request.clear();
-						ConfigParser::Server server = findServ(req, pairContacted->second, serverList, configServers.getData());
-						ConfigParser::Location	env = getEnvFromTarget(req.getTarget(), server);
-						Response	res(env, req, serverList.getClientIp(sockTarget->second, pairContacted->first), sysEnv);
-						res.execute();
-						res.constructData();
-						res.sendData(pairContacted->first);
+						nb_bytes = recv(pairContacted->first, &buffer, 4096, 0);
+						if (nb_bytes > 0)
+							request.insert(request.end(), buffer, buffer + nb_bytes);
+					}
+					if (request.empty())
+					{
 						close(pairContacted->first);
 						clientList.erase(pairContacted);
+						continue ;
 					}
-				} 
-				catch (std::exception &e)
-				{
-					std::clog << "error: not fatal: server is listening" << std::endl;
-					std::cerr << e.what() << std::endl;
+					Request	req(request);
+					request.clear();
+					ConfigParser::Server server = findServ(req, serverList.findIpByFd(pairContacted->second), configServers.getData());
+					ConfigParser::Location	env = getEnvFromTarget(req.getTarget(), server);
+					Response	res(env, req, serverList.getClientIp(sockTarget->second, pairContacted->first), sysEnv);
+					res.execute();
+					res.constructData();
+					res.sendData(pairContacted->first);
+					close(pairContacted->first);
+					clientList.erase(pairContacted);
 				}
+			} 
+			catch (std::exception &e)
+			{
+				std::clog << "error: not fatal: server is listening" << std::endl;
+				std::cerr << e.what() << std::endl;
 			}
-		} catch (std::exception &e) {
-			std::cerr << e.what() << std::endl;
-			return (EXIT_FAILURE);
 		}
-				
+	} catch (std::exception &e) {
+		std::cerr << e.what() << std::endl;
+		return (EXIT_FAILURE);
 	}
 }

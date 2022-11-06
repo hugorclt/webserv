@@ -46,6 +46,7 @@ class Servers {
 	public:
 		/* ------------------------------- constructor ------------------------------ */
 		Servers(ConfigParser &confFile);
+		~Servers(void);
 
 		/* --------------------------------- methods -------------------------------- */
 		sock_type::iterator	getSocketByFd(int fd);

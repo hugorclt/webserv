@@ -48,11 +48,6 @@ class Request {
 		std::vector<char>::iterator	_searchLastLine(std::vector<char> &body);
 
 
-
-
-
-
-
 	public:
 		Request(std::vector<char> &req);
 		~Request();
