@@ -117,15 +117,13 @@ int main(int ac, char **av, char **sysEnv)
 							std::cerr << "error pair not found" << std::endl;
 							continue ;
 						}
-						char	buffer[1024];
+						char	buffer[4096];
 						int nb_bytes = 1;
 						while (nb_bytes > 0)
 						{
-							
-							memset(buffer, 0, sizeof(buffer));
-							nb_bytes = recv(pairContacted->first, &buffer, 1024, 0);
+							nb_bytes = recv(pairContacted->first, &buffer, 4096, 0);
 							if (nb_bytes > 0)
-								request.insert(request.end(), &buffer[0], &buffer[nb_bytes]);
+								request.insert(request.end(), buffer, buffer + nb_bytes);
 						}
 						for (std::vector<char>::size_type i = 0; i < request.size(); i++)
 							std::cout << request[i];
