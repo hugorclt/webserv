@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/18 12:57:12 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/11/04 15:42:38 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/06 15:06:50 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,6 +88,8 @@ int main(int ac, char **av, char **sysEnv)
 			signal(SIGINT, handle_sig);
 
 			std::map<int, int>	clientList;
+			std::vector<char>	request;
+
 		/* ----------------------------- Server loop ---------------------------- */
 			while (!g_exit) 
 			{
@@ -95,7 +97,7 @@ int main(int ac, char **av, char **sysEnv)
 				{
 					int numberFdReady = epoll_wait(epoll.getEpollfd(), epoll.getEvents(), 1, -1);
 					if (g_exit)
-						break;
+						return (0);
 					if (numberFdReady == -1)
 						throw std::bad_alloc();
 					for (int i = 0; i < numberFdReady; i++)
@@ -118,21 +120,27 @@ int main(int ac, char **av, char **sysEnv)
 								continue ;
 							}
 							char	buffer[1024];
-							std::vector<char>	request;
 							int nb_bytes = 1;
 							while (nb_bytes > 0)
 							{
+								
 								memset(buffer, 0, sizeof(buffer));
-								nb_bytes = recv(pairContacted->first, buffer, 1024, 0);
+								nb_bytes = recv(pairContacted->first, &buffer, 1024, 0);
 								if (nb_bytes > 0)
 									request.insert(request.end(), &buffer[0], &buffer[nb_bytes]);
-								std::cout << buffer << std::endl;
-								usleep(100);
 							}
+							for (std::vector<char>::size_type i = 0; i < request.size(); i++)
+								std::cout << request[i];
+							std::cout << std::endl;
 							if (request.empty())
-								throw std::bad_alloc();
+							{
+								close(pairContacted->first);
+								clientList.erase(pairContacted);
+								continue ;
+							}
 							Request	req(request);
 							ConfigParser::Server server = findServ(req, pairContacted->second, serverList, configServers.getData());
+							std::cout << "cc" << std::endl;
 							ConfigParser::Location	env = getEnvFromTarget(req.getTarget(), server);
 							Response	res(env, req, serverList.getClientIp(sockTarget->second, pairContacted->first), sysEnv);
 							res.execute();
@@ -140,6 +148,7 @@ int main(int ac, char **av, char **sysEnv)
 							res.sendData(pairContacted->first);
 							close(pairContacted->first);
 							clientList.erase(pairContacted);
+							request.clear();
 						}
 					}
 				} 
@@ -156,40 +165,3 @@ int main(int ac, char **av, char **sysEnv)
 				
 	}
 }
-
-					// if (epoll_wait(epoll.getEpollfd(), epoll.getEvents(), 1, -1) != -1)
-					// {
-					// 	int	newSocket;
-					// 	if (sockTarget != serverList.getSockIpPort().end())
-					// 	{
-					// 		newSocket = serverList.acceptSocket(sockTarget->second);
-					// 		epoll.addFd(newSocket);
-					// 		std::cout << "new connection, client: " << newSocket << " server: " << clientFd << std::endl;
-					// 		clientList.insert(std::make_pair(newSocket, clientFd));
-					// 		break;
-					// 	}
-					// 	else
-					// 	{
-					// 		std::map<int, int>::iterator clientServer = clientList.find(clientFd);
-					// 		if (clientServer == clientList.end())
-					// 			break;
-					// 		char	buffer[1024] = { 0 };
-					// 		int		nb_bytes = recv(clientServer->first, buffer, 1024, 0);
-					// 		if (nb_bytes)
-					// 		{
-					// 			std::cout << "new request, client: " << clientServer->first << " server: " << clientServer->second << std::endl;
-					// 			std::string str(buffer);
-					// 			//std::cout << str << std::endl; // display request
-					// 			Request	req(str);
-					// 			ConfigParser::Server server = findServ(req, clientServer->second, serverList, configServers.getData());
-					// 			ConfigParser::Location	env = getEnvFromTarget(req.getTarget(), server);
-					// 			Response	res(env, req, serverList.getClientIp(sockTarget->second, clientServer->first));
-					// 			res.execute();
-					// 			res.constructData();
-					// 			res.sendData(clientServer->first);
-					// 		}
-					// 		clientList.erase(clientServer);
-					// 		close(newSocket);
-					// 		break;
-					// 	}
-					// }

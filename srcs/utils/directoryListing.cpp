@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/11 22:46:12 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/11/02 18:12:24 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/05 15:38:22 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,11 +49,7 @@ std::pair<std::string, bool>	getIndex(std::vector<std::string> listOfFiles, std:
 	{
 		std::vector<std::string>::iterator findRes = std::find(listOfFiles.begin(), listOfFiles.end(), *it);
 		if (findRes != listOfFiles.end())
-		{
-			std::cout << "getIndex test : " << std::endl;
-			std::cout << *findRes << std::endl;
 			return (std::make_pair(*findRes, true));
-		}
 	}
 	return (std::make_pair("", false));
 }
