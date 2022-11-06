@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/11 15:23:33 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/11/05 16:28:28 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/06 15:30:39 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -303,6 +303,8 @@ void	Response::_execGet(void) {
 
 void	Response::_readFile(std::ifstream &file)
 {
+	if (file.bad())
+		throw ResponseError("read: error while reading file");
 	while (file) 
 	{
 		char buffer[4096];
@@ -320,6 +322,8 @@ void	Response::_writeFile(void)
 	std::vector<char> body = _req.getBody();
 
 	std::ofstream	file(filename.c_str());
+	if (file.bad())
+		throw ResponseError("write: error while write file");
 	for (std::vector<char>::iterator it = body.begin(); it != body.end(); it++)
 		file << *it;
 	return ;

@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/25 14:39:45 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/11/04 18:56:30 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/06 15:27:17 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -211,7 +211,7 @@ std::vector<char> 	CgiHandler::_readPipe(int pipeToRead)
 		res.insert(res.end(), buffer, buffer + readState);
 	close(pipeToRead);
 	if (readState == -1)
-		throw CgiHandlerError("read error zboubi");
+		throw CgiHandlerError("read: error");
 	wait(NULL);
     return (res);
 }
