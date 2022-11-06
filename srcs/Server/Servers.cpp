@@ -11,7 +11,7 @@
 /* ************************************************************************** */
 
 #include "Servers.hpp"
-
+#include "colors.hpp"
 #include <cstdlib>
 
 void	Servers::_createNewServer(std::string ip, std::string port)
@@ -23,7 +23,6 @@ void	Servers::_createNewServer(std::string ip, std::string port)
 	socketInfo.port = port;
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
 	socketInfo.sockfd = sockfd;
-	std::cout << "ip: " + ip << " port: " << port << " socket: " << sockfd << std::endl;
 	if (!sockfd)
 		throw ServersError("Socket creation failed");
 	socketInfo.opt = 1;
@@ -74,8 +73,12 @@ Servers::Servers(ConfigParser &confFile) {
 					_createNewServer(itListen->first, *itSet);
 					bindedSocketList.insert(std::make_pair(itListen->first, *itSet));
 				}
+				std::cout << "\rServer " << "0" << " listening on " << itListen->first << ":" << *itSet << " ...        ";
+				std::cout.flush();
+				usleep(150000);
 			}
 		}
+		std::cout << "\rServer " << itconf - conf.begin() << C_GREEN << " UP                                       " << C_RESET << std::endl;
 	}
 	_listenConnection();
 }

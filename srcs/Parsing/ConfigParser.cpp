@@ -12,6 +12,7 @@
 
 #include "ConfigParser.hpp"
 #include "utils.hpp"
+#include "colors.hpp"
 
 #include <cstdlib>
 #include <iostream>
@@ -22,10 +23,6 @@
 #define MAX_PORT	65535
 #define DEFAULT_LISTEN_INTERFACE "0.0.0.0"
 #define DEFAULT_LISTEN_PORT "8080"
-#define C_RED "\033[1;31m"
-#define C_BLUE "\033[1;33m"
-#define C_PURPLE "\033[1;35m"
-#define C_RESET "\033[0m"
 #define UNLLIMITED_PARAMS 0
 #define SIZEOF(arr) sizeof(arr) / sizeof(*arr)
 
