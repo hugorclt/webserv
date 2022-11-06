@@ -124,8 +124,6 @@ std::string Servers::getClientIp(Servers::socket_t &sock, int clientFd)
 {
 	sockaddr_in tmp = sock.address;
 	socklen_t len = sizeof(tmp);
-	std::string test = sock.port;
-	(void)test;
 	if (getpeername(clientFd, (struct sockaddr *)&(tmp), &len) == -1)
 		throw ServersError("can't retrieve the ip of the client (getpeername failed)");
 	return (std::string(inet_ntoa(tmp.sin_addr)));
