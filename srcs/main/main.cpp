@@ -18,6 +18,7 @@
 #include "Response.hpp"
 #include "main.hpp"
 #include "colors.hpp"
+#include "globalDefine.hpp"
 #include <cstdlib>
 #include <csignal>
 #include <cstring>
@@ -97,7 +98,7 @@ int main(int ac, char **av, char **sysEnv)
 		{
 			try 
 			{
-				int numberFdReady = epoll_wait(epoll.getEpollfd(), epoll.getEvents(), 1, -1);
+				int numberFdReady = epoll_wait(epoll.getEpollfd(), epoll.getEvents(), QUE_SIZE, -1);
 				if (g_exit)
 					break ;
 				if (numberFdReady == -1)
@@ -105,47 +106,50 @@ int main(int ac, char **av, char **sysEnv)
 					std::cerr << "wrong epoll_wait fd ready number" << std::endl;
 					continue ;
 				}
-				int	clientSocket;
-				int	fdTriggered = epoll.getEvents()[0].data.fd;
-				Servers::sock_type::iterator sockTarget = serverList.getSocketByFd(fdTriggered);
-				if (sockTarget != serverList.getSockIpPort().end())
+				for (int index = 0; index != numberFdReady; index++)
 				{
-					clientSocket = serverList.acceptSocket(sockTarget->second);
-					epoll.addFd(clientSocket);
-					clientList.insert(std::make_pair(clientSocket, fdTriggered));
-				}
-				else
-				{
-					std::map<int, int>::iterator pairContacted = clientList.find(fdTriggered);
-					if (pairContacted == clientList.end())
+					int	clientSocket;
+					int	fdTriggered = epoll.getEvents()[index].data.fd;
+					Servers::sock_type::iterator sockTarget = serverList.getSocketByFd(fdTriggered);
+					if (sockTarget != serverList.getSockIpPort().end())
 					{
-						std::cerr << "Unregistered client" << std::endl;
-						continue ;
+						clientSocket = serverList.acceptSocket(sockTarget->second);
+						epoll.addFd(clientSocket);
+						clientList.insert(std::make_pair(clientSocket, fdTriggered));
 					}
-					char	buffer[4096];
-					int nb_bytes = 1;
-					while (nb_bytes > 0)
+					else
 					{
-						nb_bytes = recv(pairContacted->first, &buffer, 4096, 0);
-						if (nb_bytes > 0)
-							request.insert(request.end(), buffer, buffer + nb_bytes);
-					}
-					if (request.empty())
-					{
+						std::map<int, int>::iterator pairContacted = clientList.find(fdTriggered);
+						if (pairContacted == clientList.end())
+						{
+							std::cerr << "Unregistered client" << std::endl;
+							continue ;
+						}
+						char	buffer[4096];
+						int nb_bytes = 1;
+						while (nb_bytes > 0)
+						{
+							nb_bytes = recv(pairContacted->first, &buffer, 4096, 0);
+							if (nb_bytes > 0)
+								request.insert(request.end(), buffer, buffer + nb_bytes);
+						}
+						if (request.empty())
+						{
+							close(pairContacted->first);
+							clientList.erase(pairContacted);
+							continue ;
+						}
+						Request	req(request);
+						request.clear();
+						ConfigParser::Server server = findServ(req, serverList.findIpByFd(pairContacted->second), configServers.getData());
+						ConfigParser::Location	env = getEnvFromTarget(req.getTarget(), server);
+						Response	res(env, req, serverList.getClientIp(sockTarget->second, pairContacted->first), sysEnv);
+						res.execute();
+						res.constructData();
+						res.sendData(pairContacted->first);
 						close(pairContacted->first);
 						clientList.erase(pairContacted);
-						continue ;
 					}
-					Request	req(request);
-					request.clear();
-					ConfigParser::Server server = findServ(req, serverList.findIpByFd(pairContacted->second), configServers.getData());
-					ConfigParser::Location	env = getEnvFromTarget(req.getTarget(), server);
-					Response	res(env, req, serverList.getClientIp(sockTarget->second, pairContacted->first), sysEnv);
-					res.execute();
-					res.constructData();
-					res.sendData(pairContacted->first);
-					close(pairContacted->first);
-					clientList.erase(pairContacted);
 				}
 			} 
 			catch (std::exception &e)

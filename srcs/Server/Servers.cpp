@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "Servers.hpp"
+#include "globalDefine.hpp"
 #include "colors.hpp"
 #include <cstdlib>
 #include <pthread.h>
@@ -47,7 +48,7 @@ void    Servers::_listenConnection(void)
 {
     for (Servers::sock_type::iterator it = _sockIpPort.begin(); it != _sockIpPort.end(); it++)
     {        
-        if (listen(it->first, 5) < 0)
+        if (listen(it->first, QUE_SIZE) < 0)
             throw ServersError("listen failed");
     }
 }
