@@ -13,6 +13,7 @@
 #include "Servers.hpp"
 #include "colors.hpp"
 #include <cstdlib>
+#include <pthread.h>
 
 void	Servers::_createNewServer(std::string ip, std::string port)
 {
@@ -47,11 +48,9 @@ void    Servers::_listenConnection(void)
 {
     for (Servers::sock_type::iterator it = _sockIpPort.begin(); it != _sockIpPort.end(); it++)
     {        
-        if (listen(it->first, 5) < 0) {
-			for (Servers::sock_type::iterator toClose = _sockIpPort.begin(); toClose != it; toClose++)
-				close(it->first);
+        if (listen(it->first, 5) < 0)
             throw ServersError("listen failed");
-        }
+        throw ServersError("listen failed");
     }
 }
 
@@ -63,29 +62,39 @@ Servers::Servers(ConfigParser &confFile) {
 
 	std::set< std::pair<std::string, std::string> >	bindedSocketList;
 
-	for (ConfigParser::data_type::iterator itconf = conf.begin(); itconf != conf.end(); itconf++)
+	try
 	{
-		for (ConfigParser::Server::listen_type::iterator itListen = itconf->listen.begin(); itListen != itconf->listen.end(); itListen++)
+		for (ConfigParser::data_type::iterator itconf = conf.begin(); itconf != conf.end(); itconf++)
 		{
-			for (std::set<std::string>::iterator itSet = itListen->second.begin(); itSet != itListen->second.end(); itSet++)
+			for (ConfigParser::Server::listen_type::iterator itListen = itconf->listen.begin(); itListen != itconf->listen.end(); itListen++)
 			{
-				if (!bindedSocketList.count(std::make_pair(itListen->first, *itSet)))
+				for (std::set<std::string>::iterator itSet = itListen->second.begin(); itSet != itListen->second.end(); itSet++)
 				{
-					_createNewServer(itListen->first, *itSet);
-					bindedSocketList.insert(std::make_pair(itListen->first, *itSet));
+					if (!bindedSocketList.count(std::make_pair(itListen->first, *itSet)))
+					{
+						_createNewServer(itListen->first, *itSet);
+						bindedSocketList.insert(std::make_pair(itListen->first, *itSet));
+					}
+					std::cout << "\rServer " << "0" << " listening on " << itListen->first << ":" << *itSet << " ...        ";
+					std::cout.flush();
+					usleep(150000);
 				}
-				std::cout << "\rServer " << "0" << " listening on " << itListen->first << ":" << *itSet << " ...        ";
-				std::cout.flush();
-				usleep(150000);
 			}
+			std::cout << "\rServer " << itconf - conf.begin() << C_GREEN << " UP                                       " << C_RESET << std::endl;
 		}
-		std::cout << "\rServer " << itconf - conf.begin() << C_GREEN << " UP                                       " << C_RESET << std::endl;
+		_listenConnection();
 	}
-	_listenConnection();
+	catch (std::exception &e)
+	{
+		for (Servers::sock_type::iterator it = _sockIpPort.begin(); it != _sockIpPort.end(); it++)
+			close(it->first);
+		throw ServersError(e.what());
+	}
 }
 
 Servers::~Servers(void)
 {
+	std::cout << "Servers Destructor" << std::endl;
 	for (Servers::sock_type::iterator it = _sockIpPort.begin(); it != _sockIpPort.end(); it++)
 		close(it->first);
 }
