@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/18 12:57:12 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/11/06 15:06:50 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/06 15:12:03 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,56 +100,52 @@ int main(int ac, char **av, char **sysEnv)
 						return (0);
 					if (numberFdReady == -1)
 						throw std::bad_alloc();
-					for (int i = 0; i < numberFdReady; i++)
+					int	clientSocket;
+					int	fdTriggered = epoll.getEvents()[0].data.fd;
+					Servers::sock_type::iterator sockTarget = serverList.getSocketByFd(fdTriggered);
+					if (sockTarget != serverList.getSockIpPort().end())
 					{
-						int	clientSocket;
-						int	fdTriggered = epoll.getEvents()[i].data.fd;
-						Servers::sock_type::iterator sockTarget = serverList.getSocketByFd(fdTriggered);
-						if (sockTarget != serverList.getSockIpPort().end())
+						clientSocket = serverList.acceptSocket(sockTarget->second);
+						epoll.addFd(clientSocket);
+						clientList.insert(std::make_pair(clientSocket, fdTriggered));
+					}
+					else
+					{
+						std::map<int, int>::iterator pairContacted = clientList.find(fdTriggered);
+						if (pairContacted == clientList.end())
 						{
-							clientSocket = serverList.acceptSocket(sockTarget->second);
-							epoll.addFd(clientSocket);
-							clientList.insert(std::make_pair(clientSocket, fdTriggered));
+							std::cerr << "error pair not found" << std::endl;
+							continue ;
 						}
-						else
+						char	buffer[1024];
+						int nb_bytes = 1;
+						while (nb_bytes > 0)
 						{
-							std::map<int, int>::iterator pairContacted = clientList.find(fdTriggered);
-							if (pairContacted == clientList.end())
-							{
-								std::cerr << "error pair not found" << std::endl;
-								continue ;
-							}
-							char	buffer[1024];
-							int nb_bytes = 1;
-							while (nb_bytes > 0)
-							{
-								
-								memset(buffer, 0, sizeof(buffer));
-								nb_bytes = recv(pairContacted->first, &buffer, 1024, 0);
-								if (nb_bytes > 0)
-									request.insert(request.end(), &buffer[0], &buffer[nb_bytes]);
-							}
-							for (std::vector<char>::size_type i = 0; i < request.size(); i++)
-								std::cout << request[i];
-							std::cout << std::endl;
-							if (request.empty())
-							{
-								close(pairContacted->first);
-								clientList.erase(pairContacted);
-								continue ;
-							}
-							Request	req(request);
-							ConfigParser::Server server = findServ(req, pairContacted->second, serverList, configServers.getData());
-							std::cout << "cc" << std::endl;
-							ConfigParser::Location	env = getEnvFromTarget(req.getTarget(), server);
-							Response	res(env, req, serverList.getClientIp(sockTarget->second, pairContacted->first), sysEnv);
-							res.execute();
-							res.constructData();
-							res.sendData(pairContacted->first);
+							
+							memset(buffer, 0, sizeof(buffer));
+							nb_bytes = recv(pairContacted->first, &buffer, 1024, 0);
+							if (nb_bytes > 0)
+								request.insert(request.end(), &buffer[0], &buffer[nb_bytes]);
+						}
+						for (std::vector<char>::size_type i = 0; i < request.size(); i++)
+							std::cout << request[i];
+						std::cout << std::endl;
+						if (request.empty())
+						{
 							close(pairContacted->first);
 							clientList.erase(pairContacted);
-							request.clear();
+							continue ;
 						}
+						Request	req(request);
+						ConfigParser::Server server = findServ(req, pairContacted->second, serverList, configServers.getData());
+						ConfigParser::Location	env = getEnvFromTarget(req.getTarget(), server);
+						Response	res(env, req, serverList.getClientIp(sockTarget->second, pairContacted->first), sysEnv);
+						res.execute();
+						res.constructData();
+						res.sendData(pairContacted->first);
+						close(pairContacted->first);
+						clientList.erase(pairContacted);
+						request.clear();
 					}
 				} 
 				catch (std::exception &e)
