@@ -48,7 +48,8 @@ void    Servers::_listenConnection(void)
     for (Servers::sock_type::iterator it = _sockIpPort.begin(); it != _sockIpPort.end(); it++)
     {        
         if (listen(it->first, 5) < 0) {
-            close(it->first);
+			for (Servers::sock_type::iterator toClose = _sockIpPort.begin(); toClose != it; toClose++)
+				close(it->first);
             throw ServersError("listen failed");
         }
     }
@@ -73,12 +74,12 @@ Servers::Servers(ConfigParser &confFile) {
 					_createNewServer(itListen->first, *itSet);
 					bindedSocketList.insert(std::make_pair(itListen->first, *itSet));
 				}
-				std::cout << "\rServer " << "0" << " listening on " << itListen->first << ":" << *itSet << " ...        ";
-				std::cout.flush();
-				usleep(150000);
+				//std::cout << "\rServer " << "0" << " listening on " << itListen->first << ":" << *itSet << " ...        ";
+				//std::cout.flush();
+				//usleep(150000);
 			}
 		}
-		std::cout << "\rServer " << itconf - conf.begin() << C_GREEN << " UP                                       " << C_RESET << std::endl;
+		//std::cout << "\rServer " << itconf - conf.begin() << C_GREEN << " UP                                       " << C_RESET << std::endl;
 	}
 	_listenConnection();
 }
@@ -115,8 +116,11 @@ std::string	Servers::findIpByFd(int fd)
 
 std::string Servers::getClientIp(Servers::socket_t &sock, int clientFd)
 {
-	socklen_t len = 0;
-	if (getpeername(clientFd, (struct sockaddr *)&(sock.address), &len) == -1)
+	sockaddr_in tmp = sock.address;
+	socklen_t len = sizeof(tmp);
+	std::string test = sock.port;
+	(void)test;
+	if (getpeername(clientFd, (struct sockaddr *)&(tmp), &len) == -1)
 		throw ServersError("can't retrieve the ip of the client (getpeername failed)");
-	return (std::string(inet_ntoa(sock.address.sin_addr)));
+	return (std::string(inet_ntoa(tmp.sin_addr)));
 }
