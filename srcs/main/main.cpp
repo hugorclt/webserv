@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/18 12:57:12 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/11/06 15:12:03 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/06 15:16:11 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -137,6 +137,7 @@ int main(int ac, char **av, char **sysEnv)
 							continue ;
 						}
 						Request	req(request);
+						request.clear();
 						ConfigParser::Server server = findServ(req, pairContacted->second, serverList, configServers.getData());
 						ConfigParser::Location	env = getEnvFromTarget(req.getTarget(), server);
 						Response	res(env, req, serverList.getClientIp(sockTarget->second, pairContacted->first), sysEnv);
@@ -145,7 +146,6 @@ int main(int ac, char **av, char **sysEnv)
 						res.sendData(pairContacted->first);
 						close(pairContacted->first);
 						clientList.erase(pairContacted);
-						request.clear();
 					}
 				} 
 				catch (std::exception &e)
