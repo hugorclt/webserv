@@ -384,7 +384,7 @@ void	Response::sendData(int clientFd)
 	{
 		std::cout << ((_code != "200") ? C_RED : C_GREEN)
 				  << '[' << _code << "][" << _status << ']' << C_RESET
-				  //<< " client[" << _clientIp << ']'
+				  << " client[" << _clientIp << ']'
 				  << " server_name[" << _req.getData()["Host"][0] << ']'
 				  << " port[" << _req.getData()["Host"][1] << ']'
 				  << " " << _req.getMethod()

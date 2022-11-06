@@ -177,84 +177,6 @@ void	ConfigParser::_checkBodySize(keyValues_type &keyValues)
 /*                                 Constructor                                */
 /* -------------------------------------------------------------------------- */
 
-template<class InputIt>
-static void	printRange(InputIt first, InputIt last)
-{
-	if (first == last)
-		std::cout << "(NONE)";
-	while (first != last)
-		std::cout << " " << *first++;
-}
-
-template<class T>
-static void printMap(const std::map< std::string, T > &map, const std::string &indent)
-{
-	if (map.empty())
-		std::cout << indent << "(NONE)" << std::endl;
-	for (typename std::map< std::string, T >::const_iterator it = map.begin(); it != map.end(); it++)
-	{
-		std::cout << indent << "[\"" << it->first << "\"] :";
-		printRange(it->second.begin(), it->second.end());
-		std::cout << std::endl;
-	}
-}
-
-void	ConfigParser::_printConfigParser(const data_type &data)
-{
-	std::cout << "PrintConfigParser :" << std::endl << std::endl;
-	if (data.empty())
-	{
-		std::cout << "(NONE)" << std::endl;
-		return ;
-	}
-	for (data_type::const_iterator itServ = data.begin(); itServ != data.end(); itServ++)
-	{
-		std::string	indent("");
-		std::cout << indent << "Server " << data.size() - (data.end() - itServ) << " :" << std::endl;
-		std::cout << indent << '{' << std::endl;
-		indent += "\t";
-		std::cout << indent << "server_name : ";
-		printRange(itServ->server_name.begin(), itServ->server_name.end());
-		std::cout << std::endl << std::endl;
-		std::cout << indent << "listen" << std::endl
-				  << indent << '{' << std::endl;
-		printMap(itServ->listen, indent + "\t");
-		std::cout << indent << '}' << std::endl
-				  << std::endl;
-		for (Server::location_type::const_iterator itLoc = itServ->location.begin(); itLoc != itServ->location.end(); itLoc++)
-		{
-			std::string indent("\t");
-			std::cout << indent << "location [\"" << itLoc->first << "\"] :" << std::endl;
-			std::cout << indent << '{' << std::endl;
-			indent += "\t";
-			std::cout << indent << "UniqKey :" << std::endl;
-			std::cout << indent << '{' << std::endl;
-			printMap(itLoc->second.uniqKey, indent + "\t");
-			std::cout << indent << '}' << std::endl
-					  << std::endl;
-			std::cout << indent << "NonUniqKey :" << std::endl;
-			std::cout << indent << '{' << std::endl;
-			if (itLoc->second.nonUniqKey.empty())
-				std::cout << indent + "\t" << "(NONE)" << std::endl;
-			for (Location::nonUniqKey_type::const_iterator it = itLoc->second.nonUniqKey.begin(); it != itLoc->second.nonUniqKey.end(); it++)
-			{
-				std::string indent("\t\t\t");
-				std::cout << indent << it->first << " :" << std::endl;
-				std::cout << indent << '[' << std::endl;
-				printMap(it->second, indent + "\t");
-				std::cout << indent << ']' << std::endl;
-			}
-			std::cout << indent << '}' << std::endl;
-			indent = "\t";
-			std::cout << indent << '}' << std::endl
-				  	  << std::endl
-					  << std::endl;
-		}
-		indent = "";
-		std::cout << indent << '}' << std::endl << std::endl << std::endl << std::endl;
-	}
-}
-
 ConfigParser::ConfigParser(char *filename) {
 	Conf::init_data();
 	Conf::init_defaultValues();
@@ -262,16 +184,13 @@ ConfigParser::ConfigParser(char *filename) {
 	std::ifstream				input(filename);
 	std::vector<std::string>	fullFile;
 
+	if (!input.good())
+		throw ParsingError("invalid File (check than file is existing with good rights)");
 	for (std::string line; std::getline(input, line); ) {
 		fullFile.push_back(line);
 	}
-	
 	if (fullFile.empty())
-	{
-		_printConfigParser(_data);
 		return ;
-	}
-
 	lineRange_type	lineRange(fullFile.begin()->begin(), fullFile.begin()->end());
 	fileRange_type	fileRange(fullFile.begin(), fullFile.end());
 
@@ -298,7 +217,6 @@ ConfigParser::ConfigParser(char *filename) {
 		+ "line " + to_string(fullFile.size() - (fileRange.second - fileRange.first) + 1) + " : "
 		+ ((fileRange.first == fileRange.second) ? *(fileRange.first - 1) : *fileRange.first));
 	}
-	//_printConfigParser(_data);
 }
 
 void	ConfigParser::_colorSkipFirstWordInRange(size_t &first, const std::string &word, std::string &line, const std::string &color)

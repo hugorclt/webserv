@@ -32,7 +32,6 @@ class Servers {
 			int			opt;
 			int			addrLen;
 			std::string ip;
-			std::string port;
 		};
 
 		typedef std::map<int, socket_t> sock_type;

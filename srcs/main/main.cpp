@@ -17,6 +17,7 @@
 #include "Request.hpp"
 #include "Response.hpp"
 #include "main.hpp"
+#include "colors.hpp"
 #include <cstdlib>
 #include <csignal>
 #include <cstring>
@@ -91,13 +92,14 @@ int main(int ac, char **av, char **sysEnv)
 		std::vector<char>	request;
 
 	/* ----------------------------- Server loop ---------------------------- */
+		std::cout << "init " << C_GREEN << "Success" << C_RESET << ", server is running" << std::endl;
 		while (!g_exit) 
 		{
 			try 
 			{
 				int numberFdReady = epoll_wait(epoll.getEpollfd(), epoll.getEvents(), 1, -1);
 				if (g_exit)
-					return (0);
+					break ;
 				if (numberFdReady == -1)
 				{
 					std::cerr << "wrong epoll_wait fd ready number" << std::endl;
@@ -152,8 +154,13 @@ int main(int ac, char **av, char **sysEnv)
 				std::cerr << e.what() << std::endl;
 			}
 		}
-	} catch (std::exception &e) {
-		std::cerr << e.what() << std::endl;
+	}
+	catch (std::exception &e)
+	{
+		std::cerr << "init " << C_RED << "Failed" << C_RESET << std::endl
+				  << "error : " << e.what() << std::endl;
 		return (EXIT_FAILURE);
 	}
+	std::cout << std::endl << C_PURPLE << "GoodBye" << C_RESET << std::endl;
+	return (EXIT_SUCCESS);
 }

@@ -21,7 +21,6 @@ void	Servers::_createNewServer(std::string ip, std::string port)
 	int			sockfd;
 	
 	socketInfo.ip = ip;
-	socketInfo.port = port;
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
 	socketInfo.sockfd = sockfd;
 	if (!sockfd)
@@ -50,7 +49,6 @@ void    Servers::_listenConnection(void)
     {        
         if (listen(it->first, 5) < 0)
             throw ServersError("listen failed");
-        throw ServersError("listen failed");
     }
 }
 
@@ -94,7 +92,6 @@ Servers::Servers(ConfigParser &confFile) {
 
 Servers::~Servers(void)
 {
-	std::cout << "Servers Destructor" << std::endl;
 	for (Servers::sock_type::iterator it = _sockIpPort.begin(); it != _sockIpPort.end(); it++)
 		close(it->first);
 }
