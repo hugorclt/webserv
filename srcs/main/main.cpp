@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/18 12:57:12 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/11/05 16:30:01 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/06 15:16:11 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,61 +88,64 @@ int main(int ac, char **av, char **sysEnv)
 			signal(SIGINT, handle_sig);
 
 			std::map<int, int>	clientList;
+			std::vector<char>	request;
+
 		/* ----------------------------- Server loop ---------------------------- */
 			while (!g_exit) 
 			{
 				try 
 				{
 					int numberFdReady = epoll_wait(epoll.getEpollfd(), epoll.getEvents(), 1, -1);
-					std::cout << numberFdReady << std::endl;
+					if (g_exit)
+						return (0);
 					if (numberFdReady == -1)
-						break; //error handle
-					for (int i = 0; i < numberFdReady; i++)
+						throw std::bad_alloc();
+					int	clientSocket;
+					int	fdTriggered = epoll.getEvents()[0].data.fd;
+					Servers::sock_type::iterator sockTarget = serverList.getSocketByFd(fdTriggered);
+					if (sockTarget != serverList.getSockIpPort().end())
 					{
-						int	clientSocket;
-						int	fdTriggered = epoll.getEvents()[i].data.fd;
-						std::cout << fdTriggered << std::endl;
-						Servers::sock_type::iterator sockTarget = serverList.getSocketByFd(fdTriggered);
-						if (sockTarget != serverList.getSockIpPort().end())
+						clientSocket = serverList.acceptSocket(sockTarget->second);
+						epoll.addFd(clientSocket);
+						clientList.insert(std::make_pair(clientSocket, fdTriggered));
+					}
+					else
+					{
+						std::map<int, int>::iterator pairContacted = clientList.find(fdTriggered);
+						if (pairContacted == clientList.end())
 						{
-							clientSocket = serverList.acceptSocket(sockTarget->second);
-							epoll.addFd(clientSocket);
-							clientList.insert(std::make_pair(clientSocket, fdTriggered));
+							std::cerr << "error pair not found" << std::endl;
+							continue ;
 						}
-						else
+						char	buffer[1024];
+						int nb_bytes = 1;
+						while (nb_bytes > 0)
 						{
-							std::map<int, int>::iterator pairContacted = clientList.find(fdTriggered);
-							if (pairContacted == clientList.end())
-							{
-								std::cerr << "error pair not found" << std::endl;
-								continue ;
-							}
-							char	buffer[1024];
-							std::vector<char>	request;
-							int nb_bytes = 1;
-							while (nb_bytes > 0)
-							{
-								memset(buffer, 0, sizeof(buffer));
-								nb_bytes = recv(pairContacted->first, buffer, 1024, 0);
-								if (nb_bytes > 0)
-									request.insert(request.end(), &buffer[0], &buffer[nb_bytes]);
-							}
-							if (request.empty())
-							{
-								close(pairContacted->first);
-								clientList.erase(pairContacted);
-								throw std::bad_alloc();
-							}
-							Request	req(request);
-							ConfigParser::Server server = findServ(req, pairContacted->second, serverList, configServers.getData());
-							ConfigParser::Location	env = getEnvFromTarget(req.getTarget(), server);
-							Response	res(env, req, serverList.getClientIp(sockTarget->second, pairContacted->first), sysEnv);
-							res.execute();
-							res.constructData();
-							res.sendData(pairContacted->first);
+							
+							memset(buffer, 0, sizeof(buffer));
+							nb_bytes = recv(pairContacted->first, &buffer, 1024, 0);
+							if (nb_bytes > 0)
+								request.insert(request.end(), &buffer[0], &buffer[nb_bytes]);
+						}
+						for (std::vector<char>::size_type i = 0; i < request.size(); i++)
+							std::cout << request[i];
+						std::cout << std::endl;
+						if (request.empty())
+						{
 							close(pairContacted->first);
 							clientList.erase(pairContacted);
+							continue ;
 						}
+						Request	req(request);
+						request.clear();
+						ConfigParser::Server server = findServ(req, pairContacted->second, serverList, configServers.getData());
+						ConfigParser::Location	env = getEnvFromTarget(req.getTarget(), server);
+						Response	res(env, req, serverList.getClientIp(sockTarget->second, pairContacted->first), sysEnv);
+						res.execute();
+						res.constructData();
+						res.sendData(pairContacted->first);
+						close(pairContacted->first);
+						clientList.erase(pairContacted);
 					}
 				} 
 				catch (std::exception &e)
@@ -158,40 +161,3 @@ int main(int ac, char **av, char **sysEnv)
 				
 	}
 }
-
-					// if (epoll_wait(epoll.getEpollfd(), epoll.getEvents(), 1, -1) != -1)
-					// {
-					// 	int	newSocket;
-					// 	if (sockTarget != serverList.getSockIpPort().end())
-					// 	{
-					// 		newSocket = serverList.acceptSocket(sockTarget->second);
-					// 		epoll.addFd(newSocket);
-					// 		std::cout << "new connection, client: " << newSocket << " server: " << clientFd << std::endl;
-					// 		clientList.insert(std::make_pair(newSocket, clientFd));
-					// 		break;
-					// 	}
-					// 	else
-					// 	{
-					// 		std::map<int, int>::iterator clientServer = clientList.find(clientFd);
-					// 		if (clientServer == clientList.end())
-					// 			break;
-					// 		char	buffer[1024] = { 0 };
-					// 		int		nb_bytes = recv(clientServer->first, buffer, 1024, 0);
-					// 		if (nb_bytes)
-					// 		{
-					// 			std::cout << "new request, client: " << clientServer->first << " server: " << clientServer->second << std::endl;
-					// 			std::string str(buffer);
-					// 			//std::cout << str << std::endl; // display request
-					// 			Request	req(str);
-					// 			ConfigParser::Server server = findServ(req, clientServer->second, serverList, configServers.getData());
-					// 			ConfigParser::Location	env = getEnvFromTarget(req.getTarget(), server);
-					// 			Response	res(env, req, serverList.getClientIp(sockTarget->second, clientServer->first));
-					// 			res.execute();
-					// 			res.constructData();
-					// 			res.sendData(clientServer->first);
-					// 		}
-					// 		clientList.erase(clientServer);
-					// 		close(newSocket);
-					// 		break;
-					// 	}
-					// }
