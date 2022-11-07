@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/11 15:23:33 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/11/07 19:14:52 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/08 00:42:45 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -299,7 +299,10 @@ void	Response::_execGet(void) {
 			_setError("500");
 			return ;
 		}
-		_types = "text/html";
+		if (CGI.getContentType().empty())
+			_types = "text/html";
+		else
+			_types = CGI.getContentType();
 		return ;
 	}
 	_readFile(_file);
@@ -337,15 +340,15 @@ void	Response::_writeFile(void)
 
 void	Response::_uploadFile(void)
 {
-	struct stat buf;
-	std::string filename = _env.uniqKey["upload"][0];
-	
-	stat(filename.c_str(), &buf);
 	if (!_env.uniqKey.count("upload"))
 	{
 		_setError("404");
 		return ;
 	}
+	struct stat buf;
+	std::string filename = _env.uniqKey["upload"][0];
+	
+	stat(filename.c_str(), &buf);
 	if (access(filename.c_str(), F_OK) != 0)
 	{
 		_setError("404");
@@ -370,7 +373,6 @@ void	Response::_uploadFile(void)
 void	Response::execute(void) {
 	std::string method = _req.getMethod();
 	Request::request_type	header = _req.getData();
-	// tmp shit lol
 
 	if (_req.getBody().size() > static_cast<size_t>(atoi(_env.uniqKey["body_size"][0].c_str())))
 	{
@@ -436,7 +438,7 @@ void	Response::_setType(std::string url)
 	{
 		_types = it->second;
 		return ;
-	}
+	}		
 	if (_isBinaryFile(url))
 		_types = "application/octet-stream";
 	else

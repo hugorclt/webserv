@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/25 14:39:47 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/11/07 17:49:45 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/08 00:42:31 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,7 @@ class CgiHandler {
         std::vector<std::string>    _var;
 		char						**_sysEnv;
 		Response					&_res;
+		std::string					_contentType;
 
 
         char    			**_convertVecToChar(std::vector<std::string> &vec);
@@ -52,12 +53,15 @@ class CgiHandler {
 		std::string			_findDirectory(std::string path);
 		std::string			_getSysPath(void);
 		std::string			_setCwd(void);
+		void				_parseFirstLine(std::vector<char> body);
+
 
       
     public:
         CgiHandler(ConfigParser::Location &server, Request &req, std::string MIMEtype, std::string clientIp, char **env, Response &res);
        
 	    int	exec(void);
+		std::string		getContentType(void);
 		
 		class CgiHandlerError: public std::exception {
 			private:

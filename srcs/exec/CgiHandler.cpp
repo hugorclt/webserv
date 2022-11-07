@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/25 14:39:45 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/11/07 19:13:31 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/08 00:48:14 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,10 +19,11 @@
 #include <errno.h>
 #include <stdio.h>
 #include <sys/wait.h>
+#include <algorithm>
 #include <errno.h>
 
 CgiHandler::CgiHandler(ConfigParser::Location &server, Request &req, std::string MIMEtype, std::string clientIp, char **env, Response &res)
-: _server(server), _req(req), _type(MIMEtype), _clientIp(clientIp), _sysEnv(env), _res(res)
+: _server(server), _req(req), _type(MIMEtype), _clientIp(clientIp), _sysEnv(env), _res(res), _contentType("")
 {
 	_setTarget();
 	_setRoot();
@@ -60,6 +61,8 @@ std::string	CgiHandler::_getSysPath(void)
 {
 	int i = 0;
 	
+	if (!_sysEnv)
+		return ("");
 	for (; _sysEnv[i]; i++)
 	{
 		if (ft_strncmp(_sysEnv[i], "PATH", 4) == 0)
@@ -82,13 +85,15 @@ void    CgiHandler::_initEnv(void)
 	else
 		_env.push_back("CONTEXT_DOCUMENT_ROOT=" + cwdPath + "/" + _cgiPath.substr(0, _cgiPath.rfind('/') + 1));
 	Request::request_type	header = _req.getData();
-	_env.push_back("HTTP_ACCEPT=" + header["Accept"][0]);
+	if (header.count("Accept") && !header["Accept"].empty())
+		_env.push_back("HTTP_ACCEPT=" + header["Accept"][0]);
 	if (header.count("Accept-Encoding") && !header["Accept-Encoding"].empty())
 		_env.push_back("HTTP_ACCEPT_ENCODING=" + header["Accept-Encoding"][0]);
 	if (header.count("Accept-Language") && !header["Accept-Language"].empty())
 		_env.push_back("HTTP_ACCEPT_LANGUAGE=" + header["Accept-Language"][0]);
 	_env.push_back("HTTP_HOST=" + header["Host"][0] + ":" + header["Host"][1]);
-	_env.push_back("HTTP_USER_AGENT=" + header["User-Agent"][0]);
+	if (header.count("User-Agent") && !header["User-Agent"].empty())
+		_env.push_back("HTTP_USER_AGENT=" + header["User-Agent"][0]);
     _env.push_back("CONTENT_LENGTH=" + to_string(_req.getEnvVar().size()));
 	_env.push_back("PATH=" + _getSysPath());
    	_env.push_back("QUERY_STRING=" + _constructQuery(_req.getVar()));
@@ -193,12 +198,41 @@ int	CgiHandler::exec(void)
 char    **CgiHandler::_convertVecToChar(std::vector<std::string> &vec)
 {
     char **res;
-    res = new char *[vec.size() + 1]; // reflechir plus tard
+    res = new char *[vec.size() + 1];
     
     for (std::vector<std::string>::iterator it = vec.begin(); it != vec.end(); it++)
         res[it - vec.begin()] = &(*it)[0];
     res[vec.size()] = NULL;
     return (res);
+}
+
+void	CgiHandler::_parseFirstLine(std::vector<char> body)
+{
+	if (body.empty())
+		return ;
+	std::vector<char>::iterator it = std::find(body.begin(), body.end(), '\n');
+	if (it == body.end() || it + 1 == body.end() || *(it + 1) != '\n')
+	{
+		std::cout << (it == body.end()) << std::endl;
+		std::cout << (it + 1 == body.end()) << std::endl;
+		std::cout << (*(it + 1) != '\n') << std::endl;
+		std::cerr << "cc2" << std::endl;
+		return ;
+	}
+	std::string line(body.begin(), it);
+	size_t pos_start = line.find("Content-type:");
+	if (pos_start == std::string::npos)
+	{
+		std::cerr << "cc3" << std::endl;
+		return ;
+	}
+	pos_start += std::string("Content-type:").size();
+	size_t pos_end = line.find(";", pos_start);
+	if (pos_end == std::string::npos)
+		pos_end = line.size();
+	_contentType.assign(&line[pos_start] , &line[pos_end - 1]);
+	std::cerr << "cc" << std::endl;
+	std::cerr << _contentType << std::endl;
 }
 
 std::vector<char> 	CgiHandler::_readPipe(int pipeToRead)
@@ -212,5 +246,12 @@ std::vector<char> 	CgiHandler::_readPipe(int pipeToRead)
 	if (readState == -1)
 		throw CgiHandlerError("read: error");
 	wait(NULL);
+	std::cerr << "cc1" << std::endl;
+	_parseFirstLine(res);
     return (res);
+}
+
+std::string		CgiHandler::getContentType(void)
+{
+	return (_contentType);
 }

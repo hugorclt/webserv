@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/18 12:57:12 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/11/07 19:31:29 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/07 23:42:43 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,8 @@ ConfigParser::Server    selectServ(std::string ip, std::string port, std::string
 		else if (firstOccu == vecServs.end())
 			firstOccu = it;
    	}
+	if (firstOccu == vecServs.end())
+		throw InvalidHost("Error: invalid host");
    	return (*firstOccu);
 }
 
@@ -99,6 +101,8 @@ int main(int ac, char **av, char **sysEnv)
 		{
 			try 
 			{
+				if (g_exit)
+					break ;
 				int numberFdReady = epoll_wait(epoll.getEpollfd(), epoll.getEvents(), QUE_SIZE, -1);
 				if (g_exit)
 					break ;

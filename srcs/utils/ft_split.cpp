@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/26 13:15:41 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/26 15:39:01 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/07 21:54:23 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,7 @@ std::vector<std::string> split(std::string s, std::string delimiter){
     std::vector<std::string> list;
     size_t pos = 0;
     std::string token;
+
     while ((pos = s.find(delimiter)) != std::string::npos) {
         token = s.substr(0, pos);
 		if (!token.empty())

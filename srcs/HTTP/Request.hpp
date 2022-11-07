@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/21 10:25:37 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/11/02 11:42:19 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/07 21:46:26 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,8 @@ class Request {
 		void	_unchunkedRequest(std::vector<char> &body);
 		void	_parseFileName(std::vector<char> &body);
 		std::vector<char>::iterator	_searchLastLine(std::vector<char> &body);
+		void	_checkHeader(void);
+
 
 
 	public:
@@ -70,6 +72,19 @@ class Request {
 				: _error(error) {}
 
 				virtual ~RequestError(void) throw() {}
+
+				virtual const char *what() const throw()
+				{ return (_error.c_str()); }
+		};
+		
+		class InvalidHeader: public std::exception {
+			private:
+				std::string	_error;
+			public:
+				InvalidHeader(const std::string &error)
+				: _error(error) {}
+
+				virtual ~InvalidHeader(void) throw() {}
 
 				virtual const char *what() const throw()
 				{ return (_error.c_str()); }

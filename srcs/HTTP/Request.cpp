@@ -70,10 +70,8 @@ void	Request::_parseBody(std::vector<char> &body)
 	else if (_header.count("Content-Type") && !_header["Content-Type"].empty() && !_header["Content-Type"][0].empty())
 	{
 		std::vector<std::string>	content_type = split_charset(_header["Content-Type"][0], "; ");
-		std::cout << content_type[0] << std::endl;
 		if (content_type[0] == "multipart/form-data" && _header.count("Content-Length") && !_header["Content-Length"].empty() && _header["Content-Length"][0] != "0")
 		{
-			std::cout << "PARSEFILENAME" << std::endl;
 			_parseFileName(body);
 		}
 		_body = body;
@@ -103,8 +101,14 @@ Request::Request(std::vector<char> &req)
 	if (_header.count("Content-Length") && !_header["Content-Length"].empty() && static_cast<size_t>(atoi(_header["Content-Length"][0].c_str())) != body.size())
 		throw RequestError("Content-Length not the same as the body size");
 	_parseBody(body);
-
+	_checkHeader();
 	// _printValue();
+}
+
+void	Request::_checkHeader(void)
+{
+	if (!_header.count("Host") && _header["Host"].empty() && _header["host"].size() != 2)
+		throw InvalidHeader("Invalid header");
 }
 
 Request::~Request(void) {
@@ -160,6 +164,8 @@ void	Request::_printValue(void)
 void	Request::_basicSplit(std::string &line)
 {
 	std::vector<std::string> lineSplited = split(line, ":");
+	if (lineSplited.size() <= 2 && lineSplited[0] == "Host")
+		throw InvalidHeader("Host invalid");
 	std::string key = lineSplited[0];
 	std::vector<std::string> value;
 
