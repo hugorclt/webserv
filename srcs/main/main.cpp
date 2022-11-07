@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/18 12:57:12 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/11/06 15:16:11 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/07 16:22:24 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -154,8 +154,8 @@ int main(int ac, char **av, char **sysEnv)
 			} 
 			catch (std::exception &e)
 			{
-				std::clog << "error: not fatal: server is listening" << std::endl;
 				std::cerr << e.what() << std::endl;
+				std::cerr << C_ORANGE << "Server is listening" << C_RESET << std::endl;
 			}
 		}
 	}

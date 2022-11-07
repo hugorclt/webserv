@@ -66,20 +66,26 @@ void	Request::_parseBody(std::vector<char> &body)
 		_unchunkedRequest(body);
 	if (_header["Content-Type"][0] == "application/x-www-form-urlencoded")
 		_envVar.insert(_envVar.end(), body.begin(), body.end());
-	else
+	else if (_header.count("Content-Lenght") && !_header["Content-Length"].empty() && _header["Content-Length"][0] != "0")
 	{
 		_parseFileName(body);
 		_body = body;
 	}
+	else
+		_body = body;
+
 }
 
 std::vector<char>::iterator	Request::_vectorCharSearch(std::vector<char>::iterator first, std::vector<char>::iterator last, std::string toFind)
 {
+	if (std::search(first, last, toFind.begin(), toFind.end()) == last)
+		throw RequestError("Error request not formatted, appending...");
 	return (std::search(first, last, toFind.begin(), toFind.end()) + toFind.size());
 }
 
 Request::Request(std::vector<char> &req)
 {
+	std::cout << (_vectorCharSearch(req.begin(), req.end(), "\r\n\r\n") == req.end()) << std::endl;
 	std::string 		firstLine(req.begin(), _vectorCharSearch(req.begin(), req.end(), "\r\n"));
 	std::string		 	header(_vectorCharSearch(req.begin(), req.end(), "\r\n"), _vectorCharSearch(req.begin(), req.end(), "\r\n\r\n"));
 	std::vector<char>	body(_vectorCharSearch(req.begin(), req.end(), "\r\n\r\n"), req.end());

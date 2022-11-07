@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/25 14:39:45 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/11/06 15:27:17 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/07 13:12:39 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,6 +108,7 @@ void    CgiHandler::_initEnv(void)
 	_env.push_back("SERVER_PORT=" + header["Host"][1]);
 	_env.push_back("SERVER_PORT=" + _req.getVersion());
 	_env.push_back("SERVER_SIGNATURE=\"\"");
+	_env.push_back("SERVER_PROTOCOL=HTTP/1.1");
 	_env.push_back("SERVER_SOFTWARE=catzGang Web Server");
 	if (header.find("Content-Type") != header.end())
     	_env.push_back("CONTENT_TYPE=" + header["Content-Type"][0]);

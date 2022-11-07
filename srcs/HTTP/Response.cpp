@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/11 15:23:33 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/11/06 15:30:39 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/07 15:57:43 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -232,7 +232,7 @@ bool	Response::_checkFile(std::string filename, int isErrorFile)
 			_types = "text/html";
 		}
 		else if (isErrorFile == 0)
-				_setError("403");
+				_setError("404");
 		return (true);
 	}
 	_code = "200";
