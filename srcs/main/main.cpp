@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/18 12:57:12 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/11/07 16:22:24 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/07 17:09:35 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,6 +91,7 @@ int main(int ac, char **av, char **sysEnv)
 
 		std::map<int, int>	clientList;
 		std::vector<char>	request;
+		std::map<int, int>::iterator pairContacted;
 
 	/* ----------------------------- Server loop ---------------------------- */
 		std::cout << "init " << C_GREEN << "Success" << C_RESET << ", server is running" << std::endl;
@@ -119,7 +120,7 @@ int main(int ac, char **av, char **sysEnv)
 					}
 					else
 					{
-						std::map<int, int>::iterator pairContacted = clientList.find(fdTriggered);
+						pairContacted = clientList.find(fdTriggered);
 						if (pairContacted == clientList.end())
 						{
 							std::cerr << "Unregistered client" << std::endl;
@@ -152,14 +153,12 @@ int main(int ac, char **av, char **sysEnv)
 					}
 				}
 			} 
-			catch (Request::RequestError &e)
-			{
-				std::cerr << "TEST APPEND" << std::endl;
-			}
+			catch (Request::RequestError &e) {}
 			catch (std::exception &e)
 			{
 				std::cerr << e.what() << std::endl;
 				std::cerr << C_ORANGE << "Server is listening" << C_RESET << std::endl;
+				close(pairContacted->first);
 				request.clear();
 			}
 		}

@@ -498,7 +498,7 @@ ConfigParser::Server	ConfigParser::_createNewServer(lineRange_type &lineRange, f
 				throw ParsingError("Location duplication : \"" + keyValues.second[0] + "\"");
 			_goToNextWordInFile(lineRange, fileRange); //skip the location
 			lineRange.first++; //skip the location
-			if (keyValues.second[0][keyValues.second[0].size() - 1] == '/')
+			if (keyValues.second[0].size() > 1 && keyValues.second[0][keyValues.second[0].size() - 1] == '/')
 				keyValues.second[0].erase(keyValues.second[0].end() - 1);
 			try { res.location.insert(std::make_pair(keyValues.second[0], _createNewLocation(lineRange, fileRange))); }
 			catch (ParsingError &e) { throw ParsingError("location \"" + keyValues.second[0] + "\" : " + e.what(), e.word()); }

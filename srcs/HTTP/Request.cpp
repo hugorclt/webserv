@@ -85,7 +85,6 @@ std::vector<char>::iterator	Request::_vectorCharSearch(std::vector<char>::iterat
 
 Request::Request(std::vector<char> &req)
 {
-	std::cout << (_vectorCharSearch(req.begin(), req.end(), "\r\n\r\n") == req.end()) << std::endl;
 	std::string 		firstLine(req.begin(), _vectorCharSearch(req.begin(), req.end(), "\r\n"));
 	std::string		 	header(_vectorCharSearch(req.begin(), req.end(), "\r\n"), _vectorCharSearch(req.begin(), req.end(), "\r\n\r\n"));
 	std::vector<char>	body(_vectorCharSearch(req.begin(), req.end(), "\r\n\r\n"), req.end());
