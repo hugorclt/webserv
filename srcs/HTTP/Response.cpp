@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/11 15:23:33 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/11/07 18:39:42 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/07 19:14:52 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -372,7 +372,7 @@ void	Response::execute(void) {
 	Request::request_type	header = _req.getData();
 	// tmp shit lol
 
-	if (static_cast<int>(_req.getBody().size()) > atoi(_env.uniqKey["body_size"][0].c_str()))
+	if (_req.getBody().size() > static_cast<size_t>(atoi(_env.uniqKey["body_size"][0].c_str())))
 	{
 		_setError("413");
 		return ;
@@ -392,7 +392,16 @@ void	Response::execute(void) {
 
 void	Response::sendData(int clientFd)
 {
-	if (send(clientFd, _data.data(), _data.size(), 0) == -1)
+	int	bytes_send = 0;
+	int	ret = 0;
+
+	do 
+	{
+		ret = send(clientFd, _data.data() + bytes_send, _data.size() - bytes_send, 0);
+		bytes_send += ret;
+	}
+	while (ret != -1 &&  static_cast<size_t>(bytes_send) < _data.size());
+	if (ret == -1)
 		throw ResponseError("Response error: send() failed");
 	else
 	{

@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/25 14:39:45 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/11/07 18:09:31 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/07 19:13:31 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -172,7 +172,7 @@ int	CgiHandler::exec(void)
 		char **nnll = _convertVecToChar(tmp);
 		execve(_cgiPath.c_str(), nnll, env);
 		g_exit = 1;
-		throw CgiHandlerError("fork crashed");
+		throw CgiHandlerError("execve failed");
     }
 	else
 	{

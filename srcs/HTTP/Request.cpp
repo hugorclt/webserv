@@ -66,20 +66,29 @@ void	Request::_parseBody(std::vector<char> &body)
 		_unchunkedRequest(body);
 	if (_header["Content-Type"][0] == "application/x-www-form-urlencoded")
 		_envVar.insert(_envVar.end(), body.begin(), body.end());
-	else if (_header.count("Content-Length") && !_header["Content-Length"].empty() && _header["Content-Length"][0] != "0")
+
+	else if (_header.count("Content-Type") && !_header["Content-Type"].empty() && !_header["Content-Type"][0].empty())
 	{
-		_parseFileName(body);
+		std::vector<std::string>	content_type = split_charset(_header["Content-Type"][0], "; ");
+		std::cout << content_type[0] << std::endl;
+		if (content_type[0] == "multipart/form-data" && _header.count("Content-Length") && !_header["Content-Length"].empty() && _header["Content-Length"][0] != "0")
+		{
+			std::cout << "PARSEFILENAME" << std::endl;
+			_parseFileName(body);
+		}
 		_body = body;
 	}
 	else
 		_body = body;
-
 }
 
 std::vector<char>::iterator	Request::_vectorCharSearch(std::vector<char>::iterator first, std::vector<char>::iterator last, std::string toFind)
 {
-	if (std::search(first, last, toFind.begin(), toFind.end()) == last)
+	if (std::search(first, last, toFind.begin(), toFind.end()) == last )
+	{
+		std::cout << toFind << std::endl;
 		throw RequestError("Error request not formatted, appending...");
+	}
 	return (std::search(first, last, toFind.begin(), toFind.end()) + toFind.size());
 }
 
@@ -91,10 +100,11 @@ Request::Request(std::vector<char> &req)
 
 	_parseFirstLine(firstLine);
 	_parseHeader(header);
-	if (_header.count("Content-Length") && !_header["Content-Length"].empty() && atoi(_header["Content-Length"][0].c_str()) != static_cast<int>(body.size()))
+	if (_header.count("Content-Length") && !_header["Content-Length"].empty() && static_cast<size_t>(atoi(_header["Content-Length"][0].c_str())) != body.size())
 		throw RequestError("Content-Length not the same as the body size");
 	_parseBody(body);
-	_printValue();
+
+	// _printValue();
 }
 
 Request::~Request(void) {
