@@ -12,6 +12,7 @@
 
 #pragma once
 
+# define C_WHITE "\033[97m"
 # define C_RED "\033[1;31m"
 # define C_GREEN "\033[1;32m"
 # define C_BLUE "\033[1;33m"

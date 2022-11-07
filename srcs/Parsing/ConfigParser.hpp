@@ -72,16 +72,16 @@ class ConfigParser {
 			struct raw
 			{
 				KeyType						kt;
-				void						(*func)(keyValues_type &);
+				void						(*func)(keyValues_type &, size_t &startLastLine, std::string &line);
 				size_t						maxParams;
 				std::set<std::string>		validParams;
 
 				raw(void) {};
 
-				raw(const KeyType &kt, void (*func)(keyValues_type &), size_t maxParams, std::string validParamsTab[], size_t validParamsSize)
+				raw(const KeyType &kt, void (*func)(keyValues_type &, size_t &startLastLine, std::string &line), size_t maxParams, std::string validParamsTab[], size_t validParamsSize)
 				: kt(kt), func(func), maxParams(maxParams), validParams(validParamsTab, validParamsTab + validParamsSize) {};
 
-				raw(const KeyType &kt, void (*func)(keyValues_type &), size_t maxParams)
+				raw(const KeyType &kt, void (*func)(keyValues_type &, size_t &startLastLine, std::string &line), size_t maxParams)
 				: kt(kt), func(func), maxParams(maxParams) {};
 			};
 
@@ -128,16 +128,19 @@ class ConfigParser {
 		void			checkKeyValues(keyValues_type &keyValues, const Conf::raw &keyConf, size_t startLastLine, std::string &line);
 
 		//Check Functions
-		static void	_konamiCode(keyValues_type &keyValues);
-		static void	_checkBodySize(keyValues_type &keyValues);
-		static void	_checkCgi(keyValues_type &keyValues);
-		static void	formatListen(keyValues_type &keyValues);
+		static void	_konamiCode(keyValues_type &keyValues, size_t &startLastLine, std::string &line);
+		static void	_checkBodySize(keyValues_type &keyValues, size_t &startLastLine, std::string &line);
+		static void	_checkCgi(keyValues_type &keyValues, size_t &startLastLine, std::string &line);
+		static void	_checkRoot(keyValues_type &keyValues, size_t &startLastLine, std::string &line);
+
+		static void checkIp(std::vector<std::string> ip, size_t &startLastLine, std::string &line);
+		static void checkPort(std::string str, size_t &startLastLine, std::string &line);
+		static void	formatListen(keyValues_type &keyValues, size_t &startLastLine, std::string &line);
 
 		//test
 
 		static void	_printConfigParser(const data_type &data);
-		//void		_color(size_t last, std::string word, std::string &line);
-		void		_colorSkipFirstWordInRange(size_t &first, const std::string &word, std::string &line, const std::string &color);
+		static void	_colorSkipFirstWordInRange(size_t &first, const std::string &word, std::string &line, const std::string &color);
 		
 	public:
 		ConfigParser(char *params);

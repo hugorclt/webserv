@@ -26,9 +26,11 @@
 #define UNLLIMITED_PARAMS 0
 #define SIZEOF(arr) sizeof(arr) / sizeof(*arr)
 
-void	ConfigParser::_konamiCode(keyValues_type &keyValues)
+void	ConfigParser::_konamiCode(keyValues_type &keyValues, size_t &startLastLine, std::string &line)
 {
 	(void)keyValues;
+	(void)startLastLine;
+	(void)line;
 	std::cout << C_PURPLE << "KONAMI CODE DETECTED, SETTING LIFE NUMBER TO 30..." << C_RESET << std::endl;
 }
 
@@ -41,15 +43,15 @@ void	ConfigParser::Conf::init_data(void)
 		return ;
 	std::string allow_methodsVP[] = {"GET", "POST", "DELETE"};
 	std::string auto_indexVP[] = {"on", "off"};
-	std::string error_pageVP[] = {"404", "403", "405"};
-	std::string returnVP[] = {"200", "404", "403", "405"};
+	std::string error_pageVP[] = {"403", "404", "405", "413", "500"};
+	std::string returnVP[] = {"200", "403", "404", "405", "413", "500"};
 	std::string konamiCodeVP[] = {"start"};
 
 	std::pair<std::string, raw>	data[] =
 	{
 		std::make_pair("body_size",     raw(KT_UNIQ, &_checkBodySize, 1)),
 		std::make_pair("allow_methods", raw(KT_UNIQ, NULL, 3, allow_methodsVP, SIZEOF(allow_methodsVP))),
-		std::make_pair("root",          raw(KT_UNIQ, NULL, 1)),
+		std::make_pair("root",          raw(KT_UNIQ, &_checkRoot, 1)),
 		std::make_pair("index",         raw(KT_UNIQ, NULL, UNLLIMITED_PARAMS)),
 		std::make_pair("upload",        raw(KT_UNIQ, NULL, 1)),
 		std::make_pair("↑↑↓↓←→←→BA",    raw(KT_UNIQ, &_konamiCode, 1, konamiCodeVP, SIZEOF(konamiCodeVP))),
@@ -110,67 +112,134 @@ const std::string ConfigParser::Conf::_scopeSet = "{}";
 /*                                CheckFunction                               */
 /* -------------------------------------------------------------------------- */
 
-static void	checkPort(std::string str) // tmp
+void	ConfigParser::checkPort(std::string str, size_t &startLastLine, std::string &line)
 {
 	int	port;
 
 	if (!isDigits(str))
-		throw ConfigParser::ParsingError("listen, port need to be digits", str);
+	{
+		_colorSkipFirstWordInRange(startLastLine, str, line, C_RED);
+		throw ConfigParser::ParsingError("listen, port need to be digits");
+	}
 	port = atoi(str.c_str());
 	if (port < 0 || port > MAX_PORT)
-		throw ConfigParser::ParsingError("listen, port out of range", str);
-}
-
-static void checkIp(std::vector<std::string> ip) // tmp
-{
-	if (ip.size() != 4)
-		throw ConfigParser::ParsingError("listen, ip need to be 4 numbers separated by '.'");
-	for (std::vector<std::string>::iterator it = ip.begin(); it < ip.end(); it++)
 	{
-		if (!isDigits(*it))
-			throw ConfigParser::ParsingError("listen, ip need to be 4 numbers separated by '.'", *it);
-		if (atoi(it->c_str()) < 0 || atoi(it->c_str()) > 255)
-			throw ConfigParser::ParsingError("listen, ip numbers need to be between 0 and 255", *it);
+		_colorSkipFirstWordInRange(startLastLine, str, line, C_RED);
+		throw ConfigParser::ParsingError("listen, port out of range");
 	}
 }
 
-void	ConfigParser::formatListen(keyValues_type &keyValues)
+void 	ConfigParser::checkIp(std::vector<std::string> ip, size_t &startLastLine, std::string &line)
 {
-		if (isDigits(keyValues.second[0]))
+	if (ip.size() != 4)
+	{
+		for (std::vector<std::string>::iterator it = ip.begin(); it != ip.end(); it++)
 		{
-			checkPort(keyValues.second[0]);
-			if (keyValues.second.size() == 2)
-			{
-				checkIp(split(keyValues.second[1], "."));
-				std::swap(keyValues.second[0], keyValues.second[1]);
-			}
-			else
-				keyValues.second.insert(keyValues.second.begin(), DEFAULT_LISTEN_INTERFACE);
+			if (it != ip.begin())
+				_colorSkipFirstWordInRange(startLastLine, ".", line, C_RED);
+			_colorSkipFirstWordInRange(startLastLine, *it, line, C_RED);
+		}
+		throw ConfigParser::ParsingError("listen, ip need to be 4 numbers separated by '.'");
+	}
+	for (std::vector<std::string>::iterator it = ip.begin(); it < ip.end(); it++)
+	{
+		if (!isDigits(*it))
+		{
+			_colorSkipFirstWordInRange(startLastLine, *it, line, C_RED);
+			throw ConfigParser::ParsingError("listen, ip split by . need to be numbers");
+		}
+		if (atoi(it->c_str()) < 0 || atoi(it->c_str()) > 255)
+		{
+			_colorSkipFirstWordInRange(startLastLine, *it, line, C_RED);
+			throw ConfigParser::ParsingError("listen, ip numbers need to be between 0 and 255");
+		}
+		_colorSkipFirstWordInRange(startLastLine, *it, line, C_WHITE);
+	}
+}
+
+void	ConfigParser::formatListen(keyValues_type &keyValues, size_t &startLastLine, std::string &line)
+{
+	if (isDigits(keyValues.second[0]))
+	{
+		checkPort(keyValues.second[0], startLastLine, line);
+		_colorSkipFirstWordInRange(startLastLine, keyValues.second[0], line, C_WHITE);
+		if (keyValues.second.size() == 2)
+		{
+			checkIp(split(keyValues.second[1], "."), startLastLine, line);
+			std::swap(keyValues.second[0], keyValues.second[1]);
 		}
 		else
-		{
-			checkIp(split(keyValues.second[0], "."));
-			if (keyValues.second.size() == 2)
-				checkPort(keyValues.second[1]);
-			else
-				keyValues.second.push_back(DEFAULT_LISTEN_PORT);
-		}
+			keyValues.second.insert(keyValues.second.begin(), DEFAULT_LISTEN_INTERFACE);
+	}
+	else
+	{
+		checkIp(split(keyValues.second[0], "."), startLastLine, line);
+		_colorSkipFirstWordInRange(startLastLine, keyValues.second[0], line, C_WHITE);
+		if (keyValues.second.size() == 2)
+			checkPort(keyValues.second[1], startLastLine, line);
+		else
+			keyValues.second.push_back(DEFAULT_LISTEN_PORT);
+	}
 }
 
-void	ConfigParser::_checkCgi(keyValues_type &keyValues)
+void	ConfigParser::_checkCgi(keyValues_type &keyValues, size_t &startLastLine, std::string &line)
 {
 	if (keyValues.first.rfind('.') != 0)
-		throw ParsingError("cgi first param should start by a point (the only one)", keyValues.first);
+	{
+		_colorSkipFirstWordInRange(startLastLine, keyValues.first, line, C_RED);
+		throw ParsingError("cgi first param should start by a point (the only one)");
+	}
 	if (keyValues.first.size() < 2)
-		throw ParsingError("cgi first param should have at least one char after the point", keyValues.first);
+	{
+		_colorSkipFirstWordInRange(startLastLine, keyValues.first, line, C_RED);
+		throw ParsingError("cgi first param should have at least one char after the point");
+	}
+	if (keyValues.second[0].size() < 2)
+	{
+		_colorSkipFirstWordInRange(startLastLine, keyValues.second[0], line, C_RED);
+		throw ParsingError("cgi path should have at least 2 char");
+	}
+	if (keyValues.second[0][keyValues.second[0].size() - 1] == '/')
+	{
+		_colorSkipFirstWordInRange(startLastLine, keyValues.first, line, C_WHITE);
+		startLastLine += keyValues.second[0].size() - 1;
+		_colorSkipFirstWordInRange(startLastLine, "/", line, C_RED);
+		throw ParsingError("cgi path should not end with a '/' as it is a file");
+	}
+	if (keyValues.second[0].find("../") != std::string::npos)
+		throw ParsingError("cgi path does not handle relative path containing '../'");
+
 }
 
-void	ConfigParser::_checkBodySize(keyValues_type &keyValues)
+void	ConfigParser::_checkRoot(keyValues_type &keyValues, size_t &startLastLine, std::string &line)
+{
+	if (keyValues.second[0].find("../") != std::string::npos)
+	{
+		_colorSkipFirstWordInRange(startLastLine, keyValues.first, line, C_WHITE);
+		size_t tmp = keyValues.second[0].find("../");
+		while (tmp != std::string::npos)
+		{
+			_colorSkipFirstWordInRange(startLastLine, "../", line, C_RED);
+			tmp = keyValues.second[0].find("../", tmp);
+		}
+		throw ParsingError("cgi path does not handle relative path containing '../'");
+	}
+	if (keyValues.second[0][keyValues.second[0].size() - 1] == '/')
+		keyValues.second[0].erase(keyValues.second[0].end() - 1);
+}
+
+void	ConfigParser::_checkBodySize(keyValues_type &keyValues, size_t &startLastLine, std::string &line)
 {
 	if (!isDigits(keyValues.second[0]))
+	{
+		_colorSkipFirstWordInRange(startLastLine, keyValues.second[0], line, C_RED);
 		throw ParsingError("body_size should be a positive integer", keyValues.second[0]);
+	}
 	if (atoi(keyValues.second[0].c_str()) <= 0)
+	{
+		_colorSkipFirstWordInRange(startLastLine, keyValues.second[0], line, C_RED);
 		throw ParsingError("body_size overflow, max value : " + to_string(INT_MAX), keyValues.second[0]);
+	}
 }
 
 /* -------------------------------------------------------------------------- */
@@ -333,7 +402,7 @@ void			ConfigParser::checkKeyValues(keyValues_type &keyValues, const Conf::raw &
 	if (keyConf.maxParams && sParams.size() > keyConf.maxParams)
 		throw ParsingError("too many params (max : " + to_string(keyConf.maxParams) + ")");
 	if (keyConf.func) // if a check function is provided, call it
-		keyConf.func(keyValues);
+		keyConf.func(keyValues, startLastLine, line);
 }
 
 void			ConfigParser::_insertKeyValuesInLocation(Location &location, keyValues_type &keyValues, size_t &startLastLine, std::string &line) // still need to be cleaned

@@ -42,22 +42,10 @@ void CgiHandler::_setRoot(void)
 }
 
 void	CgiHandler::_setPathToFile(void)
-{
-	_pathToFile = _root + _target;
-	_pathToFile.erase(_pathToFile.begin());
-}
-
+{ _pathToFile = _root + _target; }
 
 void	CgiHandler::_setCgiPath(void)
-{
-	if (_server.nonUniqKey["cgi"][_pathToFile.substr(_pathToFile.rfind("."))][0][0] == '.')
-	{
-		_cgiPath = _server.nonUniqKey["cgi"][_pathToFile.substr(_pathToFile.rfind("."))][0];
-		_cgiPath.erase(_cgiPath.begin());
-	}
-	else
-		_cgiPath = _server.nonUniqKey["cgi"][_pathToFile.substr(_pathToFile.rfind("."))][0];
-}
+{ _cgiPath = _server.nonUniqKey["cgi"][_pathToFile.substr(_pathToFile.rfind("."))][0]; }
 
 std::string CgiHandler::_constructQuery(std::vector<std::string> var)
 {
@@ -66,14 +54,6 @@ std::string CgiHandler::_constructQuery(std::vector<std::string> var)
     for (std::vector<std::string>::iterator it = var.begin(); it != var.end(); it++)
         res += *it + ((it + 1 != var.end()) ? "&" : "");
     return (res);
-}
-
-std::string	CgiHandler::_findDirectory(std::string path)
-{
-	std::string dir;
-
-	dir = path.substr(path.find_last_of("/", path.find_last_of("/") - 1), path.find_last_of("/")) + "/";
-	return (dir);
 }
 
 std::string	CgiHandler::_getSysPath(void)
@@ -90,14 +70,18 @@ std::string	CgiHandler::_getSysPath(void)
 
 void    CgiHandler::_initEnv(void)
 {
-	Request::request_type	header = _req.getData();
     std::vector<char> 		body = _req.getBody();
 	std::string cwdPath = _setCwd();
 	
     _env.push_back("REDIRECT_STATUS=200");
     _env.push_back("GATEWAY_INTERFACE=CGI/1.1");
-	_env.push_back("CONTEXT_DOCUMENT_ROOT=" + cwdPath + _cgiPath.substr(0, _cgiPath.find_last_of('/') + 1));
-	_env.push_back("CONTEXT_PREFIX=" + _findDirectory(_cgiPath));
+	if (_cgiPath[0] == '/')
+		_env.push_back("CONTEXT_DOCUMENT_ROOT=" + _cgiPath.substr(0, _cgiPath.rfind('/') + 1));
+	else if (_cgiPath[0] == '.' && _cgiPath[1] == '/')
+		_env.push_back("CONTEXT_DOCUMENT_ROOT=" + cwdPath + "/" + _cgiPath.substr(2, _cgiPath.rfind('/') - 1));
+	else
+		_env.push_back("CONTEXT_DOCUMENT_ROOT=" + cwdPath + "/" + _cgiPath.substr(0, _cgiPath.rfind('/') + 1));
+	Request::request_type	header = _req.getData();
 	_env.push_back("HTTP_ACCEPT=" + header["Accept"][0]);
 	if (header.count("Accept-Encoding") && !header["Accept-Encoding"].empty())
 		_env.push_back("HTTP_ACCEPT_ENCODING=" + header["Accept-Encoding"][0]);
@@ -113,11 +97,17 @@ void    CgiHandler::_initEnv(void)
     _env.push_back("REQUEST_METHOD=" + _req.getMethod());
 	_env.push_back("REQUEST_SCHEME=http");
 	_env.push_back("REQUEST_URI=" + _cgiPath);
-    _env.push_back("SCRIPT_FILENAME=" + cwdPath + _pathToFile);
+	if (_pathToFile[0] == '/')
+    	_env.push_back("SCRIPT_FILENAME=" + _pathToFile);
+	else if (_pathToFile[0] == '.' && _pathToFile[1] == '/')
+		_env.push_back("SCRIPT_FILENAME=" + cwdPath + _pathToFile.substr(1));
+	else
+		_env.push_back("SCRIPT_FILENAME=" + cwdPath + "/" + _pathToFile);
+	std::cout << _env[16] << std::endl;
 	_env.push_back("SCRIPT_NAME=" + _cgiPath);
 	_env.push_back("SERVER_NAME=" + header["Host"][0]);
 	_env.push_back("SERVER_PORT=" + header["Host"][1]);
-	_env.push_back("SERVER_PORT=" + _req.getVersion()); //bizarre
+	_env.push_back("SERVER_PORT=" + _req.getVersion());
 	_env.push_back("SERVER_SIGNATURE=\"\"");
 	_env.push_back("SERVER_SOFTWARE=catzGang Web Server");
 	if (header.find("Content-Type") != header.end())
@@ -172,7 +162,6 @@ int	CgiHandler::exec(void)
 		close(tabPipe[1]);
 		close(tabVar[0]);
 		_pathToFile.erase(_pathToFile.begin());
-		_cgiPath.erase(_cgiPath.begin());
         char **env = _convertVecToChar(_env);
 		std::vector<std::string> tmp(1, _cgiPath);
 		char **nnll = _convertVecToChar(tmp);
