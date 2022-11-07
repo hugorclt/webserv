@@ -103,7 +103,6 @@ void    CgiHandler::_initEnv(void)
 		_env.push_back("SCRIPT_FILENAME=" + cwdPath + _pathToFile.substr(1));
 	else
 		_env.push_back("SCRIPT_FILENAME=" + cwdPath + "/" + _pathToFile);
-	std::cout << _env[16] << std::endl;
 	_env.push_back("SCRIPT_NAME=" + _cgiPath);
 	_env.push_back("SERVER_NAME=" + header["Host"][0]);
 	_env.push_back("SERVER_PORT=" + header["Host"][1]);
