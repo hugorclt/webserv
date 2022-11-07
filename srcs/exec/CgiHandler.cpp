@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/25 14:39:45 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/11/07 13:12:39 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/07 18:09:31 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,7 +87,6 @@ void    CgiHandler::_initEnv(void)
 		_env.push_back("HTTP_ACCEPT_ENCODING=" + header["Accept-Encoding"][0]);
 	if (header.count("Accept-Language") && !header["Accept-Language"].empty())
 		_env.push_back("HTTP_ACCEPT_LANGUAGE=" + header["Accept-Language"][0]);
-	_env.push_back("HTTP_CONNECTION=" + header["Connection"][0]);
 	_env.push_back("HTTP_HOST=" + header["Host"][0] + ":" + header["Host"][1]);
 	_env.push_back("HTTP_USER_AGENT=" + header["User-Agent"][0]);
     _env.push_back("CONTENT_LENGTH=" + to_string(_req.getEnvVar().size()));
@@ -137,11 +136,11 @@ std::string	CgiHandler::_setCwd(void)
 	return (res);
 }
 
-void    CgiHandler::_writeToIn(int pipeIn)
+int    CgiHandler::_writeToIn(int pipeIn)
 {
     std::string    toWrite = _req.getEnvVar();
     
-    write(pipeIn, toWrite.data(), toWrite.size());
+    return (write(pipeIn, toWrite.data(), toWrite.size()));
 }
 
 int	CgiHandler::exec(void)
@@ -149,8 +148,14 @@ int	CgiHandler::exec(void)
 	int tabPipe[2];
 	int	tabVar[2];
 
-	pipe(tabPipe);
-	pipe(tabVar);
+	if (pipe(tabPipe) == -1)
+		throw CgiHandlerError("Error: pipe failed");
+	if (pipe(tabVar) == -1)
+	{
+		close(tabPipe[0]);
+		close(tabPipe[1]);
+		throw CgiHandlerError("Error: pipe failed");
+	}
 	int pid = fork();
 	if (pid == -1)
 		return (-1);
@@ -171,10 +176,15 @@ int	CgiHandler::exec(void)
     }
 	else
 	{
-		_writeToIn(tabVar[1]);
-		close(tabVar[1]);
 		close(tabPipe[1]);
 		close(tabVar[0]);
+		if (_writeToIn(tabVar[1]) == -1)
+		{
+			close(tabVar[1]);
+			close(tabPipe[0]);
+			throw CgiHandlerError("Error: write");
+		}
+		close(tabVar[1]);
 	}
 	_res.setData(_readPipe(tabPipe[0]));
 	return (0);

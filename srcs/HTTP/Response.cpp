@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/11 15:23:33 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/11/07 17:43:04 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/07 18:39:42 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -118,7 +118,7 @@ void	Response::init_methodsFunction(void)
 /* -------------------------------------------------------------------------- */
 
 Response::Response(ConfigParser::Location env, Request &req, std::string clientIp, char **sysEnv)
-: _env(env), _req(req), _var(req.getVar()), _clientIp(clientIp), _sysEnv(sysEnv)
+: _env(env), _req(req), _var(req.getVar()), _clientIp(clientIp), _sysEnv(sysEnv), _code("0")
 {
 	init_mimeTypes();
 	init_methodsFunction();
@@ -187,11 +187,9 @@ void	Response::_setError(std::string code)
 {
 	_code = code;
 	_status = _env.nonUniqKey["return"][_code][0];
-	if (_env.nonUniqKey["error_page"].count(code) && _checkFile(_env.nonUniqKey["error_page"][_code][0], 1) == false)
+	if (_env.nonUniqKey["error_page"].count(code) && _checkFile(_env.nonUniqKey["error_page"][_code][0]) == false)
 	{
-		std::cout << _code << std::endl;
-		std::cout << _env.nonUniqKey["error_page"][code][0] << std::endl;
-		std::ifstream file(_env.nonUniqKey["error_page"][code][0].c_str());
+		std::ifstream file(_env.nonUniqKey["error_page"][_code][0].c_str());
 		_readFile(file);
 	}
 	else
@@ -199,33 +197,33 @@ void	Response::_setError(std::string code)
 	_types = "text/html";
 }
 
-bool	Response::_checkFile(std::string filename, int isErrorFile)
+bool	Response::_checkFile(std::string filename)
 {
 	struct stat buf;
 	
-								std::cout << filename << std::endl;
-
 	stat(filename.c_str(), &buf);
 	if (access(filename.c_str(), F_OK) != 0)
 	{
-		if (isErrorFile == 0)
+		if (_code == "0")
 			_setError("404");
 		return (true);
 	}
 	if (access(filename.c_str(), R_OK) != 0)
 	{
-		if (isErrorFile == 0)
+		if (_code == "0")
 			_setError("403");
 		return (true);
 	}
 	if (S_ISDIR(buf.st_mode))
 	{
 		std::vector<std::string>		listOfFiles = listingFile(filename);
+		if (_code != "0")
+			return (true);
 		if (_env.uniqKey.count("index"))
 		{
 			std::pair<std::string, bool>	index = getIndex(listOfFiles, _env.uniqKey["index"]);
 			if (index.second)
-				return (_checkFile(filename + "/" + index.first, isErrorFile));
+				return (_checkFile(filename + "/" + index.first));
 		}
 		if (_env.uniqKey["auto_index"][0] == "on")
 		{
@@ -235,11 +233,10 @@ bool	Response::_checkFile(std::string filename, int isErrorFile)
 			getIndex(listOfFiles, _env.uniqKey["index"]);
 			_types = "text/html";
 		}
-		else if (isErrorFile == 0)
-			_setError("404");
 		return (true);
 	}
-	_code = "200";
+	if (_code == "0")
+		_code = "200";
 	_status = _env.nonUniqKey["return"][_code][0];
 	_setType(filename);
 	_file.open(filename.c_str(), std::ios::binary);
@@ -277,6 +274,9 @@ void	Response::_execDel(void)
 	remove(filename.c_str());
 	if (errno == ENOENT || errno == EACCES || errno == EINVAL)
 		throw ResponseError("Response error: remove() failed");
+	_code = "200";
+	_status = _env.nonUniqKey["return"][_code][0];
+	_types = "text/html";
 }
 
 void	Response::_execGet(void) {
@@ -288,11 +288,8 @@ void	Response::_execGet(void) {
 	std::string root = _req.getTarget().erase(0, _env.uniqKey["_rootToDel_"][0].length());
 	root = _env.uniqKey["root"][0] + root;
 
-	if (_checkFile(root, 0))
-	{
-		std::cout << "error par default" << std::endl; 
+	if (_checkFile(root))
 		return ;
-	}
 	if (_isCgiFile(root))
 	{
 		std::string cgiPath = _findCgiPath(root);
@@ -319,8 +316,6 @@ void	Response::_readFile(std::ifstream &file)
 		_data.insert(_data.end(), buffer, buffer + file.gcount());
 	}
 	file.close();
-	if (static_cast<int>(_data.size()) > atoi(_env.uniqKey["body_size"][0].c_str()))
-		_setError("413");
 }
 
 void	Response::_writeFile(void)
@@ -329,10 +324,14 @@ void	Response::_writeFile(void)
 	std::vector<char> body = _req.getBody();
 
 	std::ofstream	file(filename.c_str());
+		std::cout << filename << std::endl;
+
 	if (file.bad())
 		throw ResponseError("write: error while write file");
 	for (std::vector<char>::iterator it = body.begin(); it != body.end(); it++)
+	{
 		file << *it;
+	}
 	return ;
 }
 
@@ -340,6 +339,7 @@ void	Response::_uploadFile(void)
 {
 	struct stat buf;
 	std::string filename = _env.uniqKey["upload"][0];
+	
 	stat(filename.c_str(), &buf);
 	if (!_env.uniqKey.count("upload"))
 	{
@@ -360,7 +360,7 @@ void	Response::_uploadFile(void)
 	{
 		_writeFile();
 		_code = "200";
-		_status = "OK";
+		_status = _env.nonUniqKey["return"][_code][0];
 		_types = "text/html";
 		return ;
 	}
@@ -372,8 +372,15 @@ void	Response::execute(void) {
 	Request::request_type	header = _req.getData();
 	// tmp shit lol
 
+	if (static_cast<int>(_req.getBody().size()) > atoi(_env.uniqKey["body_size"][0].c_str()))
+	{
+		_setError("413");
+		return ;
+	}
 	if (method == "POST" && header["Content-Type"][0] == "multipart/form-data")
+	{
 		_uploadFile();
+	}
 	if (std::find(_env.uniqKey["allow_methods"].begin(), _env.uniqKey["allow_methods"].end(), method) != _env.uniqKey["allow_methods"].end())
 	{
 		(this->*(_methodsFunction.find(method)->second))();
