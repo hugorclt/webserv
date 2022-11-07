@@ -152,10 +152,15 @@ int main(int ac, char **av, char **sysEnv)
 					}
 				}
 			} 
+			catch (Request::RequestError &e)
+			{
+				std::cerr << "TEST APPEND" << std::endl;
+			}
 			catch (std::exception &e)
 			{
 				std::cerr << e.what() << std::endl;
 				std::cerr << C_ORANGE << "Server is listening" << C_RESET << std::endl;
+				request.clear();
 			}
 		}
 	}
