@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/11 15:23:33 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/11/07 17:10:03 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/07 17:43:04 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -187,9 +187,11 @@ void	Response::_setError(std::string code)
 {
 	_code = code;
 	_status = _env.nonUniqKey["return"][_code][0];
-	if (_env.nonUniqKey["error_page"].count(code) && _checkFile(*(_env.nonUniqKey["error_page"][_code].begin()), 1) == false)
+	if (_env.nonUniqKey["error_page"].count(code) && _checkFile(_env.nonUniqKey["error_page"][_code][0], 1) == false)
 	{
-		std::ifstream file(_env.nonUniqKey["error_page"][_code][0].c_str());
+		std::cout << _code << std::endl;
+		std::cout << _env.nonUniqKey["error_page"][code][0] << std::endl;
+		std::ifstream file(_env.nonUniqKey["error_page"][code][0].c_str());
 		_readFile(file);
 	}
 	else
@@ -201,6 +203,8 @@ bool	Response::_checkFile(std::string filename, int isErrorFile)
 {
 	struct stat buf;
 	
+								std::cout << filename << std::endl;
+
 	stat(filename.c_str(), &buf);
 	if (access(filename.c_str(), F_OK) != 0)
 	{
@@ -232,7 +236,7 @@ bool	Response::_checkFile(std::string filename, int isErrorFile)
 			_types = "text/html";
 		}
 		else if (isErrorFile == 0)
-				_setError("404");
+			_setError("404");
 		return (true);
 	}
 	_code = "200";
@@ -285,7 +289,10 @@ void	Response::_execGet(void) {
 	root = _env.uniqKey["root"][0] + root;
 
 	if (_checkFile(root, 0))
+	{
+		std::cout << "error par default" << std::endl; 
 		return ;
+	}
 	if (_isCgiFile(root))
 	{
 		std::string cgiPath = _findCgiPath(root);
