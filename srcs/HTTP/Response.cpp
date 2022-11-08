@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/11 15:23:33 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/11/08 04:17:18 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/08 05:04:43 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -286,9 +286,11 @@ void	Response::_execGet(void) {
 		_setError("404");
 		return ;
 	}
+	std::cout << _req.getTarget() << std::endl;
 	std::string root = _req.getTarget().erase(0, _env.uniqKey["_rootToDel_"][0].length());
 	root = _env.uniqKey["root"][0] + root;
 
+	std::cout << root << std::endl;
 	if (_checkFile(root))
 		return ;
 	if (_isCgiFile(root))

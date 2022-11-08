@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/25 14:39:45 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/11/08 03:44:23 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/08 05:00:24 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -243,10 +243,7 @@ void	CgiHandler::_parseFirstLine(std::vector<char> &body)
 	if (map.count("Content-type:") && map["Content-type:"].size() == 1)
 		_contentType = map["Content-type:"][0];
 	if (map.count("Status:") && map["Status:"].size() == 1)
-	{
-		std::cout << "status trouver" << std::endl;	
 		_code = map["Status:"][0];
-	}
 	if (!_code.empty() || !_contentType.empty())
 		body.erase(body.begin(), ite);
 }
