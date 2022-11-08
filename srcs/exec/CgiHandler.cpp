@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/25 14:39:45 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/11/08 00:48:14 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/08 03:29:10 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@
 #include <errno.h>
 
 CgiHandler::CgiHandler(ConfigParser::Location &server, Request &req, std::string MIMEtype, std::string clientIp, char **env, Response &res)
-: _server(server), _req(req), _type(MIMEtype), _clientIp(clientIp), _sysEnv(env), _res(res), _contentType("")
+: _server(server), _req(req), _type(MIMEtype), _clientIp(clientIp), _sysEnv(env), _res(res), _contentType(""), _code("")
 {
 	_setTarget();
 	_setRoot();
@@ -166,6 +166,7 @@ int	CgiHandler::exec(void)
 		return (-1);
 	if (pid == 0)
 	{
+		close(tabVar[1]);
 		dup2(tabPipe[1], STDOUT_FILENO);
 		dup2(tabVar[0], STDIN_FILENO);
         close(tabPipe[0]);
@@ -176,7 +177,10 @@ int	CgiHandler::exec(void)
 		std::vector<std::string> tmp(1, _cgiPath);
 		char **nnll = _convertVecToChar(tmp);
 		execve(_cgiPath.c_str(), nnll, env);
+		delete []nnll;
+		delete []env;
 		g_exit = 1;
+		close(STDOUT_FILENO);
 		throw CgiHandlerError("execve failed");
     }
 	else
@@ -206,33 +210,47 @@ char    **CgiHandler::_convertVecToChar(std::vector<std::string> &vec)
     return (res);
 }
 
-void	CgiHandler::_parseFirstLine(std::vector<char> body)
+void	CgiHandler::_parseFirstLine(std::vector<char> &body)
 {
+	std::cout << "start ParseFirstLine CGI HANDLER" << std::endl;
 	if (body.empty())
 		return ;
 	std::vector<char>::iterator it = std::find(body.begin(), body.end(), '\n');
-	if (it == body.end() || it + 1 == body.end() || *(it + 1) != '\n')
-	{
-		std::cout << (it == body.end()) << std::endl;
-		std::cout << (it + 1 == body.end()) << std::endl;
-		std::cout << (*(it + 1) != '\n') << std::endl;
-		std::cerr << "cc2" << std::endl;
+	std::string firstLine;
+	std::vector<char>::iterator ite;
+	if (it == body.end() && it != body.begin())
 		return ;
-	}
-	std::string line(body.begin(), it);
-	size_t pos_start = line.find("Content-type:");
-	if (pos_start == std::string::npos)
+	if (*(it - 1) == '\r')
 	{
-		std::cerr << "cc3" << std::endl;
-		return ;
+		if ((body.end() - it) < 2 || *(it + 1) != '\r' || *(it + 2) != '\n')
+			return ;
+		firstLine.assign(body.begin(), it - 1);
+		ite = it + 3;
 	}
-	pos_start += std::string("Content-type:").size();
-	size_t pos_end = line.find(";", pos_start);
-	if (pos_end == std::string::npos)
-		pos_end = line.size();
-	_contentType.assign(&line[pos_start] , &line[pos_end - 1]);
-	std::cerr << "cc" << std::endl;
-	std::cerr << _contentType << std::endl;
+	else
+	{
+		if ((body.end() - it) < 1 || *(it + 1) != '\n')
+			return ;
+		firstLine.assign(body.begin(), it);
+		ite = it + 2;
+	}
+	std::cout << "firstLine : " << firstLine << std::endl;
+	std::vector<std::string> vec = split_charset(firstLine, ";");
+	std::map< std::string, std::vector<std::string> > map;
+	for (std::vector<std::string>::iterator it = vec.begin(); it != vec.end(); it++)
+	{
+		std::vector<std::string> tmp = split_charset(*it, " ");
+		map.insert(std::make_pair(tmp[0], std::vector<std::string> (tmp.begin() + 1, tmp.end())));
+	}
+	if (map.count("Content-type:") && map["Content-type:"].size() == 1)
+		_contentType = map["Content-type:"][0];
+	if (map.count("Status:") && map["Status:"].size() == 1)
+	{
+		std::cout << "status trouver" << std::endl;	
+		_code = map["Status:"][0];
+	}
+	if (!_code.empty() || !_contentType.empty())
+		body.erase(body.begin(), ite);
 }
 
 std::vector<char> 	CgiHandler::_readPipe(int pipeToRead)
@@ -254,4 +272,9 @@ std::vector<char> 	CgiHandler::_readPipe(int pipeToRead)
 std::string		CgiHandler::getContentType(void)
 {
 	return (_contentType);
+}
+
+std::string		CgiHandler::getCode(void)
+{
+	return (_code);
 }

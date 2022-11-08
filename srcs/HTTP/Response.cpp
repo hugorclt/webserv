@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/11 15:23:33 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/11/08 00:42:45 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/08 03:19:12 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -300,9 +300,16 @@ void	Response::_execGet(void) {
 			return ;
 		}
 		if (CGI.getContentType().empty())
-			_types = "text/html";
+			_types = "text/plain";
 		else
 			_types = CGI.getContentType();
+		if (CGI.getCode().empty())
+			_code = "200";
+		else
+			_code = CGI.getCode();
+		std::cout << _types << std::endl;
+		std::cout << _code << std::endl;
+		_status = _env.nonUniqKey["return"][_code][0];
 		return ;
 	}
 	_readFile(_file);
@@ -379,7 +386,7 @@ void	Response::execute(void) {
 		_setError("413");
 		return ;
 	}
-	if (method == "POST" && header["Content-Type"][0] == "multipart/form-data")
+	if (header.count("Content-Type") && !header["Content-Type"].empty() && !header["Content-Type"][0].empty() && method == "POST" && header["Content-Type"][0] == "multipart/form-data")
 	{
 		_uploadFile();
 	}
