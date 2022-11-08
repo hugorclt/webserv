@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/18 12:57:12 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/11/08 03:41:27 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/08 07:50:09 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -150,9 +150,6 @@ int main(int ac, char **av, char **sysEnv)
 							clientList.erase(pairContacted);
 							continue ;
 						}
-						for (size_t i = 0; i < request.size(); i++)
-							std::cout << request[i];
-						std::cout << std::endl;
 						Request	req(request);
 						request.clear();
 						ConfigParser::Server server = findServ(req, serverList.findIpByFd(pairContacted->second), configServers.getData());

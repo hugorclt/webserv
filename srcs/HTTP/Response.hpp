@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/21 11:47:56 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/11/07 18:29:20 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/08 06:32:07 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,7 @@ class Response {
 		std::string					_header;
 		std::string					_types;
 		std::ifstream				_file;
+		std::vector<std::string>	_cookies;
 
 		std::map<std::string, std::string>			_mimeTypes;
 		void										init_mimeTypes(void);
