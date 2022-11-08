@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/11 15:23:33 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/11/08 03:44:34 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/08 04:17:18 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -233,6 +233,7 @@ bool	Response::_checkFile(std::string filename)
 			getIndex(listOfFiles, _env.uniqKey["index"]);
 			_types = "text/html";
 		}
+		_setError("404");
 		return (true);
 	}
 	if (_code == "0")
