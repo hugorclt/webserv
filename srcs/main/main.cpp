@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/18 12:57:12 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/11/08 03:41:27 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/08 09:07:16 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ ConfigParser::Server    selectServ(std::string ip, std::string port, std::string
    	{
 		if (!it->listen.count(ip) || !it->listen[ip].count(port))
 		   continue ;
-		if (it->server_name.count(hostName) || hostName == ip)
+		if (it->server_name.count(hostName))
 			return (*it);
 		else if (firstOccu == vecServs.end())
 			firstOccu = it;
@@ -96,21 +96,23 @@ int main(int ac, char **av, char **sysEnv)
 		std::map<int, int>::iterator pairContacted;
 
 	/* ----------------------------- Server loop ---------------------------- */
+		int	clientSocket = 0;
 		std::cout << "init " << C_GREEN << "Success" << C_RESET << ", server is running" << std::endl;
 		while (!g_exit) 
 		{
 			try 
 			{
-				int	clientSocket;
 				if (g_exit)
 				{
-					close(clientSocket);
+					if (clientSocket)
+						close(clientSocket);
 					break ;
 				}
 				int numberFdReady = epoll_wait(epoll.getEpollfd(), epoll.getEvents(), QUE_SIZE, -1);
 				if (g_exit)
 				{
-					close(clientSocket);
+					if (clientSocket)
+						close(clientSocket);
 					break ;
 				}
 				if (numberFdReady == -1)
@@ -150,9 +152,6 @@ int main(int ac, char **av, char **sysEnv)
 							clientList.erase(pairContacted);
 							continue ;
 						}
-						for (size_t i = 0; i < request.size(); i++)
-							std::cout << request[i];
-						std::cout << std::endl;
 						Request	req(request);
 						request.clear();
 						ConfigParser::Server server = findServ(req, serverList.findIpByFd(pairContacted->second), configServers.getData());
@@ -172,9 +171,12 @@ int main(int ac, char **av, char **sysEnv)
 				std::cerr << e.what() << std::endl;
 				std::cerr << C_ORANGE << "Server is listening" << C_RESET << std::endl;
 				close(pairContacted->first);
+				close(clientSocket);
 				request.clear();
 			}
 		}
+		if (clientSocket)
+			close(clientSocket);
 	}
 	catch (std::exception &e)
 	{

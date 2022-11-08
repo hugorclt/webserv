@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/11 15:23:33 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/11/08 04:17:18 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/08 08:18:28 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -232,6 +232,7 @@ bool	Response::_checkFile(std::string filename)
 			_data = createIndexDir(listOfFiles, _req.getTarget());
 			getIndex(listOfFiles, _env.uniqKey["index"]);
 			_types = "text/html";
+			return (false);
 		}
 		_setError("404");
 		return (true);
@@ -288,7 +289,6 @@ void	Response::_execGet(void) {
 	}
 	std::string root = _req.getTarget().erase(0, _env.uniqKey["_rootToDel_"][0].length());
 	root = _env.uniqKey["root"][0] + root;
-
 	if (_checkFile(root))
 		return ;
 	if (_isCgiFile(root))
@@ -300,6 +300,7 @@ void	Response::_execGet(void) {
 			_setError("500");
 			return ;
 		}
+		_cookies = CGI.getCookie();
 		if (CGI.getContentType().empty())
 			_types = "text/plain";
 		else
@@ -308,7 +309,12 @@ void	Response::_execGet(void) {
 			_code = "200";
 		else
 			_code = CGI.getCode();
-		_status = _env.nonUniqKey["return"][_code][0];
+		if (CGI.getStatus().empty())
+			_status = _env.nonUniqKey["return"][_code][0];
+		else
+			_status = CGI.getStatus();
+		if (_code != "200")
+			_setError(_code);
 		return ;
 	}
 	_readFile(_file);
@@ -333,7 +339,6 @@ void	Response::_writeFile(void)
 	std::vector<char> body = _req.getBody();
 
 	std::ofstream	file(filename.c_str());
-		std::cout << filename << std::endl;
 
 	if (file.bad())
 		throw ResponseError("write: error while write file");
@@ -458,9 +463,13 @@ void	Response::constructData(void)
         + "Server: webserv/1.0" + "\r\n"
         + "Content-Length: " + to_string(_data.size()) + "\r\n"
         + "Content-Type: " + _types + "\r\n"
-        + "Connection: Closed" + "\r\n"
-        + "\n";
+        + "Connection: Closed" + "\r\n";
 
+	for (std::vector<std::string>::iterator	it = _cookies.begin(); it != _cookies.end(); it++)
+		_header.insert(_header.end(),it->begin(), it->end());
+	
+    _header += "\n";
+	
 	_data.insert(_data.begin(), _header.begin(), _header.end());
 }
 

@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/25 14:39:45 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/11/08 03:44:23 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/08 08:14:34 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,11 +102,12 @@ void    CgiHandler::_initEnv(void)
 	_env.push_back("REQUEST_SCHEME=http");
 	_env.push_back("REQUEST_URI=" + _cgiPath);
 	if (_pathToFile[0] == '/')
-    	_env.push_back("SCRIPT_FILENAME=" + _pathToFile);
+   	_env.push_back("SCRIPT_FILENAME=" + _pathToFile);
 	else if (_pathToFile[0] == '.' && _pathToFile[1] == '/')
 		_env.push_back("SCRIPT_FILENAME=" + cwdPath + _pathToFile.substr(1));
 	else
 		_env.push_back("SCRIPT_FILENAME=" + cwdPath + "/" + _pathToFile);
+	//_env.push_back("SCRIPT_FILENAME=asdasd");
 	_env.push_back("SCRIPT_NAME=" + _cgiPath);
 	_env.push_back("SERVER_NAME=" + header["Host"][0]);
 	_env.push_back("SERVER_PORT=" + header["Host"][1]);
@@ -118,6 +119,8 @@ void    CgiHandler::_initEnv(void)
     	_env.push_back("CONTENT_TYPE=" + header["Content-Type"][0]);
 	else
 	    _env.push_back("CONTENT_TYPE=" + _type);
+	if (header.count("Cookie") && !header["Cookie"].empty())
+		_env.push_back("HTTP_COOKIE=" + header["Cookie"][0]);
 }
 
 std::string	CgiHandler::_setCwd(void)
@@ -210,45 +213,50 @@ char    **CgiHandler::_convertVecToChar(std::vector<std::string> &vec)
     return (res);
 }
 
-void	CgiHandler::_parseFirstLine(std::vector<char> &body)
+void	CgiHandler::_parseInfo(std::string line)
 {
-	if (body.empty())
-		return ;
+	std::vector<std::string>			splitContent = split_charset(line, ";");
+	std::map< std::string, std::string>	map;
+	std::vector<std::string>			keyValue;
+	
+	for (std::vector<std::string>::iterator it = splitContent.begin(); it != splitContent.end(); it++)
+	{
+		keyValue = split(*it, ": ");
+		map.insert(std::make_pair(keyValue[0], keyValue[1]));
+	}
+	if (map.count("Content-type") && !map["Content-type"].empty())
+		_contentType = map["Content-type"];
+	if (map.count("Status") && !map["Status"].empty())
+	{
+		std::string line = map["Status"];
+		_code = line.substr(0, line.find(" "));
+		_status = line.substr(line.find(" ") + 1, line.size());
+	}
+}
+
+void	CgiHandler::_parseCgiHeader(std::vector<char> &body)
+{
+	bool	checkForEmptyLine = false;
+	bool	parseInfoTriggered = false;
+	
+	while (!body.empty())
+	{
+		std::string line(body.begin(), std::find(body.begin(), body.end(), '\n'));
+		if (line.find("Set-Cookie:") != std::string::npos)
+			_cookies.push_back(std::string(line.begin(), line.end() - (*(line.end() - 1) == '\r')) + "\r\n");
+		else if (!parseInfoTriggered && (line.find("Content-type:") != std::string::npos || line.find("Status:") != std::string::npos))
+		{
+			parseInfoTriggered = true;
+			_parseInfo(std::string(line.begin(), line.end() - (*(line.end() - 1) == '\r')));
+		}
+		else
+			break ;
+		body.erase(body.begin(), body.begin() + line.size() + 1);
+		checkForEmptyLine = true;
+	}
 	std::vector<char>::iterator it = std::find(body.begin(), body.end(), '\n');
-	std::string firstLine;
-	std::vector<char>::iterator ite;
-	if (it == body.end() && it != body.begin())
-		return ;
-	if (*(it - 1) == '\r')
-	{
-		if ((body.end() - it) < 2 || *(it + 1) != '\r' || *(it + 2) != '\n')
-			return ;
-		firstLine.assign(body.begin(), it - 1);
-		ite = it + 3;
-	}
-	else
-	{
-		if ((body.end() - it) < 1 || *(it + 1) != '\n')
-			return ;
-		firstLine.assign(body.begin(), it);
-		ite = it + 2;
-	}
-	std::vector<std::string> vec = split_charset(firstLine, ";");
-	std::map< std::string, std::vector<std::string> > map;
-	for (std::vector<std::string>::iterator it = vec.begin(); it != vec.end(); it++)
-	{
-		std::vector<std::string> tmp = split_charset(*it, " ");
-		map.insert(std::make_pair(tmp[0], std::vector<std::string> (tmp.begin() + 1, tmp.end())));
-	}
-	if (map.count("Content-type:") && map["Content-type:"].size() == 1)
-		_contentType = map["Content-type:"][0];
-	if (map.count("Status:") && map["Status:"].size() == 1)
-	{
-		std::cout << "status trouver" << std::endl;	
-		_code = map["Status:"][0];
-	}
-	if (!_code.empty() || !_contentType.empty())
-		body.erase(body.begin(), ite);
+	if (checkForEmptyLine && (it == body.begin() || (it == body.begin() + 1 && body[0] == '\r')))
+		body.erase(body.begin(), it);
 }
 
 std::vector<char> 	CgiHandler::_readPipe(int pipeToRead)
@@ -262,7 +270,7 @@ std::vector<char> 	CgiHandler::_readPipe(int pipeToRead)
 	if (readState == -1)
 		throw CgiHandlerError("read: error");
 	wait(NULL);
-	_parseFirstLine(res);
+	_parseCgiHeader(res);
     return (res);
 }
 
@@ -274,4 +282,14 @@ std::string		CgiHandler::getContentType(void)
 std::string		CgiHandler::getCode(void)
 {
 	return (_code);
+}
+
+std::vector<std::string>	CgiHandler::getCookie(void)
+{
+	return (_cookies);
+}
+
+std::string		CgiHandler::getStatus(void)
+{
+	return (_status);
 }
