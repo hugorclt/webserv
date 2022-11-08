@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/18 12:57:12 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/11/08 03:25:14 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/08 03:41:27 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,11 +101,18 @@ int main(int ac, char **av, char **sysEnv)
 		{
 			try 
 			{
+				int	clientSocket;
 				if (g_exit)
+				{
+					close(clientSocket);
 					break ;
+				}
 				int numberFdReady = epoll_wait(epoll.getEpollfd(), epoll.getEvents(), QUE_SIZE, -1);
 				if (g_exit)
+				{
+					close(clientSocket);
 					break ;
+				}
 				if (numberFdReady == -1)
 				{
 					std::cerr << "wrong epoll_wait fd ready number" << std::endl;
@@ -113,7 +120,6 @@ int main(int ac, char **av, char **sysEnv)
 				}
 				for (int index = 0; index != numberFdReady; index++)
 				{
-					int	clientSocket;
 					int	fdTriggered = epoll.getEvents()[index].data.fd;
 					Servers::sock_type::iterator sockTarget = serverList.getSocketByFd(fdTriggered);
 					if (sockTarget != serverList.getSockIpPort().end())

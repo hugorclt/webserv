@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/25 14:39:45 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/11/08 03:29:10 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/08 03:44:23 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -212,7 +212,6 @@ char    **CgiHandler::_convertVecToChar(std::vector<std::string> &vec)
 
 void	CgiHandler::_parseFirstLine(std::vector<char> &body)
 {
-	std::cout << "start ParseFirstLine CGI HANDLER" << std::endl;
 	if (body.empty())
 		return ;
 	std::vector<char>::iterator it = std::find(body.begin(), body.end(), '\n');
@@ -234,7 +233,6 @@ void	CgiHandler::_parseFirstLine(std::vector<char> &body)
 		firstLine.assign(body.begin(), it);
 		ite = it + 2;
 	}
-	std::cout << "firstLine : " << firstLine << std::endl;
 	std::vector<std::string> vec = split_charset(firstLine, ";");
 	std::map< std::string, std::vector<std::string> > map;
 	for (std::vector<std::string>::iterator it = vec.begin(); it != vec.end(); it++)
@@ -264,7 +262,6 @@ std::vector<char> 	CgiHandler::_readPipe(int pipeToRead)
 	if (readState == -1)
 		throw CgiHandlerError("read: error");
 	wait(NULL);
-	std::cerr << "cc1" << std::endl;
 	_parseFirstLine(res);
     return (res);
 }

@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/11 15:23:33 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/11/08 03:19:12 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/08 03:44:34 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -307,8 +307,6 @@ void	Response::_execGet(void) {
 			_code = "200";
 		else
 			_code = CGI.getCode();
-		std::cout << _types << std::endl;
-		std::cout << _code << std::endl;
 		_status = _env.nonUniqKey["return"][_code][0];
 		return ;
 	}
