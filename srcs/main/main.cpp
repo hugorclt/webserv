@@ -99,8 +99,8 @@ int main(int ac, char **av, char **sysEnv)
 		signal(SIGINT, handle_sig);
 
 		std::map<int, int>			clientList;
-		std::map< int, Request > 	requests;
-		std::map< int, Response > 	responses;
+		std::map<int, Request>	 	requests;
+		std::map<int, Response> 	responses;
 
 	/* ----------------------------- Server loop ---------------------------- */
 		std::cout << "init " << C_GREEN << "Success" << C_RESET << ", server is running" << std::endl;
@@ -126,7 +126,7 @@ int main(int ac, char **av, char **sysEnv)
 						clientSocket = serverList.acceptSocket(sockTarget->second);
 						epoll.addFd(clientSocket);
 						clientList.insert(std::make_pair(clientSocket, fdTriggered));
-						requests.insert(std::make_pair(clientSocket, Request(clientSocket, epoll)));
+						requests.insert(std::make_pair(clientSocket, Request(clientSocket)));
 					}
 					else
 					{
@@ -149,14 +149,14 @@ int main(int ac, char **av, char **sysEnv)
 								continue ;
 							ConfigParser::Server	server = findServ(req->second, serverList.findIpByFd(pairContacted->second), configServers.getData());
 							ConfigParser::Location	env = getEnvFromTarget(req->second.getTarget(), server);
-							responses.insert(std::make_pair(fdTriggered, Response(env, req->second, serverList.getClientIp(sockTarget->second, pairContacted->first), sysEnv)));
+							responses.insert(std::make_pair(fdTriggered, Response (env, req->second, serverList.getClientIp(sockTarget->second, pairContacted->first), sysEnv)));
 							responses[fdTriggered].execute();
 							responses[fdTriggered].constructData();
 						}
 						epoll.getEvents()[index].events = EPOLLOUT | EPOLLHUP | EPOLLERR;
 						if (!responses.count(fdTriggered))
 							dirtyExit("Can't find asssociate response");
-						if (responses[fdTriggered].sendData(pairContacted->first))
+						if (responses.find(fdTriggered)->second.sendData(pairContacted->first))
 							dirtyExit("Réponse envoyée");
 					}
 				}

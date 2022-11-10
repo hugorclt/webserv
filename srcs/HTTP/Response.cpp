@@ -118,7 +118,7 @@ void	Response::init_methodsFunction(void)
 /*                                 constructor                                */
 /* -------------------------------------------------------------------------- */
 
-Response::Response(ConfigParser::Location env, Request &req, std::string clientIp, char **sysEnv)
+Response::Response(ConfigParser::Location env, Request req, std::string clientIp, char **sysEnv)
 : _env(env), _req(req), _var(req.getVar()), _clientIp(clientIp), _sysEnv(sysEnv), _code("0")
 {
 	init_mimeTypes();
@@ -189,10 +189,7 @@ void	Response::_setError(std::string code)
 	_code = code;
 	_status = _env.nonUniqKey["return"][_code][0];
 	if (_env.nonUniqKey["error_page"].count(code) && _checkFile(_env.nonUniqKey["error_page"][_code][0]) == false)
-	{
-		std::ifstream file(_env.nonUniqKey["error_page"][_code][0].c_str());
-		_readFile(file);
-	}
+		_readFile(_env.nonUniqKey["error_page"][_code][0]);
 	else
 		_data = _getDefaultErrorPage();
 	_types = "text/html";
@@ -242,7 +239,7 @@ bool	Response::_checkFile(std::string filename)
 		_code = "200";
 	_status = _env.nonUniqKey["return"][_code][0];
 	_setType(filename);
-	_file.open(filename.c_str(), std::ios::binary);
+	_filename = filename;
 	return (false);
 }
 
@@ -318,11 +315,12 @@ void	Response::_execGet(void) {
 			_setError(_code);
 		return ;
 	}
-	_readFile(_file);
+	_readFile(_filename);
 }
 
-void	Response::_readFile(std::ifstream &file)
+void	Response::_readFile(std::string &filename)
 {
+	std::ifstream file (filename.c_str(), std::ios::binary);
 	if (file.bad())
 		throw ResponseError("read: error while reading file");
 	while (file) 

@@ -136,8 +136,9 @@ void	Request::_parseBody(std::vector<char> &body)
 std::vector<char>::iterator	Request::_vectorCharSearch(std::vector<char>::iterator first, std::vector<char>::iterator last, std::string toFind)
 { return (std::search(first, last, toFind.begin(), toFind.end())); }
 
-Request::Request(int fd, IOpoll &epoll)
-: _fd(fd), _epoll(epoll) {}
+Request::Request(int fd)
+: _fd(fd) {}
+
 
 /* old constructor
 Request::Request(std::vector<char> &req)

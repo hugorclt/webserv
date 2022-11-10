@@ -35,8 +35,6 @@ class Request {
 		std::vector<char>			_rawData;
 		static size_t				_maxHeaderSize;
 		int							_fd;
-		IOpoll						&_epoll;
-
 		
 		void	_basicSplit(std::string &line);
 		void	_secSplit(std::string &line);
@@ -62,7 +60,7 @@ class Request {
 
 
 	public:
-		Request(int fd, IOpoll &epoll);
+		Request(int fd = -1);
 		~Request();
 
 		request_type				getData(void) const;

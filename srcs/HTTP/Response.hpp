@@ -21,7 +21,7 @@
 class Response {
 	private:
 		ConfigParser::Location		_env;
-		Request						&_req;
+		Request						_req;
 		std::vector<std::string>	_var;
 		std::string					_clientIp;
 		char						**_sysEnv;
@@ -30,7 +30,7 @@ class Response {
 		std::string					_status;
 		std::string					_header;
 		std::string					_types;
-		std::ifstream				_file;
+		std::string					_filename;
 		std::vector<std::string>	_cookies;
 
 		std::map<std::string, std::string>			_mimeTypes;
@@ -42,7 +42,7 @@ class Response {
 		std::vector<char>	_getDefaultErrorPage(void);
 		void				_setType(std::string url);
 		bool				_isBinaryFile(std::string filePath);
-		void				_readFile(std::ifstream &file);
+		void				_readFile(std::string &filename);
 		bool				_isFileAccessible(std::string filename);
 		void				_execGet(void);
 		void				_execDel(void);
@@ -58,8 +58,8 @@ class Response {
 
 	public:
 		const static std::string	_css;
-		Response(ConfigParser::Location env, Request &req, std::string clientIp, char **sysEnv);
-
+		Response(ConfigParser::Location env, Request req, std::string clientIp, char **sysEnv);
+		Response() {};
 
 		void	constructData(void);
 		void	execute(void);
