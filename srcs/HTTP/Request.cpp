@@ -14,11 +14,60 @@
 #include "utils.hpp"
 #include <iostream>
 #include <algorithm>
+#include <sys/socket.h>
 
 size_t	Request::_maxHeaderSize = 500;
 
-bool	Request::recv(void)
+bool	Request::_isHeaderComplete(void)
+{ return (_vectorCharSearch(_rawData.begin(), _rawData.end(), "\r\n\r\n") != _rawData.end()); }
+
+void	Request::_fillHeader(void)
 {
+	std::string	firstLine(_rawData.begin(), _vectorCharSearch(_rawData.begin(), _rawData.end(), "\r\n"));
+	_parseFirstLine(firstLine);
+	_rawData.erase(_rawData.begin(), _rawData.begin() + firstLine.size() + 2);
+
+	std::string	header(_rawData.begin(), _vectorCharSearch(_rawData.begin(), _rawData.end(), "\r\n\r\n"));
+	_parseHeader(header);
+	_checkHeader();
+	_rawData.erase(_rawData.begin(), _rawData.begin() + header.size() + 4);
+}
+
+bool	Request::_isBodyComplete(void)
+{
+	if (!_header.count("Content-Length") && !_rawData.empty())
+		throw RequestError("No Content-Length but start of a body");
+	if (!_header.count("Content-Length") && _rawData.empty())
+		return (true);
+
+	int contentLength = atoi(_header["Content-Length"][0].c_str());
+
+	if (contentLength < 0)
+		throw RequestError("Negative Content-Length");
+	if (_rawData.size() > static_cast<size_t>(contentLength))
+		throw RequestError("Body larger than Content-Length");
+	return (static_cast<size_t>(contentLength) == _rawData.size());
+}
+
+void	Request::_fillBody(void)
+{ _parseBody(_rawData); }
+
+bool	Request::rec(void)
+{
+	char	buffer[4096];
+	int		readedBytes;
+
+	readedBytes = recv(_fd, &buffer, 4096, 0);
+	if (readedBytes == -1)
+		throw RequestError("recv return == -1");
+	_rawData.insert(_rawData.end(), buffer, buffer + readedBytes);
+	if (_header.empty() && !_isHeaderComplete() && _rawData.size() > _maxHeaderSize)
+		throw InvalidHeader("Invalid header (larger than _maxHeaderSize)");
+	if (_header.empty() && _isHeaderComplete())
+		_fillHeader();
+	if (!_header.empty() && _isBodyComplete())
+		_fillBody();
+	return (!_header.empty() && !_body.empty());
 }
 
 void	Request::_parseHeader(std::string &header)
@@ -85,14 +134,7 @@ void	Request::_parseBody(std::vector<char> &body)
 }
 
 std::vector<char>::iterator	Request::_vectorCharSearch(std::vector<char>::iterator first, std::vector<char>::iterator last, std::string toFind)
-{
-	if (std::search(first, last, toFind.begin(), toFind.end()) == last )
-	{
-		std::cout << toFind << std::endl;
-		throw RequestError("Error request not formatted, appending...");
-	}
-	return (std::search(first, last, toFind.begin(), toFind.end()) + toFind.size());
-}
+{ return (std::search(first, last, toFind.begin(), toFind.end())); }
 
 Request::Request(int fd, IOpoll &epoll)
 : _fd(fd), _epoll(epoll) {}
@@ -127,18 +169,20 @@ Request::~Request(void) {
 
 }
 
-void Request::_parseFirstLine(std::string &request)
+void	Request::_parseFirstLine(const std::string &line)
 {
-	std::vector<std::string> line = split_charset(request, " \r\n");
-	_method = line[0];
-	_version = line[2];
-	size_t pos = line[1].find_first_of("?");
+	std::vector<std::string> vec = split_charset(line, " ");
+	if (vec.size() != 3)
+		throw RequestError("first header Line");
+	_method = vec[0];
+	_version = vec[2];
+	size_t pos = vec[1].find_first_of("?");
 	if (pos == std::string::npos)
-		pos = line[1].length();
-	_target = line[1].substr(0, pos);
-	if (pos == line[1].length())
+		pos = vec[1].size();
+	_target = vec[1].substr(0, pos);
+	if (pos == vec[1].size())
 		pos--;
-	std::string var = line[1].substr(pos + 1, line[1].length());
+	std::string var = vec[1].substr(pos + 1, vec[1].length());
 	_argvVar = split(var, "&");
 }
 

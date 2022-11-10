@@ -42,7 +42,7 @@ class Request {
 		void	_secSplit(std::string &line);
 		void	_userSplit(std::string &line);
 		void	_acceptSplit(std::string &line);
-		void 	_parseFirstLine(std::string &request);
+		void	_parseFirstLine(const std::string &line);
 		void	_printValue(void);
 		void	_parseHeader(std::string &body);
 		void	_parseBody(std::vector<char> &body);
@@ -53,6 +53,11 @@ class Request {
 		void	_parseFileName(std::vector<char> &body);
 		std::vector<char>::iterator	_searchLastLine(std::vector<char> &body);
 		void	_checkHeader(void);
+
+		bool	_isHeaderComplete(void);
+		void	_fillHeader(void);
+		bool	_isBodyComplete(void);
+		void	_fillBody(void);
 
 
 
@@ -69,7 +74,7 @@ class Request {
 		std::string					getEnvVar(void);
 		std::string					getUploadFileName(void);
 
-		bool						recv(void);
+		bool						rec(void);
 
 
 		class RequestError: public std::exception {

@@ -145,7 +145,7 @@ int main(int ac, char **av, char **sysEnv)
 						if (event & EPOLLIN)
 						{
 							// s'il reste à lire on continue. Si la requête est invalide/incomplète recv throw, si la requête est complète on exec le reste du process
-							if (req->second.recv())
+							if (req->second.rec())
 								continue ;
 							ConfigParser::Server	server = findServ(req->second, serverList.findIpByFd(pairContacted->second), configServers.getData());
 							ConfigParser::Location	env = getEnvFromTarget(req->second.getTarget(), server);
@@ -155,8 +155,9 @@ int main(int ac, char **av, char **sysEnv)
 						}
 						epoll.getEvents()[index].events = EPOLLOUT | EPOLLHUP | EPOLLERR;
 						if (!responses.count(fdTriggered))
-							dirtyExit("Can't find res");
-						responses[fdTriggered].sendData(pairContacted->first);
+							dirtyExit("Can't find asssociate response");
+						if (responses[fdTriggered].sendData(pairContacted->first))
+							dirtyExit("Réponse envoyée");
 					}
 				}
 			} 

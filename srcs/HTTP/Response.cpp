@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "Response.hpp"
+#include "CgiHandler.hpp"
 #include "utils.hpp"
 #include <sys/stat.h>
 #include <sys/socket.h>
@@ -403,20 +404,15 @@ void	Response::execute(void) {
 	return ;
 }
 
-void	Response::sendData(int clientFd)
+bool	Response::sendData(int clientFd)
 {
-	int	bytes_send = 0;
 	int	ret = 0;
 
-	do 
-	{
-		ret = send(clientFd, _data.data() + bytes_send, _data.size() - bytes_send, 0);
-		bytes_send += ret;
-	}
-	while (ret != -1 &&  static_cast<size_t>(bytes_send) < _data.size());
+	ret = send(clientFd, _data.data(), _data.size(), 0);
 	if (ret == -1)
 		throw ResponseError("Response error: send() failed");
-	else
+	_data.erase(_data.begin(), _data.begin() + ret);
+	if (!_data.empty())
 	{
 		std::cout << ((_code != "200") ? C_RED : C_GREEN)
 				  << '[' << _code << "][" << _status << ']' << C_RESET
@@ -426,6 +422,7 @@ void	Response::sendData(int clientFd)
 				  << " " << _req.getMethod()
 				  << " " << _req.getTarget() << std::endl;
 	}
+	return (_data.empty());
 }
 
 bool	Response::_isBinaryFile(std::string filePath)

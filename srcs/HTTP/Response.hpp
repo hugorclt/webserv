@@ -11,10 +11,10 @@
 /* ************************************************************************** */
 
 #pragma once
-#include "Request.hpp"
-#include "ConfigParser.hpp"
-#include "CgiHandler.hpp"
-#include <fstream>
+
+# include "Request.hpp"
+# include "ConfigParser.hpp"
+# include <fstream>
 
 #define NB_MIME 66
 
@@ -38,7 +38,7 @@ class Response {
 		std::map<std::string, void(Response::*)()>	_methodsFunction;
 		void										init_methodsFunction(void);
 
-		std::string	_getDate(void);
+		std::string			_getDate(void);
 		std::vector<char>	_getDefaultErrorPage(void);
 		void				_setType(std::string url);
 		bool				_isBinaryFile(std::string filePath);
@@ -63,7 +63,7 @@ class Response {
 
 		void	constructData(void);
 		void	execute(void);
-		void	sendData(int clientFd);
+		bool	sendData(int clientFd);
 		void	setData(std::vector<char> data);
 
 		class ResponseError: public std::exception {
@@ -79,53 +79,3 @@ class Response {
 				{ return (_error.c_str()); }
 		};
 };
-
-
-
-
-
-
-
-
-
-
-
-
-/*
-class HTTPResponse {
-	private:
-		//headers
-		std::map<std::string, std::string>	data;
-		int									length;
-		std::string							type;
-		std::vector<char>					body;
-
-
-	public:
-		HTTPResponse(Request &req, ServerList &servers);
-		
-		void    setBody(std::vector<char> body);
-		void	setLength(int	length);
-		void	sendRequest(int clientFd);
-		
-};
-*/
-/*
-HTTP/1.1 200 OK
-Date: Mon, 27 Jul 2009 12:28:53 GMT
-Server: Apache/2.2.14 (Win32)
-Last-Modified: Wed, 22 Jul 2009 19:15:56 GMT
-Content-Length: 88
-Content-Type: text/html
-Connection: Closed
-*/
-
-/*
-HTTP/1.1 404 Not Found
-Date: Sun, 18 Oct 2012 10:36:20 GMT
-Server: Apache/2.2.14 (Win32)
-Content-Length: 230
-Connection: Closed
-Content-Type: text/html; charset=iso-8859-1
-
-*/
