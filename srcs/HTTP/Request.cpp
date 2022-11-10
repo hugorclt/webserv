@@ -98,8 +98,8 @@ Request::Request(std::vector<char> &req)
 	_parseFirstLine(firstLine);
 	_parseHeader(header);
 	_checkHeader();
-	if (_header.count("Content-Length") && !_header["Content-Length"].empty() && static_cast<size_t>(atoi(_header["Content-Length"][0].c_str())) != body.size())
-		throw RequestError("Content-Length not the same as the body size");
+	//if (_header.count("Content-Length") && !_header["Content-Length"].empty() && static_cast<size_t>(atoi(_header["Content-Length"][0].c_str())) != body.size())
+	//	throw RequestError("Content-Length not the same as the body size");
 	_parseBody(body);
 	// _printValue();
 }

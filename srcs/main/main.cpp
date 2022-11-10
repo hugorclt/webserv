@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/18 12:57:12 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/11/08 09:07:16 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/10 12:15:16 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,6 +98,7 @@ int main(int ac, char **av, char **sysEnv)
 	/* ----------------------------- Server loop ---------------------------- */
 		int	clientSocket = 0;
 		std::cout << "init " << C_GREEN << "Success" << C_RESET << ", server is running" << std::endl;
+		std::cout << "EPOLLIN: " << EPOLLIN << " EPOLLOUT: " << EPOLLOUT << std::endl;
 		while (!g_exit) 
 		{
 			try 
@@ -120,18 +121,26 @@ int main(int ac, char **av, char **sysEnv)
 					std::cerr << "wrong epoll_wait fd ready number" << std::endl;
 					continue ;
 				}
+				std::cout << "epoll wait triggered, numberFdReady:" << numberFdReady << std::endl;
 				for (int index = 0; index != numberFdReady; index++)
 				{
 					int	fdTriggered = epoll.getEvents()[index].data.fd;
+					//std::cout << EPOLLIN << " " << EPOLLOUT << " " << std::endl;
 					Servers::sock_type::iterator sockTarget = serverList.getSocketByFd(fdTriggered);
+					std::cout << "-------------------" << std::endl;
+					std::cout << "Pour fd : " << fdTriggered << std::endl;
+					std::cout << (epoll.getEvents()[index].events & EPOLLIN ? "je suis entrain de lire" : "je suis pas entrain de lire") << std::endl;
+					std::cout << (epoll.getEvents()[index].events & EPOLLOUT ? "je suis entrain d'ecrire" : "je suis pas entrain d'ecrire") << std::endl;
 					if (sockTarget != serverList.getSockIpPort().end())
 					{
+						std::cout << "Connexion entrante: " << epoll.getEvents()[index].events << std::endl;
 						clientSocket = serverList.acceptSocket(sockTarget->second);
 						epoll.addFd(clientSocket);
 						clientList.insert(std::make_pair(clientSocket, fdTriggered));
 					}
 					else
 					{
+						std::cout << "Connexion request: " << (epoll.getEvents()[index].events & EPOLLOUT) << std::endl;
 						pairContacted = clientList.find(fdTriggered);
 						if (pairContacted == clientList.end())
 						{
@@ -140,12 +149,18 @@ int main(int ac, char **av, char **sysEnv)
 						}
 						char	buffer[4096];
 						int nb_bytes = 1;
-						while (nb_bytes > 0)
+						while (epoll.getEvents()[index].events & EPOLLIN)
 						{
 							nb_bytes = recv(pairContacted->first, &buffer, 4096, 0);
+							// std::cout << "bytes_read: " << nb_bytes << std::endl;
+							if (nb_bytes == -1)
+								epoll.getEvents()[index].events = EPOLLOUT;
 							if (nb_bytes > 0)
 								request.insert(request.end(), buffer, buffer + nb_bytes);
 						}
+						// for (size_t i = 0; i < request.size(); i++)
+						// 	std::cout << request[i];
+						// std::cout << std::endl;
 						if (request.empty())
 						{
 							close(pairContacted->first);
@@ -154,14 +169,19 @@ int main(int ac, char **av, char **sysEnv)
 						}
 						Request	req(request);
 						request.clear();
+						epoll.getEvents()[index].events = EPOLLOUT;
 						ConfigParser::Server server = findServ(req, serverList.findIpByFd(pairContacted->second), configServers.getData());
 						ConfigParser::Location	env = getEnvFromTarget(req.getTarget(), server);
 						Response	res(env, req, serverList.getClientIp(sockTarget->second, pairContacted->first), sysEnv);
 						res.execute();
 						res.constructData();
-						res.sendData(pairContacted->first);
-						close(pairContacted->first);
-						clientList.erase(pairContacted);
+						if (epoll.getEvents()[index].events & EPOLLOUT)
+						{
+							res.sendData(pairContacted->first);
+							close(pairContacted->first);
+							clientList.erase(pairContacted);
+							std::cout << "Connexion sortante: " << epoll.getEvents()[index].events << std::endl;
+						}
 					}
 				}
 			} 

@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/20 15:57:26 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/11/06 13:28:19 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/10 11:50:38 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 #include <stdio.h>
 
 IOpoll::IOpoll(Servers &servers) {
-	this->ev.events = EPOLLIN;
+	this->ev.events = EPOLLIN | EPOLLOUT;
 	this->events = new epoll_event[QUE_SIZE];
 	this->epollfd = epoll_create1(0);
 	this->ev.data.ptr = NULL;
@@ -60,6 +60,7 @@ epoll_event	*IOpoll::getEvents(void) const{
 /* -------------------------------------------------------------------------- */
 
 void	IOpoll::addFd(int fd) {
+	ev.events = EPOLLIN;
 	ev.data.fd = fd;
 	if (epoll_ctl(this->epollfd, EPOLL_CTL_ADD, fd, &this->ev)) {
 		close(this->epollfd);
