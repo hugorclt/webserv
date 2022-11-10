@@ -12,6 +12,7 @@
 
 #pragma once
 
+# include "IOpoll.hpp"
 # include <map>
 # include <string>
 # include <vector>
@@ -30,6 +31,11 @@ class Request {
 		std::vector<std::string>	_argvVar;
 		std::string					_envVar;
 		std::string					_uploadFileName;
+
+		std::vector<char>			_rawData;
+		static size_t				_maxHeaderSize;
+		int							_fd;
+		IOpoll						&_epoll;
 
 		
 		void	_basicSplit(std::string &line);
@@ -51,17 +57,19 @@ class Request {
 
 
 	public:
-		Request(std::vector<char> &req);
+		Request(int fd, IOpoll &epoll);
 		~Request();
 
 		request_type				getData(void) const;
 		std::vector<std::string>	&getVar(void);
-		std::string		getMethod(void) const;
-		std::string		getTarget(void) const;
-		std::string		getVersion(void) const;
-		std::vector<char>	getBody(void) const;
-		std::string		getEnvVar(void);
-		std::string		getUploadFileName(void);
+		std::string					getMethod(void) const;
+		std::string					getTarget(void) const;
+		std::string					getVersion(void) const;
+		std::vector<char>			getBody(void) const;
+		std::string					getEnvVar(void);
+		std::string					getUploadFileName(void);
+
+		bool						recv(void);
 
 
 		class RequestError: public std::exception {

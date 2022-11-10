@@ -60,7 +60,7 @@ epoll_event	*IOpoll::getEvents(void) const{
 /* -------------------------------------------------------------------------- */
 
 void	IOpoll::addFd(int fd) {
-	ev.events = EPOLLIN;
+	ev.events = EPOLLIN | EPOLLHUP | EPOLLERR;
 	ev.data.fd = fd;
 	if (epoll_ctl(this->epollfd, EPOLL_CTL_ADD, fd, &this->ev)) {
 		close(this->epollfd);

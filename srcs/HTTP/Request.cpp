@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Request.cpp                                    :+:      :+:    :+:   */
+/*   Request.cpp                                       :+:      :+:    :+:    */
 /*                                                    +:+ +:+         +:+     */
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -15,6 +15,11 @@
 #include <iostream>
 #include <algorithm>
 
+size_t	Request::_maxHeaderSize = 500;
+
+bool	Request::recv(void)
+{
+}
 
 void	Request::_parseHeader(std::string &header)
 {
@@ -89,6 +94,10 @@ std::vector<char>::iterator	Request::_vectorCharSearch(std::vector<char>::iterat
 	return (std::search(first, last, toFind.begin(), toFind.end()) + toFind.size());
 }
 
+Request::Request(int fd, IOpoll &epoll)
+: _fd(fd), _epoll(epoll) {}
+
+/* old constructor
 Request::Request(std::vector<char> &req)
 {
 	std::string 		firstLine(req.begin(), _vectorCharSearch(req.begin(), req.end(), "\r\n"));
@@ -103,6 +112,7 @@ Request::Request(std::vector<char> &req)
 	_parseBody(body);
 	// _printValue();
 }
+*/
 
 void	Request::_checkHeader(void)
 {
