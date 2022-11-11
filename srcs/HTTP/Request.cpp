@@ -63,11 +63,15 @@ bool	Request::rec(void)
 	_rawData.insert(_rawData.end(), buffer, buffer + readedBytes);
 	if (_header.empty() && !_isHeaderComplete() && _rawData.size() > _maxHeaderSize)
 		throw InvalidHeader("Invalid header (larger than _maxHeaderSize)");
+	//std::cout << "_isHeaderComplete : " << _isHeaderComplete() << std::endl;
 	if (_header.empty() && _isHeaderComplete())
 		_fillHeader();
 	if (!_header.empty() && _isBodyComplete())
 		_fillBody();
-	return (!_header.empty() && !_body.empty());
+	//std::cout << "-------------------" << std::endl;
+	//std::cout << std::string(buffer, buffer + readedBytes) << std::endl;
+	//std::cout << "-------------------" << std::endl;
+	return (!_header.empty() && _isBodyComplete());
 }
 
 void	Request::_parseHeader(std::string &header)

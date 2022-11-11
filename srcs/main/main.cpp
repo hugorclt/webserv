@@ -122,7 +122,6 @@ int main(int ac, char **av, char **sysEnv)
 					if (sockTarget != serverList.getSockIpPort().end())
 					{
 						int clientSocket;
-						std::cout << "New Connexion" << std::endl;
 						clientSocket = serverList.acceptSocket(sockTarget->second);
 						epoll.addFd(clientSocket);
 						clientList.insert(std::make_pair(clientSocket, fdTriggered));
@@ -134,8 +133,6 @@ int main(int ac, char **av, char **sysEnv)
 						std::map<int, Request>::iterator	req = requests.find(fdTriggered);
 						int									event = epoll.getEvents()[index].events;
 
-						std::cout << "Event from an existing connexion" << std::endl;
-
 						if (pairContacted == clientList.end())
 							dirtyExit("Unknown client");
 						if (req == requests.end())
@@ -145,19 +142,26 @@ int main(int ac, char **av, char **sysEnv)
 						if (event & EPOLLIN)
 						{
 							// s'il reste à lire on continue. Si la requête est invalide/incomplète recv throw, si la requête est complète on exec le reste du process
-							if (req->second.rec())
+							if (!req->second.rec())
 								continue ;
+							//dirtyExit("TEST");
 							ConfigParser::Server	server = findServ(req->second, serverList.findIpByFd(pairContacted->second), configServers.getData());
 							ConfigParser::Location	env = getEnvFromTarget(req->second.getTarget(), server);
 							responses.insert(std::make_pair(fdTriggered, Response (env, req->second, serverList.getClientIp(sockTarget->second, pairContacted->first), sysEnv)));
 							responses[fdTriggered].execute();
 							responses[fdTriggered].constructData();
 						}
-						epoll.getEvents()[index].events = EPOLLOUT | EPOLLHUP | EPOLLERR;
 						if (!responses.count(fdTriggered))
 							dirtyExit("Can't find asssociate response");
 						if (responses.find(fdTriggered)->second.sendData(pairContacted->first))
-							dirtyExit("Réponse envoyée");
+						{
+							close(fdTriggered);
+							responses.erase(responses.find(fdTriggered));
+							requests.erase(requests.find(fdTriggered));
+							clientList.erase(clientList.find(fdTriggered));
+						}
+						else
+							epoll.getEvents()[index].events = EPOLLOUT | EPOLLHUP | EPOLLERR; // set EPOLLOUT au cas où on ait besoin de revenir pour finir l'envoi
 					}
 				}
 			} 

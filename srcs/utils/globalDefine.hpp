@@ -12,4 +12,4 @@
 
 #pragma once
 
-# define QUE_SIZE 30
+# define QUE_SIZE 1

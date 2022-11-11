@@ -410,7 +410,7 @@ bool	Response::sendData(int clientFd)
 	if (ret == -1)
 		throw ResponseError("Response error: send() failed");
 	_data.erase(_data.begin(), _data.begin() + ret);
-	if (!_data.empty())
+	if (_data.empty())
 	{
 		std::cout << ((_code != "200") ? C_RED : C_GREEN)
 				  << '[' << _code << "][" << _status << ']' << C_RESET

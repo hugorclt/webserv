@@ -234,11 +234,22 @@ void	CgiHandler::_parseInfo(std::string line)
 	}
 }
 
+static void	deleteEmptyLines(std::vector<char> &body)
+{
+	std::vector<char>::iterator it = std::find(body.begin(), body.end(), '\n');
+	while (it == body.begin() || (it == body.begin() + 1 && body[0] == '\r'))
+	{
+		body.erase(body.begin(), it + 1);
+		it = std::find(body.begin(), body.end(), '\n');
+	}
+}
+
 void	CgiHandler::_parseCgiHeader(std::vector<char> &body)
 {
 	bool	checkForEmptyLine = false;
 	bool	parseInfoTriggered = false;
 	
+	deleteEmptyLines(body);
 	while (!body.empty())
 	{
 		std::string line(body.begin(), std::find(body.begin(), body.end(), '\n'));
@@ -249,14 +260,13 @@ void	CgiHandler::_parseCgiHeader(std::vector<char> &body)
 			parseInfoTriggered = true;
 			_parseInfo(std::string(line.begin(), line.end() - (*(line.end() - 1) == '\r')));
 		}
-		else
+		else if (line.find("X-Powered-By") == std::string::npos)
 			break ;
 		body.erase(body.begin(), body.begin() + line.size() + 1);
 		checkForEmptyLine = true;
 	}
-	std::vector<char>::iterator it = std::find(body.begin(), body.end(), '\n');
-	if (checkForEmptyLine && (it == body.begin() || (it == body.begin() + 1 && body[0] == '\r')))
-		body.erase(body.begin(), it);
+	if (checkForEmptyLine)
+		deleteEmptyLines(body);
 }
 
 std::vector<char> 	CgiHandler::_readPipe(int pipeToRead)
