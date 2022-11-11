@@ -111,6 +111,7 @@ int main(int ac, char **av, char **sysEnv)
 				if (g_exit)
 					dirtyExit("SIGINT");
 				int numberFdReady = epoll_wait(epoll.getEpollfd(), epoll.getEvents(), QUE_SIZE, -1);
+				std::cout << std::endl << "EV" << std::endl;
 				if (g_exit)
 					dirtyExit("SIGINT");
 				if (numberFdReady == -1)
@@ -143,7 +144,10 @@ int main(int ac, char **av, char **sysEnv)
 						{
 							// s'il reste à lire on continue. Si la requête est invalide/incomplète recv throw, si la requête est complète on exec le reste du process
 							if (!req->second.rec())
+							{
+								epoll.getEvents()[index].events = EPOLLIN | EPOLLHUP | EPOLLERR;
 								continue ;
+							}
 							//dirtyExit("TEST");
 							ConfigParser::Server	server = findServ(req->second, serverList.findIpByFd(pairContacted->second), configServers.getData());
 							ConfigParser::Location	env = getEnvFromTarget(req->second.getTarget(), server);

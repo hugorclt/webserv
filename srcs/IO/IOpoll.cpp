@@ -16,7 +16,7 @@
 #include <stdio.h>
 
 IOpoll::IOpoll(Servers &servers) {
-	this->ev.events = EPOLLIN | EPOLLOUT;
+	this->ev.events = EPOLLIN | EPOLLHUP | EPOLLERR;
 	this->events = new epoll_event[QUE_SIZE];
 	this->epollfd = epoll_create1(0);
 	this->ev.data.ptr = NULL;

@@ -383,8 +383,14 @@ void	Response::_uploadFile(void)
 void	Response::execute(void) {
 	std::string method = _req.getMethod();
 	Request::request_type	header = _req.getData();
-
+	if (header.count("Content-Length"))
+		std::cout  << header["Content-Length"][0] << std::endl;
 	if (_req.getBody().size() > static_cast<size_t>(atoi(_env.uniqKey["body_size"][0].c_str())))
+	{
+		_setError("413");
+		return ;
+	}
+	if (header.count("Content-Length") && atoi(header["Content-Length"][0].c_str()) == 0)
 	{
 		_setError("413");
 		return ;

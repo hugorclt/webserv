@@ -15,6 +15,7 @@
 #include <iostream>
 #include <algorithm>
 #include <sys/socket.h>
+#include <cstring>
 
 size_t	Request::_maxHeaderSize = 500;
 
@@ -57,7 +58,11 @@ bool	Request::rec(void)
 	char	buffer[4096];
 	int		readedBytes;
 
-	readedBytes = recv(_fd, &buffer, 4096, 0);
+	memset(buffer, 0, 4096);
+	readedBytes = recv(_fd, buffer, 4096, 0);
+	std::cout << "-------------------" << std::endl;
+	std::cout << buffer << std::endl;
+	std::cout << "-------------------" << std::endl;
 	if (readedBytes == -1)
 		throw RequestError("recv return == -1");
 	_rawData.insert(_rawData.end(), buffer, buffer + readedBytes);
