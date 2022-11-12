@@ -31,6 +31,7 @@ class Servers {
 			int			opt;
 			int			addrLen;
 			std::string ip;
+			std::string port;
 		};
 
 		typedef std::map<int, socket_t> sock_type;
@@ -51,6 +52,7 @@ class Servers {
 		int					acceptSocket(socket_t sock);
 		sock_type			&getSockIpPort(void);
 		std::string			findIpByFd(int fd);
+		std::string			findPortByFd(int fd);
 		std::string			getClientIp(socket_t &sock, int clientFd);
 
 		/* ------------------------------- error class ------------------------------ */

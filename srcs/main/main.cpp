@@ -22,6 +22,7 @@
 #include <cstdlib>
 #include <csignal>
 #include <cstring>
+#include <ostream>
 #include "CgiHandler.hpp"
 
 bool g_exit = false;
@@ -40,7 +41,12 @@ ConfigParser::Server    selectServ(std::string ip, std::string port, std::string
 			firstOccu = it;
    	}
 	if (firstOccu == vecServs.end())
+	{
+		std::cout << "ip : " << ip << std::endl
+				  << "port : " << port << std::endl
+				  << "hostname : " << hostName << std::endl;
 		throw InvalidHost("Error: invalid host");
+	}
    	return (*firstOccu);
 }
 
@@ -69,12 +75,6 @@ void	handle_sig(int sig)
 {
 	if (sig == SIGINT)
 		g_exit = true;
-}
-
-ConfigParser::Server	findServ(Request &req, std::string ip, ConfigParser::data_type conf)
-{
-	Request::request_type reqData = req.getData();
-	return (selectServ(ip, reqData["Host"][1], reqData["Host"][0], conf));
 }
 
 void	closeRequest(std::map<int, Request> requests)
@@ -164,7 +164,7 @@ int main(int ac, char **av, char **sysEnv)
 									epoll.getEvents()[index].events = EPOLLIN | EPOLLHUP | EPOLLERR;
 									continue ;
 								}
-								ConfigParser::Server	server = findServ(req->second, serverList.findIpByFd(pairContacted->second), configServers.getData());
+								ConfigParser::Server	server = selectServ(serverList.findIpByFd(pairContacted->second), serverList.findPortByFd(pairContacted->second), req->second.getData()["Host"][0], configServers.getData());
 								ConfigParser::Location	env = getEnvFromTarget(req->second.getTarget(), server);
 								responses.insert(std::make_pair(fdTriggered, Response (env, req->second, serverList.getClientIp(sockTarget->second, pairContacted->first), sysEnv)));
 								responses[fdTriggered].execute();

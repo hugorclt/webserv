@@ -22,6 +22,7 @@ void	Servers::_createNewServer(std::string ip, std::string port)
 	int			sockfd;
 	
 	socketInfo.ip = ip;
+	socketInfo.port = port;
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
 	socketInfo.sockfd = sockfd;
 	if (!sockfd)
@@ -123,9 +124,10 @@ Servers::sock_type	&Servers::getSockIpPort()
 }
 
 std::string	Servers::findIpByFd(int fd)
-{
-	return (_sockIpPort[fd].ip);
-}
+{ return (_sockIpPort[fd].ip); }
+
+std::string	Servers::findPortByFd(int fd)
+{ return (_sockIpPort[fd].port); }
 
 std::string Servers::getClientIp(Servers::socket_t &sock, int clientFd)
 {
