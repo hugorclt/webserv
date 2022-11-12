@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/21 11:32:35 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/11/12 13:07:17 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/12 14:10:34 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,9 +60,9 @@ bool	Request::rec(void)
 
 	memset(buffer, 0, BUFFER_SIZE);
 	readedBytes = recv(_fd, buffer, BUFFER_SIZE, 0);
-	std::cout << "-------------------" << std::endl;
-	std::cout << buffer << std::endl;
-	std::cout << "-------------------" << std::endl;
+	// std::cout << "-------------------" << std::endl;
+	// std::cout << buffer << std::endl;
+	// std::cout << "-------------------" << std::endl;
 	if (readedBytes == -1)
 		throw RequestError("recv return == -1");
 	_rawData.insert(_rawData.end(), buffer, buffer + readedBytes);

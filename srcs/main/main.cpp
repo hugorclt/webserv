@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/18 12:57:12 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/11/12 14:08:20 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/12 14:09:25 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,7 +121,7 @@ int main(int ac, char **av, char **sysEnv)
 				if (g_exit)
 					break ;
 				int numberFdReady = epoll_wait(epoll.getEpollfd(), epoll.getEvents(), QUE_SIZE, -1);
-\				if (g_exit)
+				if (g_exit)
 					break ;
 				if (numberFdReady == -1)
 					break ;
