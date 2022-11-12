@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/18 12:57:12 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/11/12 14:09:25 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/12 14:54:01 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -131,15 +131,17 @@ int main(int ac, char **av, char **sysEnv)
 					Servers::sock_type::iterator sockTarget = serverList.getSocketByFd(fdTriggered);
 					if (sockTarget != serverList.getSockIpPort().end())
 					{
-						int clientSocket;
-						clientSocket = serverList.acceptSocket(sockTarget->second);
+						int clientSocket = 0;
+						
 						try {
+							clientSocket = serverList.acceptSocket(sockTarget->second);
 							epoll.addFd(clientSocket);
 							clientList.insert(std::make_pair(clientSocket, fdTriggered));
 							requests.insert(std::make_pair(clientSocket, Request(clientSocket)));
 						} catch (std::exception &e) {
 							std::cout << e.what() << std::endl;
-							close(clientSocket);
+							if (clientSocket)
+								close(clientSocket);
 						}
 					}
 					else
