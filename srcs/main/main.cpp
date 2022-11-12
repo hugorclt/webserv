@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/18 12:57:12 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/11/10 12:15:16 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/12 14:08:20 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@
 #include <cstdlib>
 #include <csignal>
 #include <cstring>
+#include "CgiHandler.hpp"
 
 bool g_exit = false;
 
@@ -76,11 +77,19 @@ ConfigParser::Server	findServ(Request &req, std::string ip, ConfigParser::data_t
 	return (selectServ(ip, reqData["Host"][1], reqData["Host"][0], conf));
 }
 
-// leak mem and fd
-static void	dirtyExit(const std::string &str) // tmp for test purposes
+void	closeRequest(std::map<int, Request> requests)
 {
-	std::cerr << str << std::endl;
-	exit(EXIT_FAILURE);
+	for (std::map<int, Request>::iterator it = requests.begin(); it != requests.end(); it++)
+		close(it->first);
+}
+
+void closeAndErase(int &fdTriggered, std::map<int, int> &clientList, std::map<int, Request> &requests, std::map<int, Response> &responses)
+{
+	close(fdTriggered);
+	if (responses.count(fdTriggered))
+		responses.erase(responses.find(fdTriggered));
+	requests.erase(requests.find(fdTriggered));
+	clientList.erase(clientList.find(fdTriggered));
 }
 
 int main(int ac, char **av, char **sysEnv)
@@ -90,6 +99,10 @@ int main(int ac, char **av, char **sysEnv)
 		std::cerr << "Invalid number of arguments for WebServ" << std::endl;
 		exit (EXIT_FAILURE);
 	}
+	std::map<int, int>			clientList;
+	std::map<int, Request>	 	requests;
+	std::map<int, Response> 	responses;
+	
 	try {	
 	/* --------------------------------- Parsing -------------------------------- */
 		ConfigParser	configServers(av[1]);
@@ -98,9 +111,6 @@ int main(int ac, char **av, char **sysEnv)
 
 		signal(SIGINT, handle_sig);
 
-		std::map<int, int>			clientList;
-		std::map<int, Request>	 	requests;
-		std::map<int, Response> 	responses;
 
 	/* ----------------------------- Server loop ---------------------------- */
 		std::cout << "init " << C_GREEN << "Success" << C_RESET << ", server is running" << std::endl;
@@ -109,13 +119,12 @@ int main(int ac, char **av, char **sysEnv)
 			try 
 			{
 				if (g_exit)
-					dirtyExit("SIGINT");
+					break ;
 				int numberFdReady = epoll_wait(epoll.getEpollfd(), epoll.getEvents(), QUE_SIZE, -1);
-				std::cout << std::endl << "EV" << std::endl;
-				if (g_exit)
-					dirtyExit("SIGINT");
+\				if (g_exit)
+					break ;
 				if (numberFdReady == -1)
-					dirtyExit("numberFdReady == -1");
+					break ;
 				for (int index = 0; index != numberFdReady; index++)
 				{
 					int	fdTriggered = epoll.getEvents()[index].data.fd;
@@ -124,9 +133,14 @@ int main(int ac, char **av, char **sysEnv)
 					{
 						int clientSocket;
 						clientSocket = serverList.acceptSocket(sockTarget->second);
-						epoll.addFd(clientSocket);
-						clientList.insert(std::make_pair(clientSocket, fdTriggered));
-						requests.insert(std::make_pair(clientSocket, Request(clientSocket)));
+						try {
+							epoll.addFd(clientSocket);
+							clientList.insert(std::make_pair(clientSocket, fdTriggered));
+							requests.insert(std::make_pair(clientSocket, Request(clientSocket)));
+						} catch (std::exception &e) {
+							std::cout << e.what() << std::endl;
+							close(clientSocket);
+						}
 					}
 					else
 					{
@@ -134,52 +148,42 @@ int main(int ac, char **av, char **sysEnv)
 						std::map<int, Request>::iterator	req = requests.find(fdTriggered);
 						int									event = epoll.getEvents()[index].events;
 
-						if (pairContacted == clientList.end())
-							dirtyExit("Unknown client");
-						if (req == requests.end())
-							dirtyExit("Can't find associate request");
-						if (event & EPOLLHUP || event & EPOLLERR)
-							dirtyExit("EPOLLHUP || EPOLLERR");
-						if (event & EPOLLIN)
-						{
-							// s'il reste à lire on continue. Si la requête est invalide/incomplète recv throw, si la requête est complète on exec le reste du process
-							if (!req->second.rec())
+						try {
+							if (event & EPOLLHUP || event & EPOLLERR)
 							{
-								epoll.getEvents()[index].events = EPOLLIN | EPOLLHUP | EPOLLERR;
+								closeAndErase(fdTriggered, clientList, requests, responses);
 								continue ;
 							}
-							//dirtyExit("TEST");
-							ConfigParser::Server	server = findServ(req->second, serverList.findIpByFd(pairContacted->second), configServers.getData());
-							ConfigParser::Location	env = getEnvFromTarget(req->second.getTarget(), server);
-							responses.insert(std::make_pair(fdTriggered, Response (env, req->second, serverList.getClientIp(sockTarget->second, pairContacted->first), sysEnv)));
-							responses[fdTriggered].execute();
-							responses[fdTriggered].constructData();
+							if (event & EPOLLIN)
+							{
+								// s'il reste à lire on continue. Si la requête est invalide/incomplète recv throw, si la requête est complète on exec le reste du process
+								if (!req->second.rec())
+								{
+									epoll.getEvents()[index].events = EPOLLIN | EPOLLHUP | EPOLLERR;
+									continue ;
+								}
+								ConfigParser::Server	server = findServ(req->second, serverList.findIpByFd(pairContacted->second), configServers.getData());
+								ConfigParser::Location	env = getEnvFromTarget(req->second.getTarget(), server);
+								responses.insert(std::make_pair(fdTriggered, Response (env, req->second, serverList.getClientIp(sockTarget->second, pairContacted->first), sysEnv)));
+								responses[fdTriggered].execute();
+								responses[fdTriggered].constructData();
+							}
+							if (!responses.count(fdTriggered))
+								closeAndErase(fdTriggered, clientList, requests, responses);
+							if (responses.find(fdTriggered)->second.sendData(pairContacted->first))
+								closeAndErase(fdTriggered, clientList, requests, responses);
+							else
+								epoll.getEvents()[index].events = EPOLLOUT | EPOLLHUP | EPOLLERR; // set EPOLLOUT au cas où on ait besoin de revenir pour finir l'envoi
 						}
-						if (!responses.count(fdTriggered))
-							dirtyExit("Can't find asssociate response");
-						if (responses.find(fdTriggered)->second.sendData(pairContacted->first))
-						{
-							close(fdTriggered);
-							responses.erase(responses.find(fdTriggered));
-							requests.erase(requests.find(fdTriggered));
-							clientList.erase(clientList.find(fdTriggered));
+						catch (CgiHandler::CgiHandlerError &e) { break; }
+						catch (std::exception &e) { 
+							std::cerr << C_ORANGE << "Server is listening: " << e.what() << C_RESET << std::endl;
+							closeAndErase(fdTriggered, clientList, requests, responses);
 						}
-						else
-							epoll.getEvents()[index].events = EPOLLOUT | EPOLLHUP | EPOLLERR; // set EPOLLOUT au cas où on ait besoin de revenir pour finir l'envoi
 					}
 				}
 			} 
-			catch (Request::RequestError &e)
-			{
-				dirtyExit("Request::RequestError");
-				//std::cout << e.what() << std::endl;
-			}
-			catch (std::exception &e)
-			{
-				dirtyExit("std::exception");
-				//std::cerr << e.what() << std::endl;
-				//std::cerr << C_ORANGE << "Server is listening" << C_RESET << std::endl;
-			}
+			catch (std::exception &e) { std::cerr << C_ORANGE << "Server is listening: " << e.what() << C_RESET << std::endl; }
 		}
 	}
 	catch (std::exception &e)
@@ -188,6 +192,7 @@ int main(int ac, char **av, char **sysEnv)
 				  << "error : " << e.what() << std::endl;
 		return (EXIT_FAILURE);
 	}
+	closeRequest(requests);
 	std::cout << std::endl << C_PURPLE << "GoodBye" << C_RESET << std::endl;
 	return (EXIT_SUCCESS);
 }

@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/11 15:23:33 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/11/08 08:18:28 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/12 12:02:44 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -383,8 +383,7 @@ void	Response::_uploadFile(void)
 void	Response::execute(void) {
 	std::string method = _req.getMethod();
 	Request::request_type	header = _req.getData();
-	if (header.count("Content-Length"))
-		std::cout  << header["Content-Length"][0] << std::endl;
+
 	if (_req.getBody().size() > static_cast<size_t>(atoi(_env.uniqKey["body_size"][0].c_str())))
 	{
 		_setError("413");

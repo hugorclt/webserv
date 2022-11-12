@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/25 14:39:45 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/11/08 08:14:34 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/12 12:55:47 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -236,6 +236,8 @@ void	CgiHandler::_parseInfo(std::string line)
 
 static void	deleteEmptyLines(std::vector<char> &body)
 {
+	if (body.empty())
+		return ;
 	std::vector<char>::iterator it = std::find(body.begin(), body.end(), '\n');
 	while (it == body.begin() || (it == body.begin() + 1 && body[0] == '\r'))
 	{

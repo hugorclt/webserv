@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Request.cpp                                       :+:      :+:    :+:    */
+/*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/21 11:32:35 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/10/20 13:28:20 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/12 13:07:17 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 #include <sys/socket.h>
 #include <cstring>
 
-size_t	Request::_maxHeaderSize = 500;
+size_t	Request::_maxHeaderSize = 10000;
 
 bool	Request::_isHeaderComplete(void)
 { return (_vectorCharSearch(_rawData.begin(), _rawData.end(), "\r\n\r\n") != _rawData.end()); }
@@ -55,17 +55,20 @@ void	Request::_fillBody(void)
 
 bool	Request::rec(void)
 {
-	char	buffer[4096];
+	char	buffer[BUFFER_SIZE];
 	int		readedBytes;
 
-	memset(buffer, 0, 4096);
-	readedBytes = recv(_fd, buffer, 4096, 0);
+	memset(buffer, 0, BUFFER_SIZE);
+	readedBytes = recv(_fd, buffer, BUFFER_SIZE, 0);
 	std::cout << "-------------------" << std::endl;
 	std::cout << buffer << std::endl;
 	std::cout << "-------------------" << std::endl;
 	if (readedBytes == -1)
 		throw RequestError("recv return == -1");
 	_rawData.insert(_rawData.end(), buffer, buffer + readedBytes);
+	// std::cout << _rawData.size() << " ";
+	// if (!_header.empty())
+	// 	std::cout << _header["Content-Length"][0] << std::endl;
 	if (_header.empty() && !_isHeaderComplete() && _rawData.size() > _maxHeaderSize)
 		throw InvalidHeader("Invalid header (larger than _maxHeaderSize)");
 	//std::cout << "_isHeaderComplete : " << _isHeaderComplete() << std::endl;
@@ -99,12 +102,12 @@ void	Request::_unchunkedRequest(std::vector<char> &body)
 
 void	Request::_parseFileName(std::vector<char> &body)
 {
-	std::vector<char>::iterator	fileNameIt = _vectorCharSearch(body.begin(), body.end(), "filename=\"");
-	std::string test (fileNameIt, _vectorCharSearch(fileNameIt, body.end(), "\"") - 1);
+	std::vector<char>::iterator	fileNameIt = _vectorCharSearch(body.begin(), body.end(), "filename=\"") + std::string("filename=\"").size();
+	std::string filename (fileNameIt, _vectorCharSearch(fileNameIt, body.end(), "\""));
 
-	_uploadFileName = test;
+	_uploadFileName = filename;
 	for (int i = 0; i < 4; i++)
-		body.erase(body.begin(), _vectorCharSearch(body.begin(), body.end(), "\r\n"));
+		body.erase(body.begin(), _vectorCharSearch(body.begin(), body.end(), "\r\n") + 2);
 	body.erase(_searchLastLine(body), body.end());
 }
 
@@ -121,7 +124,7 @@ std::vector<char>::iterator	Request::_searchLastLine(std::vector<char> &body)
 	return (ite);
 }
 
-void	Request::_parseBody(std::vector<char> &body)
+void	Request::_parseBody(std::vector<char> body)
 {
 	if (_method != "POST")
 		return ;

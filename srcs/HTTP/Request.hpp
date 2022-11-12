@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/21 10:25:37 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/11/07 21:46:26 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/12 12:24:59 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 # include <map>
 # include <string>
 # include <vector>
+# define BUFFER_SIZE 4096
 
 class Request {
 	public:
@@ -43,7 +44,7 @@ class Request {
 		void	_parseFirstLine(const std::string &line);
 		void	_printValue(void);
 		void	_parseHeader(std::string &body);
-		void	_parseBody(std::vector<char> &body);
+		void	_parseBody(std::vector<char> body);
 		bool	_chunkedRequest(std::vector<std::string> &vecBody);
 		bool	_uploadRequest(std::string &body);
 		std::vector<char>::iterator	_vectorCharSearch(std::vector<char>::iterator first, std::vector<char>::iterator last, std::string toFind);
@@ -51,7 +52,6 @@ class Request {
 		void	_parseFileName(std::vector<char> &body);
 		std::vector<char>::iterator	_searchLastLine(std::vector<char> &body);
 		void	_checkHeader(void);
-
 		bool	_isHeaderComplete(void);
 		void	_fillHeader(void);
 		bool	_isBodyComplete(void);
