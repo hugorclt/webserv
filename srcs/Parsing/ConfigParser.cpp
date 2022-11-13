@@ -34,7 +34,6 @@ void	ConfigParser::_konamiCode(keyValues_type &keyValues, size_t &startLastLine,
 	std::cout << C_PURPLE << "KONAMI CODE DETECTED, SETTING LIFE NUMBER TO 30..." << C_RESET << std::endl;
 }
 
-// patch this shit later
 ConfigParser::Conf::data_type	ConfigParser::Conf::_data = ConfigParser::Conf::data_type ();
 
 void	ConfigParser::Conf::init_data(void)
@@ -258,7 +257,8 @@ ConfigParser::ConfigParser(char *filename) {
 
 	if (!input.good())
 		throw ParsingError("invalid File (check than file is existing with good rights)");
-	for (std::string line; std::getline(input, line); ) {
+	for (std::string line; !input.eof();) {
+		std::getline(input, line);
 		fullFile.push_back(line);
 	}
 	if (fullFile.empty())
@@ -408,7 +408,7 @@ void			ConfigParser::checkKeyValues(keyValues_type &keyValues, const Conf::raw &
 		keyConf.func(keyValues, startLastLine, line);
 }
 
-void			ConfigParser::_insertKeyValuesInLocation(Location &location, keyValues_type &keyValues, size_t &startLastLine, std::string &line) // still need to be cleaned
+void			ConfigParser::_insertKeyValuesInLocation(Location &location, keyValues_type &keyValues, size_t &startLastLine, std::string &line)
 {
 	std::string	keyValuesFirstCpy = keyValues.first;
 	Conf::raw	keyConf = Conf::_data[keyValues.first];
@@ -438,7 +438,7 @@ ConfigParser::Location	ConfigParser::_createNewLocation(lineRange_type &lineRang
 	Location	res;
 
 	_goToNextWordInFile(lineRange, fileRange);
-	size_t startLastLine = static_cast<size_t>(lineRange.first - fileRange.first->begin()); // probably a dirty and dangerous cast, watch out for this later.
+	size_t startLastLine = static_cast<size_t>(lineRange.first - fileRange.first->begin());
 	keyValues_type	keyValues = _getKeyValues(lineRange);
 	while (fileRange.first != fileRange.second && !keyValues.first.empty())
 	{
@@ -455,7 +455,7 @@ ConfigParser::Location	ConfigParser::_createNewLocation(lineRange_type &lineRang
 			throw ParsingError("Unknown Key '" + keyValues.first + "'");
 		}
 		_goToNextWordInFile(lineRange, fileRange);
-		startLastLine = static_cast<size_t>(lineRange.first - fileRange.first->begin()); // probably a dirty and dangerous cast, watch out for this later.
+		startLastLine = static_cast<size_t>(lineRange.first - fileRange.first->begin());
 		keyValues = _getKeyValues(lineRange);
 	}
 	if (*lineRange.first == '{')
@@ -491,7 +491,7 @@ ConfigParser::Server	ConfigParser::_createNewServer(lineRange_type &lineRange, f
 	Location	serverLocationConf;
 	
 	_goToNextWordInFile(lineRange, fileRange);
-	size_t startLastLine = static_cast<size_t>(lineRange.first - fileRange.first->begin()); // probably a dirty and dangerous cast, watch out for this later.
+	size_t startLastLine = static_cast<size_t>(lineRange.first - fileRange.first->begin());
 	keyValues_type	keyValues = _getKeyValues(lineRange);
 	while (fileRange.first != fileRange.second && !keyValues.first.empty())
 	{
@@ -516,7 +516,7 @@ ConfigParser::Server	ConfigParser::_createNewServer(lineRange_type &lineRange, f
 				throw ParsingError("Unknown Key '" + keyValues.first + "'", keyValues.first);
 		}
 		_goToNextWordInFile(lineRange, fileRange);
-		startLastLine = static_cast<size_t>(lineRange.first - fileRange.first->begin()); // probably a dirty and dangerous cast, watch out for this later.
+		startLastLine = static_cast<size_t>(lineRange.first - fileRange.first->begin());
 		keyValues = _getKeyValues(lineRange);
 	}
 	if (*lineRange.first == '{')
@@ -560,11 +560,9 @@ std::string	ConfigParser::_getWord(lineRange_type &lineRange)
 		   Conf::_commentSet + Conf::_scopeSet).find(*lineRange.first) == std::string::npos)
 	{
 		if (*lineRange.first == '\\')
-		{
 			lineRange.first++;
-			if (lineRange.first == lineRange.second)
-				throw ParsingError("'\\' need to be used in combination with either an other char or itself (can't be at the end of a file)");
-		}
+		if (lineRange.first == lineRange.second)
+			throw ParsingError("'\\' need to be used in combination with either an other char or itself (can't be at the end of a file)");
 		res.push_back(*lineRange.first++);
 	}
 	return (res);

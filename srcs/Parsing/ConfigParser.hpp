@@ -16,8 +16,6 @@
 # include <map>
 # include <set>
 # include <string>
-
-//tmp
 # include <iostream>
 
 class ConfigParser {
@@ -137,9 +135,6 @@ class ConfigParser {
 		static void checkPort(std::string str, size_t &startLastLine, std::string &line);
 		static void	formatListen(keyValues_type &keyValues, size_t &startLastLine, std::string &line);
 
-		//test
-
-		static void	_printConfigParser(const data_type &data);
 		static void	_colorSkipFirstWordInRange(size_t &first, const std::string &word, std::string &line, const std::string &color);
 		
 	public:

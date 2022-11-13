@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/25 14:39:45 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/11/12 12:55:47 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/13 14:19:47 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,6 +76,7 @@ std::string	CgiHandler::_getSysPath(void)
 void    CgiHandler::_initEnv(void)
 {
     std::vector<char> 		body = _req.getBody();
+	Request::request_type	header = _req.getData();
 	std::string cwdPath = _setCwd();
 	
     _env.push_back("REDIRECT_STATUS=200");
@@ -86,7 +87,6 @@ void    CgiHandler::_initEnv(void)
 		_env.push_back("CONTEXT_DOCUMENT_ROOT=" + cwdPath + "/" + _cgiPath.substr(2, _cgiPath.rfind('/') - 1));
 	else
 		_env.push_back("CONTEXT_DOCUMENT_ROOT=" + cwdPath + "/" + _cgiPath.substr(0, _cgiPath.rfind('/') + 1));
-	Request::request_type	header = _req.getData();
 	if (header.count("Accept") && !header["Accept"].empty())
 		_env.push_back("HTTP_ACCEPT=" + header["Accept"][0]);
 	if (header.count("Accept-Encoding") && !header["Accept-Encoding"].empty())
@@ -98,19 +98,17 @@ void    CgiHandler::_initEnv(void)
 		_env.push_back("HTTP_USER_AGENT=" + header["User-Agent"][0]);
     _env.push_back("CONTENT_LENGTH=" + to_string(_req.getEnvVar().size()));
 	_env.push_back("PATH=" + _getSysPath());
+	_env.push_back("PATH_INFO=/");
    	_env.push_back("QUERY_STRING=" + _constructQuery(_req.getVar()));
     _env.push_back("REMOTE_ADDR=" + _clientIp);
     _env.push_back("REQUEST_METHOD=" + _req.getMethod());
 	_env.push_back("REQUEST_SCHEME=http");
-	_env.push_back("REQUEST_URI=" + _cgiPath);
 	if (_pathToFile[0] == '/')
    	_env.push_back("SCRIPT_FILENAME=" + _pathToFile);
 	else if (_pathToFile[0] == '.' && _pathToFile[1] == '/')
 		_env.push_back("SCRIPT_FILENAME=" + cwdPath + _pathToFile.substr(1));
 	else
 		_env.push_back("SCRIPT_FILENAME=" + cwdPath + "/" + _pathToFile);
-	//_env.push_back("SCRIPT_FILENAME=asdasd");
-	_env.push_back("SCRIPT_NAME=" + _cgiPath);
 	_env.push_back("SERVER_NAME=" + header["Host"][0]);
 	_env.push_back("SERVER_PORT=" + header["Host"][1]);
 	_env.push_back("SERVER_PORT=" + _req.getVersion());
@@ -228,6 +226,8 @@ void	CgiHandler::_parseInfo(std::string line)
 	}
 	if (map.count("Content-type") && !map["Content-type"].empty())
 		_contentType = map["Content-type"];
+	else if (map.count("Content-Type") && !map["Content-Type"].empty())
+		_contentType = map["Content-Type"];
 	if (map.count("Status") && !map["Status"].empty())
 	{
 		std::string line = map["Status"];
@@ -241,7 +241,7 @@ static void	deleteEmptyLines(std::vector<char> &body)
 	if (body.empty())
 		return ;
 	std::vector<char>::iterator it = std::find(body.begin(), body.end(), '\n');
-	while (it == body.begin() || (it == body.begin() + 1 && body[0] == '\r'))
+	while (it != body.end() && (it == body.begin() || (it == body.begin() + 1 && body[0] == '\r')))
 	{
 		body.erase(body.begin(), it + 1);
 		it = std::find(body.begin(), body.end(), '\n');
@@ -251,7 +251,6 @@ static void	deleteEmptyLines(std::vector<char> &body)
 void	CgiHandler::_parseCgiHeader(std::vector<char> &body)
 {
 	bool	checkForEmptyLine = false;
-	bool	parseInfoTriggered = false;
 	
 	deleteEmptyLines(body);
 	while (!body.empty())
@@ -259,11 +258,8 @@ void	CgiHandler::_parseCgiHeader(std::vector<char> &body)
 		std::string line(body.begin(), std::find(body.begin(), body.end(), '\n'));
 		if (line.find("Set-Cookie:") != std::string::npos)
 			_cookies.push_back(std::string(line.begin(), line.end() - (*(line.end() - 1) == '\r')) + "\r\n");
-		else if (!parseInfoTriggered && (line.find("Content-type:") != std::string::npos || line.find("Status:") != std::string::npos))
-		{
-			parseInfoTriggered = true;
+		else if (line.find("Content-Type:") != std::string::npos || line.find("Content-type:") != std::string::npos || line.find("Status:") != std::string::npos)
 			_parseInfo(std::string(line.begin(), line.end() - (*(line.end() - 1) == '\r')));
-		}
 		else if (line.find("X-Powered-By") == std::string::npos)
 			break ;
 		body.erase(body.begin(), body.begin() + line.size() + 1);

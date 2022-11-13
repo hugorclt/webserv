@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/11 15:23:33 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/11/12 12:02:44 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/13 12:02:17 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,7 +104,7 @@ void	Response::init_methodsFunction(void)
 {
 	if (!_methodsFunction.empty())
 		return ;
-	//FIX THIS SHIT LATER (function pointer can't be NULL right now)
+
 	std::pair<std::string, void(Response::*)()>	methodsFunction[] =
 	{
 		std::make_pair("GET", &Response::_execGet),
@@ -128,10 +128,6 @@ Response::Response(ConfigParser::Location env, Request req, std::string clientIp
 /* -------------------------------------------------------------------------- */
 /*                                   methods                                  */
 /* -------------------------------------------------------------------------- */
-
-
-
-//<center><h2> " + _code + " " + _status + " </h2></center>
 
 const std::string Response::_css("\
 			<style>\
@@ -364,7 +360,7 @@ void	Response::_uploadFile(void)
 		_setError("404");
 		return ;
 	}
-	if (access(filename.c_str(), R_OK) != 0)
+	if (access(filename.c_str(), W_OK) != 0)
 	{
 		_setError("403");
 		return ;
@@ -397,6 +393,8 @@ void	Response::execute(void) {
 	if (header.count("Content-Type") && !header["Content-Type"].empty() && !header["Content-Type"][0].empty() && method == "POST" && header["Content-Type"][0] == "multipart/form-data")
 	{
 		_uploadFile();
+		if (_code != "200")
+			return ;
 	}
 	if (std::find(_env.uniqKey["allow_methods"].begin(), _env.uniqKey["allow_methods"].end(), method) != _env.uniqKey["allow_methods"].end())
 	{
