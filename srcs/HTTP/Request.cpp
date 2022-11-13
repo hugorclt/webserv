@@ -17,6 +17,8 @@
 #include <sys/socket.h>
 #include <cstring>
 
+#define RECV_BUFFER_SIZE 131072
+
 size_t	Request::_maxHeaderSize = 10000;
 
 bool	Request::_isHeaderComplete(void)
@@ -55,10 +57,10 @@ void	Request::_fillBody(void)
 
 bool	Request::rec(void)
 {
-	char	buffer[BUFFER_SIZE];
+	char	buffer[RECV_BUFFER_SIZE];
 	int		readedBytes;
 
-	readedBytes = recv(_fd, buffer, BUFFER_SIZE, 0);
+	readedBytes = recv(_fd, buffer, RECV_BUFFER_SIZE, 0);
 	if (readedBytes == -1)
 		throw RequestError("recv return == -1");
 	_rawData.insert(_rawData.end(), buffer, buffer + readedBytes);

@@ -16,7 +16,6 @@
 # include <map>
 # include <string>
 # include <vector>
-# define BUFFER_SIZE 4096
 
 class Request {
 	public:

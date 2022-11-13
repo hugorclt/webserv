@@ -22,6 +22,8 @@
 #include <algorithm>
 #include <errno.h>
 
+#define READ_BUFFER_SIZE 131072
+
 CgiHandler::CgiHandler(ConfigParser::Location &server, Request &req, std::string MIMEtype, std::string clientIp, char **env, Response &res)
 : _server(server), _req(req), _type(MIMEtype), _clientIp(clientIp), _sysEnv(env), _res(res), _contentType(""), _code("")
 {
@@ -275,13 +277,13 @@ std::vector<char> 	CgiHandler::_readPipe(int pipeToRead)
 {
     std::vector<char>   res;
 	int readState = 1;
-	char buffer[4048];
-	while ((readState = read(pipeToRead, buffer, 4048)) > 0)
+	char buffer[READ_BUFFER_SIZE];
+	while ((readState = read(pipeToRead, buffer, READ_BUFFER_SIZE)) > 0)
 		res.insert(res.end(), buffer, buffer + readState);
 	close(pipeToRead);
+	wait(NULL);
 	if (readState == -1)
 		throw CgiHandlerError("read: error");
-	wait(NULL);
 	_parseCgiHeader(res);
     return (res);
 }
