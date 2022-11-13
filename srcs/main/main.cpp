@@ -6,7 +6,7 @@
 /*   By: hrecolet <hrecolet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/18 12:57:12 by hrecolet          #+#    #+#             */
-/*   Updated: 2022/11/12 14:54:01 by hrecolet         ###   ########.fr       */
+/*   Updated: 2022/11/13 11:13:29 by hrecolet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,7 +109,7 @@ int main(int ac, char **av, char **sysEnv)
 		Servers 		serverList(configServers);
 		IOpoll			epoll(serverList);
 
-		signal(SIGINT, handle_sig);
+		std::signal(SIGINT, handle_sig);
 
 
 	/* ----------------------------- Server loop ---------------------------- */
