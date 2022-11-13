@@ -207,7 +207,10 @@ void	ConfigParser::_checkCgi(keyValues_type &keyValues, size_t &startLastLine, s
 		throw ParsingError("cgi path should not end with a '/' as it is a file");
 	}
 	if (keyValues.second[0].find("../") != std::string::npos)
+	{
+		_colorSkipFirstWordInRange(startLastLine, "../", line, C_RED);
 		throw ParsingError("cgi path does not handle relative path containing '../'");
+	}
 
 }
 
@@ -222,7 +225,7 @@ void	ConfigParser::_checkRoot(keyValues_type &keyValues, size_t &startLastLine, 
 			_colorSkipFirstWordInRange(startLastLine, "../", line, C_RED);
 			tmp = keyValues.second[0].find("../", tmp);
 		}
-		throw ParsingError("cgi path does not handle relative path containing '../'");
+		throw ParsingError("root path does not handle relative path containing '../'");
 	}
 	if (keyValues.second[0][keyValues.second[0].size() - 1] == '/')
 		keyValues.second[0].erase(keyValues.second[0].end() - 1);
@@ -233,12 +236,12 @@ void	ConfigParser::_checkBodySize(keyValues_type &keyValues, size_t &startLastLi
 	if (!isDigits(keyValues.second[0]))
 	{
 		_colorSkipFirstWordInRange(startLastLine, keyValues.second[0], line, C_RED);
-		throw ParsingError("body_size should be a positive integer", keyValues.second[0]);
+		throw ParsingError("body_size should be a positive integer");
 	}
 	if (atoi(keyValues.second[0].c_str()) <= 0)
 	{
 		_colorSkipFirstWordInRange(startLastLine, keyValues.second[0], line, C_RED);
-		throw ParsingError("body_size overflow, max value : " + to_string(INT_MAX), keyValues.second[0]);
+		throw ParsingError("body_size overflow, max value : " + to_string(INT_MAX));
 	}
 }
 
@@ -273,7 +276,7 @@ ConfigParser::ConfigParser(char *filename) {
 				lineRange.first++;
 				_goToNextWordInFile(lineRange, fileRange);
 				try { _data.push_back(_createNewServer(lineRange, fileRange)); }
-				catch (ParsingError &e) { throw ParsingError("Server " + to_string(_data.size()) + " : " + e.what(), e.word()); }
+				catch (ParsingError &e) { throw ParsingError("Server " + to_string(_data.size()) + " : " + e.what()); }
 			}
 			else if (fileRange.first != fileRange.second)
 				throw ParsingError("wrong Token Global Scope");
@@ -557,9 +560,11 @@ std::string	ConfigParser::_getWord(lineRange_type &lineRange)
 		   Conf::_commentSet + Conf::_scopeSet).find(*lineRange.first) == std::string::npos)
 	{
 		if (*lineRange.first == '\\')
+		{
 			lineRange.first++;
-		if (lineRange.first == lineRange.second)
-			throw ParsingError("'\\' need to be used in combination with either an other char or itself");
+			if (lineRange.first == lineRange.second)
+				throw ParsingError("'\\' need to be used in combination with either an other char or itself (can't be at the end of a file)");
+		}
 		res.push_back(*lineRange.first++);
 	}
 	return (res);

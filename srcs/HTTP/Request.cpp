@@ -58,27 +58,16 @@ bool	Request::rec(void)
 	char	buffer[BUFFER_SIZE];
 	int		readedBytes;
 
-	memset(buffer, 0, BUFFER_SIZE);
 	readedBytes = recv(_fd, buffer, BUFFER_SIZE, 0);
-	// std::cout << "-------------------" << std::endl;
-	// std::cout << buffer << std::endl;
-	// std::cout << "-------------------" << std::endl;
 	if (readedBytes == -1)
 		throw RequestError("recv return == -1");
 	_rawData.insert(_rawData.end(), buffer, buffer + readedBytes);
-	// std::cout << _rawData.size() << " ";
-	// if (!_header.empty())
-	// 	std::cout << _header["Content-Length"][0] << std::endl;
 	if (_header.empty() && !_isHeaderComplete() && _rawData.size() > _maxHeaderSize)
 		throw InvalidHeader("Invalid header (larger than _maxHeaderSize)");
-	//std::cout << "_isHeaderComplete : " << _isHeaderComplete() << std::endl;
 	if (_header.empty() && _isHeaderComplete())
 		_fillHeader();
 	if (!_header.empty() && _isBodyComplete())
 		_fillBody();
-	//std::cout << "-------------------" << std::endl;
-	//std::cout << std::string(buffer, buffer + readedBytes) << std::endl;
-	//std::cout << "-------------------" << std::endl;
 	return (!_header.empty() && _isBodyComplete());
 }
 
@@ -150,24 +139,6 @@ std::vector<char>::iterator	Request::_vectorCharSearch(std::vector<char>::iterat
 
 Request::Request(int fd)
 : _fd(fd) {}
-
-
-/* old constructor
-Request::Request(std::vector<char> &req)
-{
-	std::string 		firstLine(req.begin(), _vectorCharSearch(req.begin(), req.end(), "\r\n"));
-	std::string		 	header(_vectorCharSearch(req.begin(), req.end(), "\r\n"), _vectorCharSearch(req.begin(), req.end(), "\r\n\r\n"));
-	std::vector<char>	body(_vectorCharSearch(req.begin(), req.end(), "\r\n\r\n"), req.end());
-
-	_parseFirstLine(firstLine);
-	_parseHeader(header);
-	_checkHeader();
-	//if (_header.count("Content-Length") && !_header["Content-Length"].empty() && static_cast<size_t>(atoi(_header["Content-Length"][0].c_str())) != body.size())
-	//	throw RequestError("Content-Length not the same as the body size");
-	_parseBody(body);
-	// _printValue();
-}
-*/
 
 void	Request::_checkHeader(void)
 {
